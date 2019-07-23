@@ -49,7 +49,7 @@ Example output:
 
 
 ```
-$ curl -s http://127.0.0.1:8890
+$ curl -s http://127.0.0.1:9620
 
 ...
 # HELP rundeck_system_info Rundeck System Info
