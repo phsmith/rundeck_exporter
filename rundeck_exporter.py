@@ -58,6 +58,11 @@ if not args.rundeck_url and not args.rundeck_token:
 requests.urllib3.disable_warnings()
 
 
+def exit_with_msg(msg: str, exit_code: int = 1):
+    print('\nError:\n  {}\n'.format(msg))
+    exit(exit_code)
+
+
 class RundeckMetricsCollector(object):
     @staticmethod
     def rundeck_request_data(rundeck_url, endpoint, token, verify=True):
@@ -73,10 +78,10 @@ class RundeckMetricsCollector(object):
 
             return response.json()
         except requests.exceptions.SSLError:
-            print('\nError:\n  SSL Certificate Verify Failed.\n')
+            exit_with_msg('SSL Certificate Verify Failed.')
             exit(1)
         except Exception as error:
-            print('\nError:\n\n{}'.format(response.text))
+            exit_with_msg(response.text)
             return error
 
     def collect(self):
@@ -190,7 +195,7 @@ class RundeckMetricsCollector(object):
             while True:
                 sleep(1)
         except OSError as os_error:
-            print('\nError:\n {}'.format(os_error))
+            exit_with_msg(os_error)
         except KeyboardInterrupt:
             print('Rundeck exporter execution finished.')
 
