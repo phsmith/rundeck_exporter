@@ -50,22 +50,21 @@ args_parser.add_argument('--rundeck.api.version',
 
 args = args_parser.parse_args()
 
-if not args.rundeck_url and not args.rundeck_token:
-    args_parser.print_help()
-    exit(1)
-
 # Disable InsecureRequestWarning
 requests.urllib3.disable_warnings()
 
 
-def exit_with_msg(msg: str, exit_code: int = 1):
-    print('\nError:\n  {}\n'.format(msg))
-    exit(exit_code)
-
-
 class RundeckMetricsCollector(object):
+    def __init__(self):
+        if not args.rundeck_url or not args.rundeck_token:
+            self.exit_with_msg('Rundeck URL and Token are required.')
+
     @staticmethod
-    def rundeck_request_data(rundeck_url, endpoint, token, verify=True):
+    def exit_with_msg(msg: str, exit_code: int = 1):
+        print('\nError:\n  {}\n'.format(msg))
+        exit(exit_code)
+
+    def rundeck_request_data(self, rundeck_url: str, endpoint: str, token: str, verify: bool = True):
         try:
             response = requests.get(
                 '{0}/api/{1}/{2}'.format(rundeck_url, args.rundeck_api_version, endpoint),
@@ -78,10 +77,10 @@ class RundeckMetricsCollector(object):
 
             return response.json()
         except requests.exceptions.SSLError:
-            exit_with_msg('SSL Certificate Verify Failed.')
+            self.exit_with_msg('SSL Certificate Verify Failed.')
             exit(1)
         except Exception as error:
-            exit_with_msg(response.text)
+            self.exit_with_msg(response.text)
             return error
 
     def collect(self):
@@ -184,8 +183,8 @@ class RundeckMetricsCollector(object):
 
         yield rundeck_counters_status
 
-    @staticmethod
-    def run():
+    @classmethod
+    def run(cls):
         try:
             start_http_server(args.port, addr=args.host)
             print('Rundeck exporter server started at {}:{}...'.format(args.host, args.port))
@@ -195,7 +194,7 @@ class RundeckMetricsCollector(object):
             while True:
                 sleep(1)
         except OSError as os_error:
-            exit_with_msg(os_error)
+            cls.exit_with_msg(os_error)
         except KeyboardInterrupt:
             print('Rundeck exporter execution finished.')
 
