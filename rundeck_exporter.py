@@ -56,15 +56,26 @@ requests.urllib3.disable_warnings()
 
 class RundeckMetricsCollector(object):
     def __init__(self):
+        ssl_verify = False if str(args.rundeck_skip_ssl) in ['1', 'yes', 'True'] else True
+
         if not args.rundeck_url or not args.rundeck_token:
             self.exit_with_msg('Rundeck URL and Token are required.')
 
-    @staticmethod
-    def exit_with_msg(msg: str, exit_code: int = 1):
-        print('\nError:\n  {}\n'.format(msg))
-        exit(exit_code)
+        self.get_system_info = self.request_data(
+            args.rundeck_url,
+            'system/info',
+            args.rundeck_token,
+            ssl_verify
+        )
 
-    def rundeck_request_data(self, rundeck_url: str, endpoint: str, token: str, verify: bool = True):
+        self.get_metrics = self.request_data(
+            args.rundeck_url,
+            'metrics/metrics',
+            args.rundeck_token,
+            ssl_verify
+        )
+
+    def request_data(self, rundeck_url: str, endpoint: str, token: str, verify: bool = True) -> dict:
         try:
             response = requests.get(
                 '{0}/api/{1}/{2}'.format(rundeck_url, args.rundeck_api_version, endpoint),
@@ -78,34 +89,17 @@ class RundeckMetricsCollector(object):
             return response.json()
         except requests.exceptions.SSLError:
             self.exit_with_msg('SSL Certificate Verify Failed.')
-            exit(1)
         except Exception as error:
             self.exit_with_msg(response.text)
             return error
 
     def collect(self):
-        ssl_verify = False if str(args.rundeck_skip_ssl) in ['1', 'yes', 'True'] else True
-
-        get_system_info = self.rundeck_request_data(
-            args.rundeck_url,
-            'system/info',
-            args.rundeck_token,
-            ssl_verify
-        )
-
-        get_metrics = self.rundeck_request_data(
-            args.rundeck_url,
-            'metrics/metrics',
-            args.rundeck_token,
-            ssl_verify
-        )
-
         rundeck_system_info = InfoMetricFamily('rundeck_system', 'Rundeck system info')
-        rundeck_system_info.add_metric([], {x: str(y) for x, y in get_system_info['system']['rundeck'].items()})
+        rundeck_system_info.add_metric([], {x: str(y) for x, y in self.get_system_info['system']['rundeck'].items()})
 
         yield rundeck_system_info
 
-        for stat, stat_values in get_system_info['system']['stats'].items():
+        for stat, stat_values in self.get_system_info['system']['stats'].items():
             for counter, value in stat_values.items():
                 if counter == 'unit':
                     continue
@@ -128,7 +122,7 @@ class RundeckMetricsCollector(object):
                                                       'Rundeck counters metrics',
                                                       labels=['status'])
 
-        for metric, metric_value in get_metrics.items():
+        for metric, metric_value in self.get_metrics.items():
             if not isinstance(metric_value, dict):
                 continue
 
@@ -183,6 +177,11 @@ class RundeckMetricsCollector(object):
 
         yield rundeck_counters_status
 
+    @staticmethod
+    def exit_with_msg(msg: str, exit_code: int = 1):
+        print('\nError:\n  {}\n'.format(msg))
+        exit(exit_code)
+
     @classmethod
     def run(cls):
         try:
@@ -194,7 +193,7 @@ class RundeckMetricsCollector(object):
             while True:
                 sleep(1)
         except OSError as os_error:
-            cls.exit_with_msg(os_error)
+            cls.exit_with_msg(str(os_error))
         except KeyboardInterrupt:
             print('Rundeck exporter execution finished.')
 
