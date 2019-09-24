@@ -134,4 +134,7 @@ docker run --rm -d -p 9620:9620 rundeck_exporter \
 `v1.1.0`:
 * Support for environment variables
 * Better excpetions treatment
-* Changes on rundeck_system_stats metrics names
+
+`v1.1.1`:
+* Fixed metrics collection bug
+
