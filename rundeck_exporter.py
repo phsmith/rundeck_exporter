@@ -56,24 +56,10 @@ requests.urllib3.disable_warnings()
 
 class RundeckMetricsCollector(object):
     def __init__(self):
-        ssl_verify = False if str(args.rundeck_skip_ssl) in ['1', 'yes', 'True'] else True
+        self.ssl_verify = False if str(args.rundeck_skip_ssl) in ['1', 'yes', 'True'] else True
 
         if not args.rundeck_url or not args.rundeck_token:
             self.exit_with_msg('Rundeck URL and Token are required.')
-
-        self.get_system_info = self.request_data(
-            args.rundeck_url,
-            'system/info',
-            args.rundeck_token,
-            ssl_verify
-        )
-
-        self.get_metrics = self.request_data(
-            args.rundeck_url,
-            'metrics/metrics',
-            args.rundeck_token,
-            ssl_verify
-        )
 
     def request_data(self, rundeck_url: str, endpoint: str, token: str, verify: bool = True) -> dict:
         try:
@@ -94,12 +80,26 @@ class RundeckMetricsCollector(object):
             return error
 
     def collect(self):
+        get_system_info = self.request_data(
+            args.rundeck_url,
+            'system/info',
+            args.rundeck_token,
+            self.ssl_verify
+        )
+
+        get_metrics = self.request_data(
+            args.rundeck_url,
+            'metrics/metrics',
+            args.rundeck_token,
+            self.ssl_verify
+        )
+
         rundeck_system_info = InfoMetricFamily('rundeck_system', 'Rundeck system info')
-        rundeck_system_info.add_metric([], {x: str(y) for x, y in self.get_system_info['system']['rundeck'].items()})
+        rundeck_system_info.add_metric([], {x: str(y) for x, y in get_system_info['system']['rundeck'].items()})
 
         yield rundeck_system_info
 
-        for stat, stat_values in self.get_system_info['system']['stats'].items():
+        for stat, stat_values in get_system_info['system']['stats'].items():
             for counter, value in stat_values.items():
                 if counter == 'unit':
                     continue
@@ -122,7 +122,7 @@ class RundeckMetricsCollector(object):
                                                       'Rundeck counters metrics',
                                                       labels=['status'])
 
-        for metric, metric_value in self.get_metrics.items():
+        for metric, metric_value in get_metrics.items():
             if not isinstance(metric_value, dict):
                 continue
 
