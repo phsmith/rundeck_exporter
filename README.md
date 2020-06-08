@@ -7,9 +7,9 @@ This exporter uses the prometheus_client and requests Python module to expose Ru
  * RUNDECK_URL/api/*version*/system/info
  * RUNDECK_URL/api/*version*/metrics/metrics
 
- Where *version* represents the Rundeck API version, like: 29,30,31,etc.
+ Where *version* represents the Rundeck API version, like: 32, 33, 34 etc.
 
- This code was tested on Rundeck API version 31.
+ This code was tested on Rundeck API version 35.
 
 ## Metrics
 
@@ -126,6 +126,85 @@ docker run --rm -d -p 9620:9620 rundeck_exporter \
 --rundeck.skip_ssl
 ```
 
+#### Running in Kubernetes
+
+- *namespace* = Kubernetes namespace to deploy the exporter to
+- *token* = Rundeck API token
+- *rundeckserviceip* = Your Rundeck Kuberentes Service IP (Eg, LoadBalancer IP)
+- *port* = Port being used by the Kubernetes service
+- *apiversion* = Rundeck API version
+
+### Kubernetes Deployment File
+exporter-deployment.yaml
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    service: exporter
+  name: exporter
+  namespace: *namespace*
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: exporter
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        service: exporter
+    spec:
+      containers:
+      - args:
+        - --rundeck.token=*token*
+        - --rundeck.url=http://*rundeckserviceip*:*port*
+        - --rundeck.api.version=*apiversion*
+        - --rundeck.skip_ssl
+        image: rundeck-exporter:latest
+        imagePullPolicy: "IfNotPresent"
+        name: exporter
+        ports:
+        - containerPort: 9620
+        resources: {}
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes: null
+status: {}
+```
+
+### Kubernetes Service File
+exporter-service.yaml
+```
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+  creationTimestamp: null
+  labels:
+    service: exporter
+  name: exporter
+  namespace: *namespace*
+spec:
+  ports:
+  - name: "9620"
+    port: 9620
+    targetPort: 9620
+  selector:
+    service: exporter
+status:
+  loadBalancer: {}
+```
+
+### Apply Kubernetes config
+```
+kubectl apply -f exporter-server.yaml
+kubectl apply -f exporter-deployment.yaml
+```
+
+
 ## Changelog
 
 `v1.0.0`:
@@ -138,3 +217,5 @@ docker run --rm -d -p 9620:9620 rundeck_exporter \
 `v1.1.1`:
 * Fixed metrics collection bug
 
+`v1.1.2`:
+* Update README and publish to docker hub
