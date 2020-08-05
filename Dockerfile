@@ -1,6 +1,6 @@
 FROM python:alpine
 
-LABEL version="1.1.0" \
+LABEL version="1.2.0" \
       description="Rundeck metrics exporter to Prometheus" \
       maintainer="Phillipe Smith <phillipelnx@gmail.com>"
 
