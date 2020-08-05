@@ -34,33 +34,45 @@ Rundeck Metrics Exporter
 
 optional arguments:
   -h, --help            show this help message and exit
+  --debug               Enable debug mode.
   --host RUNDECK_EXPORTER_HOST
-                        Host binding address. Default: 127.0.0.1
+                        Host binding address. Default: 127.0.0.1.
   --port RUNDECK_EXPORTER_PORT
-                        Host binding port. Default: 9620
+                        Host binding port. Default: 9620.
   --rundeck.token RUNDECK_TOKEN
-                        Rundeck Access Token [ REQUIRED ]
+                        Rundeck Access Token [ REQUIRED ].
   --rundeck.url RUNDECK_URL
-                        Rundeck Base URL [ REQUIRED ]
-  --rundeck.skip_ssl    Rundeck Skip SSL Cert Validate
+                        Rundeck Base URL [ REQUIRED ].
+  --rundeck.skip_ssl    Rundeck Skip SSL Cert Validate.
   --rundeck.api.version RUNDECK_API_VERSION
-                        Default: 31
+                        Default: 34.
+  --rundeck.projects.executions
+                        Get projects executions metrics.
+  --rundeck.projects.filter RUNDECK_PROJECTS_FILTER [RUNDECK_PROJECTS_FILTER ...]
+                        Get executions only from listed projects (delimiter = space).
+  --rundeck.projects.executions.limit RUNDECK_PROJECTS_EXECUTIONS_LIMIT
+                        Limit project executions metrics query. Default: 20
+  --rundeck.cached.requests.ttl RUNDECK_CACHED_REQUESTS_TTL
+                        Rundeck cached requests expiration time. Default: 120
 ```
 
 Optionally, it's possible to pass the following environment variables to the rundeck_exporter:
 
-| Variable | Description |
+| Variable | Options |  Description |
 | ------ | ------ |
-| RUNDECK_EXPORTER_HOST | Binding address. Default: 127.0.0.1 |
-| RUNDECK_EXPORTER_PORT | Binding port. Default: 9620 |
-| RUNDECK_URL (required) | Rundeck base URL |
-| RUNDECK_TOKEN (required) | Rundeck access token |
-| RUNDECK_API_VERSION | Rundeck API version. Default: 31 |
-| RUNDECK_SKIP_SSL | Skip SSL certificate check. Default: False |
-
+| RUNDECK_EXPORTER_DEBUG | <ul><li>True</li><li>False (default)</li></ul> | Enable debug mode |
+| RUNDECK_EXPORTER_HOST | Default: 127.0.0.1 | Binding address. |
+| RUNDECK_EXPORTER_PORT | Default: 9620 | Binding port. |
+| RUNDECK_URL (required) | | Rundeck base URL |
+| RUNDECK_TOKEN (required) | | Rundeck access token |
+| RUNDECK_API_VERSION | Default: 31 | Rundeck API version. |
+| RUNDECK_SKIP_SSL | <ul><li>True</li><li>False (default)</li></ul> | Skip SSL certificate check. |
+| RUNDECK_PROJECTS_EXECUTIONS | <ul><li>True</li><li>False (default)</li></ul> | Get projects executions metrics. |
+| RUNDECK_PROJECTS_FILTER | [] | Get executions only from listed projects. |
+| RUNDECK_PROJECTS_EXECUTIONS_LIMIT | Default: 20 | Limit project executions metrics query. |
+| RUNDECK_CACHED_REQUESTS_TTL | Default: 120 | Rundeck cached requests expiration time. |
 
 Example output:
-
 
 ```
 $ curl -s http://127.0.0.1:9620
@@ -111,6 +123,9 @@ rundeck_gauge_response_unmapped 58.0
 # HELP rundeck_scheduler_quartz_runningExecutions Rundeck gauges metrics
 # TYPE rundeck_scheduler_quartz_runningExecutions gauge
 rundeck_scheduler_quartz_runningExecutions 0.0
+# HELP rundeck_project_bdh_install_db2_server_execution_info Rundeck Project bdh-install_db2_server Executions
+# TYPE rundeck_project_bdh_install_db2_server_execution_info gauge
+rundeck_project_bdh_install_db2_server_execution_info{date_ended="1544549269000",date_started="1544548864000",id="1838",job_average_duration="405130",job_id="b688e0a1-dc8b-47fc-801e-6c18639c670e",job_name="Install DB2 LUW 11.1.3.3",rundeck_node="prod-sgh-rundeck-deploy-6f64c8d9ff-qnsxc",status="succeeded"} 1.0
 ....
 ```
 
@@ -138,3 +153,13 @@ docker run --rm -d -p 9620:9620 rundeck_exporter \
 `v1.1.1`:
 * Fixed metrics collection bug
 
+`v1.2.0`:
+* Add new params:
+  * --debug: Enable debug mode
+  * --rundeck.projects.executions: Get projects executions metrics
+  * --rundeck.projects.filter: Get executions only from listed projects (delimiter = space)
+  * --rundeck.projects.executions.limit: Limit project executions metrics query. Default: 20
+  * --rundeck.cached.requests.ttl: Rundeck cached requests (by now, only for rundeck.projects.executions) expiration time. Default: 120
+* Add log messages through logging module
+* Add code improvements
+* Change args location, now located at class RundeckMetricsCollector
