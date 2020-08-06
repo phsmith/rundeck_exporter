@@ -20,7 +20,7 @@ All metrics are exported with **rundeck_** prefix.
 * A Rundeck token with permissions to make API requests
 * The following python modules:
 ```
-pip install prometheus-client requests
+pip install prometheus-client requests cachetools
 ```
 
 ## Usage
@@ -162,4 +162,5 @@ docker run --rm -d -p 9620:9620 rundeck_exporter \
   * --rundeck.cached.requests.ttl: Rundeck cached requests (by now, only for rundeck.projects.executions) expiration time. Default: 120
 * Add log messages through logging module
 * Add code improvements
+* Add cachetools to pip install on Dockerfile
 * Change args location, now located at class RundeckMetricsCollector
