@@ -104,13 +104,16 @@ class RundeckMetricsCollector(object):
         self.rundeck_node = ''
 
         if not self.args.rundeck_url or not self.args.rundeck_token:
-            self.exit_with_msg('Rundeck URL and Token are required.')
+            self.exit_with_msg(msg='Rundeck URL and Token are required.', level='critical')
 
     """
     Method to manage requests on Rundeck API Endpoints
     """
     def request_data_from(self, endpoint: str) -> dict:
-        response = requests.get(
+        response = None
+
+        try:
+            response = requests.get(
                 f'{self.args.rundeck_url}/api/{self.args.rundeck_api_version}/{endpoint}',
                 headers={
                     'Accept': 'application/json',
@@ -118,17 +121,15 @@ class RundeckMetricsCollector(object):
                 },
                 verify=not self.args.rundeck_skip_ssl
             )
+            response_json = response.json()
+            self.client_requests_count += 1
 
-        try:
-            if response:
-                self.client_requests_count += 1
-            return response.json()
-        except requests.exceptions.SSLError:
-            self.exit_with_msg('SSL Certificate Verify Failed.')
-        except (OSError, requests.exceptions.ConnectionError):
-            self.exit_with_msg('Connection error.')
+            if response_json and response_json.get('error') == True:
+                raise Exception(response_json.get('message'))
+
+            return response_json
         except Exception as error:
-            self.exit_with_msg(response.text if response.text else str(error))
+            self.exit_with_msg(msg=response.text if response else str(error), level='critical')
 
     @cached(cache=TTLCache(maxsize=1024, ttl=args.rundeck_cached_requests_ttl))
     def cached_request_data_from(self, endpoint: str) -> dict:
@@ -259,6 +260,7 @@ class RundeckMetricsCollector(object):
     Method to collect Rundeck metrics
     """
     def collect(self):
+        self.client_requests_count = 0
         metrics = self.request_data_from('/metrics/metrics')
         system_info = self.request_data_from('/system/info')
         self.rundeck_node = system_info['system']['rundeck']['node']
@@ -299,8 +301,9 @@ class RundeckMetricsCollector(object):
                     yield(execution)
 
     @staticmethod
-    def exit_with_msg(msg: str):
-        raise SystemExit(f'\nError:\n  {msg}\n')
+    def exit_with_msg(msg: str, level: str):
+        getattr(logging, level)(msg)
+        exit(getattr(logging, level.upper()))
 
     @classmethod
     def run(cls):
@@ -312,7 +315,7 @@ class RundeckMetricsCollector(object):
             while True:
                 sleep(1)
         except OSError as os_error:
-            cls.exit_with_msg(str(os_error))
+            cls.exit_with_msg(msg=str(os_error), level='critical')
 
 
 if __name__ == "__main__":

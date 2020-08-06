@@ -7,7 +7,7 @@ This exporter uses the prometheus_client and requests Python module to expose Ru
  * RUNDECK_URL/api/*version*/system/info
  * RUNDECK_URL/api/*version*/metrics/metrics
 
- Where *version* represents the Rundeck API version, like: 29,30,31,etc.
+ Where *version* represents the Rundeck API version, like: 31,32,33,34,etc.
 
  This code was tested on Rundeck API version 31.
 
@@ -160,7 +160,8 @@ docker run --rm -d -p 9620:9620 rundeck_exporter \
   * --rundeck.projects.filter: Get executions only from listed projects (delimiter = space)
   * --rundeck.projects.executions.limit: Limit project executions metrics query. Default: 20
   * --rundeck.cached.requests.ttl: Rundeck cached requests (by now, only for rundeck.projects.executions) expiration time. Default: 120
-* Add log messages through logging module
 * Add code improvements
 * Add cachetools to pip install on Dockerfile
+* Add logging module to replace print calls
+* Add better error handling
 * Change args location, now located at class RundeckMetricsCollector
