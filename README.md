@@ -59,7 +59,7 @@ optional arguments:
 Optionally, it's possible to pass the following environment variables to the rundeck_exporter:
 
 | Variable | Options |  Description |
-| ------ | ------ |
+| ------ | ------ | ------ |
 | RUNDECK_EXPORTER_DEBUG | <ul><li>True</li><li>False (default)</li></ul> | Enable debug mode |
 | RUNDECK_EXPORTER_HOST | Default: 127.0.0.1 | Binding address. |
 | RUNDECK_EXPORTER_PORT | Default: 9620 | Binding port. |
