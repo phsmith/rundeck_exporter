@@ -1,7 +1,5 @@
 ## Rundeck_Exporter
 
-![Docker](https://github.com/phsmith/rundeck_exporter/workflows/Docker/badge.svg?branch=v1.2.0)
-
 Rundeck Metrics Exporter for Prometheus.
 
 This exporter uses the prometheus_client and requests Python module to expose Rundeck metrics found in:
@@ -156,6 +154,8 @@ docker run --rm -d -p 9620:9620 rundeck_exporter \
 * Fixed metrics collection bug
 
 `v1.2.0`:
+
+![Docker](https://github.com/phsmith/rundeck_exporter/workflows/Docker/badge.svg?branch=v1.2.0)
 * Add new params:
   * --debug: Enable debug mode
   * --rundeck.projects.executions: Get projects executions metrics
