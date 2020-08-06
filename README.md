@@ -1,6 +1,6 @@
 ## Rundeck_Exporter
 
-![Docker](https://github.com/phsmith/rundeck_exporter/workflows/Docker/badge.svg)
+![Docker](https://github.com/phsmith/rundeck_exporter/workflows/Docker/badge.svg?branch=v1.2.0)
 
 Rundeck Metrics Exporter for Prometheus.
 
