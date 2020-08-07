@@ -25,6 +25,8 @@ pip install prometheus-client requests cachetools
 
 ## Usage
 
+Rundeck token must be passed as a environment variable (RUNDECK_TOKEN) to work.
+
 The rundeck_exporter supports the following paramenters:
 
 ```
@@ -39,8 +41,6 @@ optional arguments:
                         Host binding address. Default: 127.0.0.1.
   --port RUNDECK_EXPORTER_PORT
                         Host binding port. Default: 9620.
-  --rundeck.token RUNDECK_TOKEN
-                        Rundeck Access Token [ REQUIRED ].
   --rundeck.url RUNDECK_URL
                         Rundeck Base URL [ REQUIRED ].
   --rundeck.skip_ssl    Rundeck Skip SSL Cert Validate.
@@ -50,8 +50,8 @@ optional arguments:
                         Get projects executions metrics.
   --rundeck.projects.filter RUNDECK_PROJECTS_FILTER [RUNDECK_PROJECTS_FILTER ...]
                         Get executions only from listed projects (delimiter = space).
-  --rundeck.projects.executions.limit RUNDECK_PROJECTS_EXECUTIONS_LIMIT
-                        Limit project executions metrics query. Default: 20
+  --rundeck.projects.executions.cached RUNDECK_PROJECTS_EXECUTIONS_CACHED
+                        Cache requests for project executions metrics query.
   --rundeck.cached.requests.ttl RUNDECK_CACHED_REQUESTS_TTL
                         Rundeck cached requests expiration time. Default: 120
 ```
@@ -80,52 +80,94 @@ $ curl -s http://127.0.0.1:9620
 ...
 # HELP rundeck_system_info Rundeck system info
 # TYPE rundeck_system_info gauge
-rundeck_system_info{apiversion="31",base="/home/rundeck",build="3.0.21-20190424",buildGit="v3.0.21-0-g3ee1526",node="desenv-sgh-rundeck-6bd9669757-g5kkt",serverUUID="fbfc30f3-5b70-4fe7-899f-c818fc75d439",version="3.0.21-20190424"} 1.0
-# HELP rundeck_system_stats_uptime_duration Rundeck system stats
-# TYPE rundeck_system_stats_uptime_duration gauge
-rundeck_system_stats_uptime_duration 1.288533174e+09
+rundeck_system_info{apiversion="35",base="/home/rundeck",build="3.2.8-20200608",buildGit="v3.2.8-20200608-0-g7e632f5",node="prod-sgh-rundeck-deploy-6f64c8d9ff-vrd6t",serverUUID="0be6f979-5964-4e7d-9805-bb7cd87e3362",version="3.2.8-20200608"} 1.0
 # HELP rundeck_system_stats_uptime_since Rundeck system stats
 # TYPE rundeck_system_stats_uptime_since gauge
-rundeck_system_stats_uptime_since 1.563303020049e+012
-# HELP rundeck_system_stats_cpu_loadAverage Rundeck system stats
-# TYPE rundeck_system_stats_cpu_loadAverage gauge
-rundeck_system_stats_cpu_loadAverage 5.52099609375
-# HELP rundeck_system_stats_cpu_processors Rundeck system stats
-# TYPE rundeck_system_stats_cpu_processors gauge
-rundeck_system_stats_cpu_processors 3.0
-# HELP rundeck_system_stats_memory_max Rundeck system stats
-# TYPE rundeck_system_stats_memory_max gauge
-rundeck_system_stats_memory_max 1.908932608e+09
-# HELP rundeck_system_stats_memory_free Rundeck system stats
-# TYPE rundeck_system_stats_memory_free gauge
-rundeck_system_stats_memory_free 6.1858224e+07
-# HELP rundeck_system_stats_memory_total Rundeck system stats
-# TYPE rundeck_system_stats_memory_total gauge
-rundeck_system_stats_memory_total 3.41835776e+08
+rundeck_system_stats_uptime_since 1.596636096102e+012
 # HELP rundeck_system_stats_scheduler_running Rundeck system stats
 # TYPE rundeck_system_stats_scheduler_running gauge
-rundeck_system_stats_scheduler_running 0.0
+rundeck_system_stats_scheduler_running 4.0
 # HELP rundeck_system_stats_scheduler_threadPoolSize Rundeck system stats
 # TYPE rundeck_system_stats_scheduler_threadPoolSize gauge
-rundeck_system_stats_scheduler_threadPoolSize 10.0
+rundeck_system_stats_scheduler_threadPoolSize 200.0
 # HELP rundeck_system_stats_threads_active Rundeck system stats
 # TYPE rundeck_system_stats_threads_active gauge
-rundeck_system_stats_threads_active 37.0
+rundeck_system_stats_threads_active 265.0
 # HELP rundeck_dataSource_connection_pingTime Rundeck gauges metrics
 # TYPE rundeck_dataSource_connection_pingTime gauge
 rundeck_dataSource_connection_pingTime 0.0
-# HELP rundeck_gauge_response_static_star_star Rundeck gauges metrics
-# TYPE rundeck_gauge_response_static_star_star gauge
-rundeck_gauge_response_static_star_star 11.0
-# HELP rundeck_gauge_response_unmapped Rundeck gauges metrics
-# TYPE rundeck_gauge_response_unmapped gauge
-rundeck_gauge_response_unmapped 58.0
 # HELP rundeck_scheduler_quartz_runningExecutions Rundeck gauges metrics
 # TYPE rundeck_scheduler_quartz_runningExecutions gauge
-rundeck_scheduler_quartz_runningExecutions 0.0
-# HELP rundeck_project_bdh_install_db2_server_execution_info Rundeck Project bdh-install_db2_server Executions
-# TYPE rundeck_project_bdh_install_db2_server_execution_info gauge
-rundeck_project_bdh_install_db2_server_execution_info{date_ended="1544549269000",date_started="1544548864000",id="1838",job_average_duration="405130",job_id="b688e0a1-dc8b-47fc-801e-6c18639c670e",job_name="Install DB2 LUW 11.1.3.3",rundeck_node="prod-sgh-rundeck-deploy-6f64c8d9ff-qnsxc",status="succeeded"} 1.0
+rundeck_scheduler_quartz_runningExecutions 4.0
+# HELP rundeck_services_AuthorizationService_sourceCache_evictionCount_total Rundeck gauges metrics
+# TYPE rundeck_services_AuthorizationService_sourceCache_evictionCount_total counter
+rundeck_services_AuthorizationService_sourceCache_evictionCount_total 0.0
+# HELP rundeck_services_AuthorizationService_sourceCache_hitCount_total Rundeck gauges metrics
+# TYPE rundeck_services_AuthorizationService_sourceCache_hitCount_total counter
+rundeck_services_AuthorizationService_sourceCache_hitCount_total 6.704229e+06
+# HELP rundeck_services_AuthorizationService_sourceCache_loadExceptionCount_total Rundeck gauges metrics
+# TYPE rundeck_services_AuthorizationService_sourceCache_loadExceptionCount_total counter
+rundeck_services_AuthorizationService_sourceCache_loadExceptionCount_total 0.0
+# HELP rundeck_services_AuthorizationService_sourceCache_missCount_total Rundeck gauges metrics
+# TYPE rundeck_services_AuthorizationService_sourceCache_missCount_total counter
+rundeck_services_AuthorizationService_sourceCache_missCount_total 75.0
+# HELP rundeck_services_NodeService_nodeCache_evictionCount_total Rundeck gauges metrics
+# TYPE rundeck_services_NodeService_nodeCache_evictionCount_total counter
+rundeck_services_NodeService_nodeCache_evictionCount_total 0.0
+# HELP rundeck_services_NodeService_nodeCache_hitCount_total Rundeck gauges metrics
+# TYPE rundeck_services_NodeService_nodeCache_hitCount_total counter
+rundeck_services_NodeService_nodeCache_hitCount_total 1138.0
+# HELP rundeck_services_ProjectManagerService_fileCache_evictionCount_total Rundeck gauges metrics
+# TYPE rundeck_services_ProjectManagerService_fileCache_evictionCount_total counter
+rundeck_services_ProjectManagerService_fileCache_evictionCount_total 0.0
+# HELP rundeck_services_ProjectManagerService_fileCache_hitCount_total Rundeck gauges metrics
+# TYPE rundeck_services_ProjectManagerService_fileCache_hitCount_total counter
+rundeck_services_ProjectManagerService_fileCache_hitCount_total 8864.0
+# HELP rundeck_services_ProjectManagerService_fileCache_loadExceptionCount_total Rundeck gauges metrics
+# TYPE rundeck_services_ProjectManagerService_fileCache_loadExceptionCount_total counter
+rundeck_services_ProjectManagerService_fileCache_loadExceptionCount_total 0.0
+# HELP rundeck_services_ProjectManagerService_fileCache_missCount_total Rundeck gauges metrics
+# TYPE rundeck_services_ProjectManagerService_fileCache_missCount_total counter
+rundeck_services_ProjectManagerService_fileCache_missCount_total 622.0
+# HELP rundeck_services_ProjectManagerService_projectCache_evictionCount_total Rundeck gauges metrics
+# TYPE rundeck_services_ProjectManagerService_projectCache_evictionCount_total counter
+rundeck_services_ProjectManagerService_projectCache_evictionCount_total 3667.0
+# HELP rundeck_services_ProjectManagerService_projectCache_hitCount_total Rundeck gauges metrics
+# TYPE rundeck_services_ProjectManagerService_projectCache_hitCount_total counter
+rundeck_services_ProjectManagerService_projectCache_hitCount_total 226848.0
+# HELP rundeck_scheduler_quartz_scheduledJobs Rundeck counters metrics
+# TYPE rundeck_scheduler_quartz_scheduledJobs gauge
+rundeck_scheduler_quartz_scheduledJobs 4.0
+# HELP rundeck_services_AuthorizationService_systemAuthorization_evaluateMeter_total Rundeck meters metrics
+# TYPE rundeck_services_AuthorizationService_systemAuthorization_evaluateMeter_total counter
+rundeck_services_AuthorizationService_systemAuthorization_evaluateMeter_total 18134.0
+# HELP rundeck_services_AuthorizationService_systemAuthorization_evaluateSetMeter_total Rundeck meters metrics
+# TYPE rundeck_services_AuthorizationService_systemAuthorization_evaluateSetMeter_total counter
+rundeck_services_AuthorizationService_systemAuthorization_evaluateSetMeter_total 27496.0
+# HELP rundeck_services_ExecutionService_executionFailureMeter_total Rundeck meters metrics
+# TYPE rundeck_services_ExecutionService_executionFailureMeter_total counter
+rundeck_services_ExecutionService_executionFailureMeter_total 94.0
+# HELP rundeck_services_ExecutionService_executionJobStartMeter_total Rundeck meters metrics
+# TYPE rundeck_services_ExecutionService_executionJobStartMeter_total counter
+rundeck_services_ExecutionService_executionJobStartMeter_total 366.0
+# HELP rundeck_services_ExecutionService_executionStartMeter_total Rundeck meters metrics
+# TYPE rundeck_services_ExecutionService_executionStartMeter_total counter
+rundeck_services_ExecutionService_executionStartMeter_total 366.0
+# HELP rundeck_services_ExecutionService_executionSuccessMeter_total Rundeck meters metrics
+# TYPE rundeck_services_ExecutionService_executionSuccessMeter_total counter
+rundeck_services_ExecutionService_executionSuccessMeter_total 268.0
+# HELP rundeck_api_requests_requestTimer_total Rundeck timers metrics
+# TYPE rundeck_api_requests_requestTimer_total counter
+rundeck_api_requests_requestTimer_total 39419.0
+# HELP rundeck_project_execution_info Rundeck Project aic-helloworld-ansible-playbook Executions
+# TYPE rundeck_project_execution_info gauge
+rundeck_project_execution_info{date_ended="1596219761000",date_started="1596219760000",id="1623097",job_average_duration="20260",job_id="helloworld-ansible-playbook-job-test",job_name="Job Test",status="failed"} 1.0
+# HELP rundeck_project_execution_info Rundeck Project bdh-oracle_install_client Executions
+# TYPE rundeck_project_execution_info gauge
+rundeck_project_execution_info{date_ended="1594847962000",date_started="1594847743000",id="1082818",job_average_duration="317410",job_id="dfd6d2aa-5159-46db-a0c5-0b9a8aa04527",job_name="Client Oracle Install",status="succeeded"} 1.0
+# HELP rundeck_project_execution_info Rundeck Project tbs-servcom_install Executions
+# TYPE rundeck_project_execution_info gauge
+rundeck_project_execution_info{date_ended="1596808008000",date_started="1596807999000",id="1631438",job_average_duration="10956",job_id="servcom_install",job_name="Servcom Client Install",status="succeeded"} 1.0
 ....
 ```
 
@@ -134,10 +176,9 @@ rundeck_project_bdh_install_db2_server_execution_info{date_ended="1544549269000"
 ```
 docker build -t rundeck_exporter .
 
-docker run --rm -d -p 9620:9620 rundeck_exporter \
+docker run --rm -d -p 9620:9620 -e RUNDECK_TOKEN=$RUNDECK_TOKEN rundeck_exporter \
 --host 0.0.0.0 \
 --rundeck.url https://rundeck.test.com \
---rundeck.token abcdef0123456789 \
 --rundeck.skip_ssl
 ```
 
@@ -151,7 +192,7 @@ docker run --rm -d -p 9620:9620 rundeck_exporter \
 * Better excpetions treatment
 
 `v1.1.1`:
-* Fixed metrics collection bug
+* Fix metrics collection bug
 
 `v1.2.0`:
 * Add new params:
@@ -165,3 +206,13 @@ docker run --rm -d -p 9620:9620 rundeck_exporter \
 * Add logging module to replace print calls
 * Add better error handling
 * Change args location, now located at class RundeckMetricsCollector
+
+`v2.0.0`:
+* Fix json response validation
+* Add param --rundeck.projects.executions.cache and env RUNDECK_PROJECTS_EXECUTIONS_CACHE
+* Add counter metrics rundeck_services_[services,controllers,api,web]_total
+* Remove all gauge metrics rundeck_[services,controllers,api,web]...{type="..."}
+* Remove metrics rundeck_system_stats_[cpu,memory,uptime_duration]...
+* Remove --rundeck.token param. Need RUNDECK_TOKEN env now.
+* Remove --rundeck.projects.executions.limit
+* Remove rundeck_node label from all metrics
