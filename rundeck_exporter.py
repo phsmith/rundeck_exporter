@@ -25,6 +25,7 @@ requests.urllib3.disable_warnings()
 class RundeckMetricsCollector(object):
     default_host = '127.0.0.1'
     default_port = 9620
+    rundeck_token = getenv('RUNDECK_TOKEN')
 
     args_parser = ArgumentParser(description='Rundeck Metrics Exporter')
     args_parser.add_argument('--debug',
@@ -42,11 +43,6 @@ class RundeckMetricsCollector(object):
                              metavar="RUNDECK_EXPORTER_PORT",
                              type=int,
                              default=getenv('RUNDECK_EXPORTER_PORT', default_port)
-                             )
-    args_parser.add_argument('--rundeck.token',
-                             dest='rundeck_token',
-                             help='Rundeck Access Token [ REQUIRED ].',
-                             default=getenv('RUNDECK_TOKEN')
                              )
     args_parser.add_argument('--rundeck.url',
                              dest='rundeck_url',
@@ -77,10 +73,11 @@ class RundeckMetricsCollector(object):
                              default=getenv('RUNDECK_PROJECTS_FILTER', []),
                              nargs='+'
                              )
-    args_parser.add_argument('--rundeck.projects.executions.limit',
-                             dest='rundeck_projects_executions_limit',
-                             help='Limit project executions metrics query. Default: 20',
-                             default=getenv('RUNDECK_PROJECTS_EXECUTIONS_LIMIT', 20)
+    args_parser.add_argument('--rundeck.projects.executions.cache',
+                             dest='rundeck_projects_executions_cache',
+                             help='Cache requests for project executions metrics query.',
+                             default=literal_eval(getenv('RUNDECK_PROJECTS_EXECUTIONS_CACHE', 'False').capitalize()),
+                             action='store_true'
                              )
     args_parser.add_argument('--rundeck.cached.requests.ttl',
                              dest='rundeck_cached_requests_ttl',
@@ -100,10 +97,7 @@ class RundeckMetricsCollector(object):
     logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=loglevel)
 
     def __init__(self):
-        self.client_requests_count = 0
-        self.rundeck_node = ''
-
-        if not self.args.rundeck_url or not self.args.rundeck_token:
+        if not self.args.rundeck_url or not self.rundeck_token:
             self.exit_with_msg(msg='Rundeck URL and Token are required.', level='critical')
 
     """
@@ -114,17 +108,17 @@ class RundeckMetricsCollector(object):
 
         try:
             response = requests.get(
-                f'{self.args.rundeck_url}/api/{self.args.rundeck_api_version}/{endpoint}',
+                f'{self.args.rundeck_url}/api/{self.args.rundeck_api_version}{endpoint}',
                 headers={
                     'Accept': 'application/json',
-                    'X-Rundeck-Auth-Token': self.args.rundeck_token
+                    'X-Rundeck-Auth-Token': self.rundeck_token
                 },
                 verify=not self.args.rundeck_skip_ssl
             )
+            print(response.url)
             response_json = response.json()
-            self.client_requests_count += 1
 
-            if response_json and response_json.get('error') == True:
+            if response_json and isinstance(response.json, dict) and response_json.get('error') is True:
                 raise Exception(response_json.get('message'))
 
             return response_json
@@ -140,20 +134,26 @@ class RundeckMetricsCollector(object):
     """
     def get_project_executions(self, project: dict):
         project_name = project['name']
-        counter_name = f"rundeck_project_{re.sub(r'[-.]', '_', project_name.lower())}_execution"
-        rundeck_project_executions_info = InfoMetricFamily(
-            counter_name,
-            f'Rundeck Project {project_name} Executions',
-            labels=['rundeck_node']
-        )
+        counter_name = "rundeck_project_execution"
+        rundeck_project_executions_info = None
+        endpoint = f"/project/{project_name}/executions?max=1"
 
-        project_executions = self.cached_request_data_from(
-            f"/project/{project_name}/executions?max={self.args.rundeck_projects_executions_limit}"
-        )
+        if self.args.rundeck_projects_executions_cache is True:
+            project_executions = self.cached_request_data_from(endpoint)
+        else:
+            project_executions = self.request_data_from(endpoint)
 
         for project_execution in project_executions['executions']:
+            if not project_executions:
+                continue
+
+            rundeck_project_executions_info = InfoMetricFamily(
+                counter_name,
+                f'Rundeck Project {project_name} Executions'
+            )
+
             rundeck_project_executions_info.add_metric(
-                [self.rundeck_node],
+                [],
                 {
                     'id': str(project_execution.get('id')),
                     'status': str(project_execution.get('status')),
@@ -172,22 +172,21 @@ class RundeckMetricsCollector(object):
     """
     def get_system_stats(self, system_info: dict):
         for stat, stat_values in system_info['system']['stats'].items():
+            if stat in ['cpu', 'memory']:
+                continue
+
             for counter, value in stat_values.items():
-                if counter == 'unit':
+                if counter in ['unit', 'duration']:
                     continue
-                elif isinstance(value, dict):
-                    if stat == 'cpu':
-                        value = value['average']
-                    elif stat == 'uptime':
-                        value = value['epoch']
+                elif stat == 'uptime' and counter == 'since':
+                    value = value['epoch']
 
                 rundeck_system_stats = GaugeMetricFamily(
                     f'rundeck_system_stats_{stat}_{counter}',
-                    'Rundeck system stats',
-                    labels=['rundeck_node']
+                    'Rundeck system stats'
                 )
 
-                rundeck_system_stats.add_metric([self.rundeck_node], value)
+                rundeck_system_stats.add_metric([], value)
 
                 yield rundeck_system_stats
 
@@ -195,10 +194,6 @@ class RundeckMetricsCollector(object):
     Method to get Rundeck metrics counters, gauges and timers
     """
     def get_counters(self, metrics: dict):
-        rundeck_counters_status = CounterMetricFamily('rundeck_counters_status',
-                                                      'Rundeck counters metrics',
-                                                      labels=['rundeck_node', 'status'])
-
         for metric, metric_value in metrics.items():
             if not isinstance(metric_value, dict):
                 continue
@@ -206,64 +201,53 @@ class RundeckMetricsCollector(object):
             for counter_name, counter_value in metric_value.items():
                 counter_name = re.sub(r'[-.]', '_', counter_name)
 
+                if 'rate' in counter_name.lower():
+                    continue
+
                 if not counter_name.startswith('rundeck'):
                     counter_name = 'rundeck_' + counter_name
 
-                if metric == 'counters':
+                if metric == 'counters' and 'status' not in counter_name:
                     counter_value = counter_value['count']
+                    rundeck_counters = GaugeMetricFamily(counter_name, 'Rundeck counters metrics')
 
-                    if 'status' not in counter_name:
-                        rundeck_counters = CounterMetricFamily(counter_name, 'Rundeck counters metrics', labels=['rundeck_node'])
-                        rundeck_counters.add_metric([self.rundeck_node], counter_value)
-                        yield rundeck_counters
-                    else:
-                        counter_name = '_'.join(counter_name.split('_')[3:5])
-                        rundeck_counters_status.add_metric([self.rundeck_node, counter_name], counter_value)
+                    rundeck_counters.add_metric([], counter_value)
+
+                    yield rundeck_counters
+
                 elif metric == 'gauges':
-                    counter_name = counter_name.split('_')
                     counter_value = counter_value['value']
 
                     if 'services' in counter_name:
-                        rundeck_gauges = GaugeMetricFamily('_'.join(counter_name[:-1]),
-                                                           'Rundeck gauges metrics',
-                                                           labels=['rundeck_node', 'type']
-                                                           )
+                        rundeck_gauges = CounterMetricFamily(counter_name, 'Rundeck gauges metrics')
                     else:
-                        rundeck_gauges = GaugeMetricFamily('_'.join(counter_name), 'Rundeck gauges metrics')
+                        rundeck_gauges = GaugeMetricFamily(counter_name, 'Rundeck gauges metrics')
 
                     if counter_value is not None:
-                        rundeck_gauges.add_metric([self.rundeck_node, counter_name[-1]], counter_value)
+                        rundeck_gauges.add_metric([], counter_value)
                     else:
-                        rundeck_gauges.add_metric([self.rundeck_node, counter_name[-1]], 0)
+                        rundeck_gauges.add_metric([], 0)
 
                     yield rundeck_gauges
 
                 elif metric == 'meters' or metric == 'timers':
-                    rundeck_meters_timers = GaugeMetricFamily(
-                        counter_name,
-                        f"Rundeck {metric} metrics",
-                        labels=['rundeck_node', 'type']
-                    )
-
                     for counter, value in counter_value.items():
-                        if not isinstance(value, str):
-                            if counter_name == 'rundeck_api_requests_requestTimer' and counter == 'count':
-                                value -= self.client_requests_count
+                        if counter == 'count' and not isinstance(value, str):
+                            rundeck_meters_timers = CounterMetricFamily(
+                                counter_name,
+                                f"Rundeck {metric} metrics"
+                            )
 
-                            rundeck_meters_timers.add_metric([self.rundeck_node, counter], value)
+                            rundeck_meters_timers.add_metric([], value)
 
-                    yield rundeck_meters_timers
-
-        yield rundeck_counters_status
+                            yield rundeck_meters_timers
 
     """
     Method to collect Rundeck metrics
     """
     def collect(self):
-        self.client_requests_count = 0
         metrics = self.request_data_from('/metrics/metrics')
         system_info = self.request_data_from('/system/info')
-        self.rundeck_node = system_info['system']['rundeck']['node']
 
         """
         Rundeck system info
@@ -288,17 +272,21 @@ class RundeckMetricsCollector(object):
         Rundeck projects executions info
         """
         if self.args.rundeck_projects_executions:
+            endpoint = '/projects'
             if self.args.rundeck_projects_filter:
                 projects = [{"name": x} for x in self.args.rundeck_projects_filter]
             else:
-                projects = self.cached_request_data_from('/projects')
+                if self.args.rundeck_projects_executions_cache is True:
+                    projects = self.cached_request_data_from(endpoint)
+                else:
+                    projects = self.request_data_from(endpoint)
 
             with ThreadPoolExecutor() as threadpool:
                 executions = threadpool.map(self.get_project_executions, projects)
 
-            for execution in executions:
-                if execution is not None:
-                    yield(execution)
+                for execution in executions:
+                    if execution is not None:
+                        yield(execution)
 
     @staticmethod
     def exit_with_msg(msg: str, level: str):
