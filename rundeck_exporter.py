@@ -115,7 +115,6 @@ class RundeckMetricsCollector(object):
                 },
                 verify=not self.args.rundeck_skip_ssl
             )
-            print(response.url)
             response_json = response.json()
 
             if response_json and isinstance(response.json, dict) and response_json.get('error') is True:
@@ -138,7 +137,7 @@ class RundeckMetricsCollector(object):
         rundeck_project_executions_info = None
         endpoint = f"/project/{project_name}/executions?max=1"
 
-        if self.args.rundeck_projects_executions_cache is True:
+        if self.args.rundeck_projects_executions_cache:
             project_executions = self.cached_request_data_from(endpoint)
         else:
             project_executions = self.request_data_from(endpoint)
@@ -273,10 +272,11 @@ class RundeckMetricsCollector(object):
         """
         if self.args.rundeck_projects_executions:
             endpoint = '/projects'
+
             if self.args.rundeck_projects_filter:
                 projects = [{"name": x} for x in self.args.rundeck_projects_filter]
             else:
-                if self.args.rundeck_projects_executions_cache is True:
+                if self.args.rundeck_projects_executions_cache:
                     projects = self.cached_request_data_from(endpoint)
                 else:
                     projects = self.request_data_from(endpoint)
@@ -300,6 +300,7 @@ class RundeckMetricsCollector(object):
 
             logging.info(f'Rundeck exporter server started at {cls.args.host}:{cls.args.port}...')
             start_http_server(cls.args.port, addr=cls.args.host, registry=REGISTRY)
+
             while True:
                 sleep(1)
         except OSError as os_error:
