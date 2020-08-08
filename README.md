@@ -50,7 +50,7 @@ optional arguments:
                         Get projects executions metrics.
   --rundeck.projects.filter RUNDECK_PROJECTS_FILTER [RUNDECK_PROJECTS_FILTER ...]
                         Get executions only from listed projects (delimiter = space).
-  --rundeck.projects.executions.cached RUNDECK_PROJECTS_EXECUTIONS_CACHED
+  --rundeck.projects.executions.cache RUNDECK_PROJECTS_EXECUTIONS_CACHE
                         Cache requests for project executions metrics query.
   --rundeck.cached.requests.ttl RUNDECK_CACHED_REQUESTS_TTL
                         Rundeck cached requests expiration time. Default: 120
