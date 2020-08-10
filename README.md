@@ -159,15 +159,15 @@ rundeck_services_ExecutionService_executionSuccessMeter_total 268.0
 # HELP rundeck_api_requests_requestTimer_total Rundeck timers metrics
 # TYPE rundeck_api_requests_requestTimer_total counter
 rundeck_api_requests_requestTimer_total 39419.0
-# HELP rundeck_project_execution_info Rundeck Project aic-helloworld-ansible-playbook Executions
-# TYPE rundeck_project_execution_info gauge
-rundeck_project_execution_info{date_ended="1596219761000",date_started="1596219760000",id="1623097",job_average_duration="20260",job_id="helloworld-ansible-playbook-job-test",job_name="Job Test",status="failed"} 1.0
-# HELP rundeck_project_execution_info Rundeck Project bdh-oracle_install_client Executions
-# TYPE rundeck_project_execution_info gauge
-rundeck_project_execution_info{date_ended="1594847962000",date_started="1594847743000",id="1082818",job_average_duration="317410",job_id="dfd6d2aa-5159-46db-a0c5-0b9a8aa04527",job_name="Client Oracle Install",status="succeeded"} 1.0
-# HELP rundeck_project_execution_info Rundeck Project tbs-servcom_install Executions
-# TYPE rundeck_project_execution_info gauge
-rundeck_project_execution_info{date_ended="1596808008000",date_started="1596807999000",id="1631438",job_average_duration="10956",job_id="servcom_install",job_name="Servcom Client Install",status="succeeded"} 1.0
+# HELP rundeck_project_aic_helloworld_ansible_playbook_executions_info Rundeck Project aic-helloworld-ansible-playbook Executions Info
+# TYPE rundeck_project_aic_helloworld_ansible_playbook_executions_info gauge
+rundeck_project_aic_helloworld_ansible_playbook_executions_info{execution_id="1623097",job_id="helloworld-ansible-playbook-job-test",job_name="Job Test",status="failed"} 1.0
+# HELP rundeck_project_bdh_oracle_install_client_executions_info Rundeck Project bdh-oracle_install_client Executions Info
+# TYPE rundeck_project_bdh_oracle_install_client_executions_info gauge
+rundeck_project_bdh_oracle_install_client_executions_info{execution_id="1082818",job_id="dfd6d2aa-5159-46db-a0c5-0b9a8aa04527",job_name="Oracle Client Install",status="succeeded"} 1.0
+# HELP rundeck_project_tbs_servcom_install_executions_info Rundeck Project tbs-servcom_install Executions Info
+# TYPE rundeck_project_tbs_servcom_install_executions_info gauge
+rundeck_project_tbs_servcom_install_executions_info{execution_id="1631691",job_id="servcom_install",job_name="Servcom Client Install",status="succeeded"} 1.0
 ....
 ```
 
@@ -216,3 +216,4 @@ docker run --rm -d -p 9620:9620 -e RUNDECK_TOKEN=$RUNDECK_TOKEN rundeck_exporter
 * Remove --rundeck.token param. Need RUNDECK_TOKEN env now.
 * Remove --rundeck.projects.executions.limit
 * Remove rundeck_node label from all metrics
+* Change rundeck_project_executions_info metrics to rundeck_project_[project_name]_executions_info{execution_id=...,job_id=...,job_name=...,status=...}

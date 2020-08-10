@@ -133,7 +133,7 @@ class RundeckMetricsCollector(object):
     """
     def get_project_executions(self, project: dict):
         project_name = project['name']
-        counter_name = "rundeck_project_execution"
+        counter_name = f"rundeck_project_{re.sub(r'[-.]', '_', project_name)}_executions"
         rundeck_project_executions_info = None
         endpoint = f"/project/{project_name}/executions?max=1"
 
@@ -148,19 +148,16 @@ class RundeckMetricsCollector(object):
 
             rundeck_project_executions_info = InfoMetricFamily(
                 counter_name,
-                f'Rundeck Project {project_name} Executions'
+                f'Rundeck Project {project_name} Executions Info'
             )
 
             rundeck_project_executions_info.add_metric(
                 [],
                 {
-                    'id': str(project_execution.get('id')),
-                    'status': str(project_execution.get('status')),
-                    'date_started': str(project_execution.get('date-started', {}).get('unixtime', 0)),
-                    'date_ended': str(project_execution.get('date-ended', {}).get('unixtime', 0)),
+                    'execution_id': str(project_execution.get('id')),
                     'job_id': str(project_execution.get('job', {}).get('id')),
                     'job_name': str(project_execution.get('job', {}).get('name')),
-                    'job_average_duration': str(project_execution.get('job', {}).get('averageDuration', 0))
+                    'status': str(project_execution.get('status'))
                 }
             )
 
@@ -300,6 +297,31 @@ class RundeckMetricsCollector(object):
 
             logging.info(f'Rundeck exporter server started at {cls.args.host}:{cls.args.port}...')
             start_http_server(cls.args.port, addr=cls.args.host, registry=REGISTRY)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             while True:
                 sleep(1)
