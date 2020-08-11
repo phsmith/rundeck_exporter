@@ -132,36 +132,50 @@ class RundeckMetricsCollector(object):
     Method to get Rundeck projects executions info
     """
     def get_project_executions(self, project: dict):
+        counter_name = 'rundeck_project_execution_status'
         project_name = project['name']
-        counter_name = f"rundeck_project_{re.sub(r'[-.]', '_', project_name)}_executions"
-        rundeck_project_executions_info = None
-        endpoint = f"/project/{project_name}/executions?max=1"
+        project_executions = None
+        project_executions_status = list()
+        metrics = None
+        endpoint = f'/project/{project_name}/executions?max=1'
 
-        if self.args.rundeck_projects_executions_cache:
-            project_executions = self.cached_request_data_from(endpoint)
-        else:
-            project_executions = self.request_data_from(endpoint)
+        try:
+            if self.args.rundeck_projects_executions_cache:
+                project_executions = self.cached_request_data_from(endpoint)
+            else:
+                project_executions = self.request_data_from(endpoint)
 
-        for project_execution in project_executions['executions']:
-            if not project_executions:
-                continue
+            for project_execution in project_executions['executions']:
+                if not project_executions:
+                    continue
 
-            rundeck_project_executions_info = InfoMetricFamily(
-                counter_name,
-                f'Rundeck Project {project_name} Executions Info'
-            )
+                for status in ['succeeded', 'running', 'failed', 'aborted', 'unknown']:
+                    value = 0
 
-            rundeck_project_executions_info.add_metric(
-                [],
-                {
-                    'execution_id': str(project_execution.get('id')),
-                    'job_id': str(project_execution.get('job', {}).get('id')),
-                    'job_name': str(project_execution.get('job', {}).get('name')),
-                    'status': str(project_execution.get('status'))
-                }
-            )
+                    if project_execution.get('status', 'unknown') == status:
+                        value = 1
 
-        return rundeck_project_executions_info
+                    metrics = GaugeMetricFamily(
+                        counter_name,
+                        f'Rundeck Project {project_name} Execution Status',
+                        labels=['project_name', 'job_id', 'job_name', 'status']
+                    )
+
+                    metrics.add_metric(
+                        [
+                            project_execution.get('job', {}).get('id', 'None'),
+                            project_execution.get('job', {}).get('name', 'None'),
+                            project_name,
+                            status
+                        ],
+                        value
+                    )
+
+                    project_executions_status.append(metrics)
+        except:
+            pass
+
+        return project_executions_status
 
     """
     Method to get Rundeck system stats
@@ -279,11 +293,12 @@ class RundeckMetricsCollector(object):
                     projects = self.request_data_from(endpoint)
 
             with ThreadPoolExecutor() as threadpool:
-                executions = threadpool.map(self.get_project_executions, projects)
+                project_executions = threadpool.map(self.get_project_executions, projects)
 
-                for execution in executions:
-                    if execution is not None:
-                        yield(execution)
+                for executions in project_executions:
+                    for execution in executions:
+                        if execution is not None:
+                            yield(execution)
 
     @staticmethod
     def exit_with_msg(msg: str, level: str):
@@ -297,31 +312,6 @@ class RundeckMetricsCollector(object):
 
             logging.info(f'Rundeck exporter server started at {cls.args.host}:{cls.args.port}...')
             start_http_server(cls.args.port, addr=cls.args.host, registry=REGISTRY)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
             while True:
                 sleep(1)
