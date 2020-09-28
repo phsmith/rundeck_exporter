@@ -163,9 +163,9 @@ class RundeckMetricsCollector(object):
 
                     metrics.add_metric(
                         [
+                            project_name,
                             project_execution.get('job', {}).get('id', 'None'),
                             project_execution.get('job', {}).get('name', 'None'),
-                            project_name,
                             status
                         ],
                         value
