@@ -160,6 +160,9 @@ rundeck_services_ExecutionService_executionSuccessMeter_total 268.0
 # HELP rundeck_api_requests_requestTimer_total Rundeck timers metrics
 # TYPE rundeck_api_requests_requestTimer_total counter
 rundeck_api_requests_requestTimer_total 39419.0
+# HELP rundeck_project_execution_status Rundeck Project servcom_install Execution Duration
+# TYPE rundeck_project_execution_duration_seconds gauge
+rundeck_project_execution_duration_seconds{job_id="servcom_install",job_name="Servcom Client",project_name="servcom_install"} 6000.0
 # HELP rundeck_project_execution_status Rundeck Project servcom_install Execution Status
 # TYPE rundeck_project_execution_status gauge
 rundeck_project_execution_status{job_id="servcom_install",job_name="Servcom Client",project_name="servcom_install",status="succeeded"} 1.0
@@ -175,6 +178,9 @@ rundeck_project_execution_status{job_id="servcom_install",job_name="Servcom Clie
 # HELP rundeck_project_execution_status Rundeck Project servcom_install Execution Status
 # TYPE rundeck_project_execution_status gauge
 rundeck_project_execution_status{job_id="servcom_install",job_name="Servcom Client",project_name="servcom_install",status="unknown"} 0.0
+# HELP rundeck_project_execution_status Rundeck Project oracle_client_install Execution Druation
+# TYPE rundeck_project_execution_duration_seconds gauge
+rundeck_project_execution_duration_seconds{job_id="oracle_client_install",job_name="Oracle Client Install",project_name="oracle_client_install"} 20000.0
 # HELP rundeck_project_execution_status Rundeck Project oracle_client_install Execution Status
 # TYPE rundeck_project_execution_status gauge
 rundeck_project_execution_status{job_id="oracle_client_install",job_name="Oracle Client Install",project_name="oracle_client_install",status="succeeded"} 1.0
@@ -239,3 +245,8 @@ docker run --rm -d -p 9620:9620 -e RUNDECK_TOKEN=$RUNDECK_TOKEN rundeck_exporter
 * Remove param --rundeck.projects.executions.limit
 * Remove rundeck_node label from all metrics
 * Change rundeck_project_executions_info metrics to rundeck_project_status{job_id=...,job_name=...,project_name=...,status=....}
+
+`v2.1.0`:
+* Fix issue Long Running Jobs #2 - Add metric rundeck_project_execution_duration_seconds
+* Fix issue Project executions metrics not show all jobs info #4
+* Add pull request fix order labels and values the same way in execution metrics #3
