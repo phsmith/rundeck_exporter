@@ -159,7 +159,22 @@ class RundeckMetricsCollector(object):
                 job_start_time = project_execution.get('date-started', {}).get('unixtime', 0)
                 job_end_time = project_execution.get('date-ended', {}).get('unixtime', 0)
                 job_execution_duration = (job_end_time - job_start_time)
-
+                
+                start_metrics = GaugeMetricFamily(
+                    'rundeck_project_start_timestamp',
+                    f'Rundeck Project {project_name} Start Timestamp',
+                    labels=['project_name', 'job_id', 'job_name']
+                )
+                start_metrics.add_metric(
+                    [
+                        project_name,
+                        job_id,
+                        job_name
+                    ],
+                    job_start_time
+                )
+                project_executions_status.append(start_metrics)
+                
                 duration_metrics = GaugeMetricFamily(
                     'rundeck_project_execution_duration_seconds',
                     f'Rundeck Project {project_name} Execution Duration',
