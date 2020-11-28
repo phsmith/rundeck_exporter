@@ -250,3 +250,6 @@ docker run --rm -d -p 9620:9620 -e RUNDECK_TOKEN=$RUNDECK_TOKEN rundeck_exporter
 * Fix issue Long Running Jobs #2 - Add metric rundeck_project_execution_duration_seconds
 * Fix issue Project executions metrics not show all jobs info #4
 * Add pull request fix order labels and values the same way in execution metrics #3
+
+`v2.2.0`:
+* Fix issue Last Run #5 - Merged @h4wkmoon patch that adds rundeck_project_start_timestamp metric
