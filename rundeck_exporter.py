@@ -117,7 +117,7 @@ class RundeckMetricsCollector(object):
             )
             response_json = response.json()
 
-            if response_json and isinstance(response.json, dict) and response_json.get('error') is True:
+            if response_json and isinstance(response_json, dict) and response_json.get('error') is True:
                 raise Exception(response_json.get('message'))
 
             return response_json
@@ -159,7 +159,7 @@ class RundeckMetricsCollector(object):
                 job_start_time = project_execution.get('date-started', {}).get('unixtime', 0)
                 job_end_time = project_execution.get('date-ended', {}).get('unixtime', 0)
                 job_execution_duration = (job_end_time - job_start_time)
-                
+
                 start_metrics = GaugeMetricFamily(
                     'rundeck_project_start_timestamp',
                     f'Rundeck Project {project_name} Start Timestamp',
@@ -174,7 +174,7 @@ class RundeckMetricsCollector(object):
                     job_start_time
                 )
                 project_executions_status.append(start_metrics)
-                
+
                 duration_metrics = GaugeMetricFamily(
                     'rundeck_project_execution_duration_seconds',
                     f'Rundeck Project {project_name} Execution Duration',

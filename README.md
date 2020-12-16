@@ -253,3 +253,6 @@ docker run --rm -d -p 9620:9620 -e RUNDECK_TOKEN=$RUNDECK_TOKEN rundeck_exporter
 
 `v2.2.0`:
 * Fix issue Last Run #5 - Merged @h4wkmoon patch that adds rundeck_project_start_timestamp metric
+
+`2.2.1`:
+* Fix exception messages on failed Rundeck api requests
