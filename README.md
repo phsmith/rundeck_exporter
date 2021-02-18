@@ -196,9 +196,6 @@ docker run --rm -d -p 9620:9620 -e RUNDECK_TOKEN=$RUNDECK_TOKEN rundeck_exporter
 
 ## Changelog
 
-`2.2.3`:
-* Add systemd unit file example. Issue #9
-
 `2.2.2`:
 * Fix GaugeMetricFamily definition location on method get_project_executions to correctly shows the HELP/TYPE
 
