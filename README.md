@@ -196,15 +196,33 @@ docker run --rm -d -p 9620:9620 -e RUNDECK_TOKEN=$RUNDECK_TOKEN rundeck_exporter
 
 ## Changelog
 
-`v1.0.0`:
-* Initial release
+`2.2.3`:
+* Add systemd unit file example. Issue #9
 
-`v1.1.0`:
-* Support for environment variables
-* Better excpetions treatment
+`2.2.2`:
+* Fix GaugeMetricFamily definition location on method get_project_executions to correctly shows the HELP/TYPE
 
-`v1.1.1`:
-* Fix metrics collection bug
+`2.2.1`:
+* Fix exception messages on failed Rundeck api requests
+
+`v2.2.0`:
+* Fix issue Last Run #5 - Merged @h4wkmoon patch that adds rundeck_project_start_timestamp metric
+
+`v2.1.0`:
+* Fix issue Long Running Jobs #2 - Add metric rundeck_project_execution_duration_seconds
+* Fix issue Project executions metrics not show all jobs info #4
+* Add pull request fix order labels and values the same way in execution metrics #3
+
+`v2.0.0`:
+* Fix json response validation
+* Add param --rundeck.projects.executions.cache and env RUNDECK_PROJECTS_EXECUTIONS_CACHE
+* Add counter metrics rundeck_services_[services,controllers,api,web]_total
+* Remove all gauge metrics rundeck_[services,controllers,api,web]...{type="..."}
+* Remove metrics rundeck_system_stats_[cpu,memory,uptime_duration]...
+* Remove param --rundeck.token. Need RUNDECK_TOKEN env now.
+* Remove param --rundeck.projects.executions.limit
+* Remove rundeck_node label from all metrics
+* Change rundeck_project_executions_info metrics to rundeck_project_status{job_id=...,job_name=...,project_name=...,status=....}
 
 `v1.2.0`:
 * Add new params:
@@ -219,27 +237,12 @@ docker run --rm -d -p 9620:9620 -e RUNDECK_TOKEN=$RUNDECK_TOKEN rundeck_exporter
 * Add better error handling
 * Change args location, now located at class RundeckMetricsCollector
 
-`v2.0.0`:
-* Fix json response validation
-* Add param --rundeck.projects.executions.cache and env RUNDECK_PROJECTS_EXECUTIONS_CACHE
-* Add counter metrics rundeck_services_[services,controllers,api,web]_total
-* Remove all gauge metrics rundeck_[services,controllers,api,web]...{type="..."}
-* Remove metrics rundeck_system_stats_[cpu,memory,uptime_duration]...
-* Remove param --rundeck.token. Need RUNDECK_TOKEN env now.
-* Remove param --rundeck.projects.executions.limit
-* Remove rundeck_node label from all metrics
-* Change rundeck_project_executions_info metrics to rundeck_project_status{job_id=...,job_name=...,project_name=...,status=....}
+`v1.1.1`:
+* Fix metrics collection bug
 
-`v2.1.0`:
-* Fix issue Long Running Jobs #2 - Add metric rundeck_project_execution_duration_seconds
-* Fix issue Project executions metrics not show all jobs info #4
-* Add pull request fix order labels and values the same way in execution metrics #3
+`v1.1.0`:
+* Support for environment variables
+* Better excpetions treatment
 
-`v2.2.0`:
-* Fix issue Last Run #5 - Merged @h4wkmoon patch that adds rundeck_project_start_timestamp metric
-
-`2.2.1`:
-* Fix exception messages on failed Rundeck api requests
-
-`2.2.2`:
-* Fix GaugeMetricFamily definition location on method get_project_executions to correctly shows the HELP/TYPE
+`v1.0.0`:
+* Initial release

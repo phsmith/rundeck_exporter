@@ -1,0 +1,10 @@
+[Unit]
+Description=Rundeck Exporter
+
+[Service]
+User=rundeck_exporter
+EnvironmentFile=/etc/default/rundeck_exporter
+ExecStart=/usr/bin/rundeck_exporter $OPTIONS
+
+[Install]
+WantedBy=multi-user.target
