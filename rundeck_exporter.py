@@ -300,12 +300,11 @@ class RundeckMetricsCollector(object):
     Method to collect Rundeck metrics
     """
     def collect(self):
-        metrics = self.request_data_from('/metrics/metrics')
-        system_info = self.request_data_from('/system/info')
-
         """
         Rundeck system info
         """
+        system_info = self.request_data_from('/system/info')
+        api_version = system_info['system']['rundeck']['apiversion']
         rundeck_system_info = InfoMetricFamily('rundeck_system', 'Rundeck system info')
         rundeck_system_info.add_metric([], {x: str(y) for x, y in system_info['system']['rundeck'].items()})
         yield rundeck_system_info
@@ -319,8 +318,15 @@ class RundeckMetricsCollector(object):
         """
         Rundeck counters
         """
-        for counters in self.get_counters(metrics):
-            yield counters
+        if api_version >= self.args.rundeck_api_version < 25:
+            logging.warning(f'Unsupported API version "{self.args.rundeck_api_version}" '
+                         + f'for API request: /api/{self.args.rundeck_api_version}/metrics/metrics. '
+                         + 'Minimum supported version is 25')
+        else:
+            metrics = self.request_data_from('/metrics/metrics')
+
+            for counters in self.get_counters(metrics):
+                yield counters
 
         """
         Rundeck projects executions info
