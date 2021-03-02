@@ -145,33 +145,33 @@ class RundeckMetricsCollector(object):
             else:
                 project_executions = self.request_data_from(endpoint)
 
-            duration_metrics = GaugeMetricFamily(
-                'rundeck_project_execution_duration_seconds',
-                f'Rundeck Project {project_name} Execution Duration',
-                labels=['project_name', 'job_id', 'job_name']
-            )
-
-            start_metrics = GaugeMetricFamily(
-                'rundeck_project_start_timestamp',
-                f'Rundeck Project {project_name} Start Timestamp',
-                labels=['project_name', 'job_id', 'job_name']
-            )
-
-            metrics = GaugeMetricFamily(
-                'rundeck_project_execution_status',
-                f'Rundeck Project {project_name} Execution Status',
-                labels=['project_name', 'job_id', 'job_name', 'status']
-            )
-
             for project_execution in project_executions['executions']:
                 job_info = project_execution.get('job', {})
                 job_id = job_info.get('id', 'None')
                 job_name = job_info.get('name', 'None')
 
-                if not project_executions or job_id in jobs_list:
+                if job_id in jobs_list:
                     continue
 
                 jobs_list.append(job_id)
+
+                start_metrics = GaugeMetricFamily(
+                    'rundeck_project_start_timestamp',
+                    f'Rundeck Project {project_name} Start Timestamp',
+                    labels=['project_name', 'job_id', 'job_name']
+                )
+
+                duration_metrics = GaugeMetricFamily(
+                    'rundeck_project_execution_duration_seconds',
+                    f'Rundeck Project {project_name} Execution Duration',
+                    labels=['project_name', 'job_id', 'job_name']
+                )
+
+                metrics = GaugeMetricFamily(
+                    'rundeck_project_execution_status',
+                    f'Rundeck Project {project_name} Execution Status',
+                    labels=['project_name', 'job_id', 'job_name', 'status']
+                )
 
                 # Job start/end times
                 job_start_time = project_execution.get('date-started', {}).get('unixtime', 0)
@@ -215,7 +215,7 @@ class RundeckMetricsCollector(object):
                         value
                     )
 
-                    project_executions_status.append(metrics)
+                project_executions_status.append(metrics)
         except Exception:  # nosec
             pass
 
@@ -348,7 +348,7 @@ class RundeckMetricsCollector(object):
                 for executions in project_executions:
                     for execution in executions:
                         if execution is not None:
-                            yield(execution)
+                            yield execution
 
     @staticmethod
     def exit_with_msg(msg: str, level: str):

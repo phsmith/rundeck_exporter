@@ -195,6 +195,9 @@ docker run --rm -d -p 9620:9620 -e RUNDECK_TOKEN=$RUNDECK_TOKEN rundeck_exporter
 ```
 
 ## Changelog
+`2.2.4`:
+* Fix issue Regarding execution status #11 - Modified GaugeMetricFamily location in the function get_project_executions
+
 `2.2.3`:
 * Fix issue invalid API request #10 - Added warning message for API version < 25
 
