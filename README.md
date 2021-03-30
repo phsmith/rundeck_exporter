@@ -1,4 +1,5 @@
 ## Rundeck_Exporter
+---
 ![Docker Pulls](https://img.shields.io/docker/pulls/phsmith/rundeck-exporter?logo=docker&)
 
 Rundeck Metrics Exporter for Prometheus.
@@ -15,6 +16,8 @@ This exporter uses the prometheus_client and requests Python module to expose Ru
 ## Metrics
 
 All metrics are exported with **rundeck_** prefix.
+
+More detailed information about the metrics can be found in [Documentations](docs/README.md)
 
 ## Dependencies
 
@@ -162,24 +165,24 @@ rundeck_services_ExecutionService_executionSuccessMeter_total 268.0
 rundeck_api_requests_requestTimer_total 39419.0
 # HELP rundeck_project_execution_status Rundeck Project servcom_install Execution Duration
 # TYPE rundeck_project_execution_duration_seconds gauge
-rundeck_project_execution_duration_seconds{job_id="servcom_install",job_name="Servcom Client",project_name="servcom_install"} 6000.0
+rundeck_project_execution_duration_seconds{execution_id=2016549, job_id="servcom_install",job_name="Servcom Client",project_name="servcom_install"} 6000.0
 # HELP rundeck_project_execution_status Rundeck Project servcom_install Execution Status
 # TYPE rundeck_project_execution_status gauge
-rundeck_project_execution_status{job_id="servcom_install",job_name="Servcom Client",project_name="servcom_install",status="succeeded"} 1.0
-rundeck_project_execution_status{job_id="servcom_install",job_name="Servcom Client",project_name="servcom_install",status="running"} 0.0
-rundeck_project_execution_status{job_id="servcom_install",job_name="Servcom Client",project_name="servcom_install",status="failed"} 0.0
-rundeck_project_execution_status{job_id="servcom_install",job_name="Servcom Client",project_name="servcom_install",status="aborted"} 0.0
-rundeck_project_execution_status{job_id="servcom_install",job_name="Servcom Client",project_name="servcom_install",status="unknown"} 0.0
+rundeck_project_execution_status{execution_id=2016549, job_id="servcom_install",job_name="Servcom Client",project_name="servcom_install",status="succeeded"} 1.0
+rundeck_project_execution_status{execution_id=2016549, job_id="servcom_install",job_name="Servcom Client",project_name="servcom_install",status="running"} 0.0
+rundeck_project_execution_status{execution_id=2016549, job_id="servcom_install",job_name="Servcom Client",project_name="servcom_install",status="failed"} 0.0
+rundeck_project_execution_status{execution_id=2016549, job_id="servcom_install",job_name="Servcom Client",project_name="servcom_install",status="aborted"} 0.0
+rundeck_project_execution_status{execution_id=2016549, job_id="servcom_install",job_name="Servcom Client",project_name="servcom_install",status="unknown"} 0.0
 # HELP rundeck_project_execution_status Rundeck Project oracle_client_install Execution Druation
 # TYPE rundeck_project_execution_duration_seconds gauge
-rundeck_project_execution_duration_seconds{job_id="oracle_client_install",job_name="Oracle Client Install",project_name="oracle_client_install"} 20000.0
+rundeck_project_execution_duration_seconds{execution_id=2016550, job_id="oracle_client_install",job_name="Oracle Client Install",project_name="oracle_client_install"} 20000.0
 # HELP rundeck_project_execution_status Rundeck Project oracle_client_install Execution Status
 # TYPE rundeck_project_execution_status gauge
-rundeck_project_execution_status{job_id="oracle_client_install",job_name="Oracle Client Install",project_name="oracle_client_install",status="succeeded"} 1.0
-rundeck_project_execution_status{job_id="oracle_client_install",job_name="Oracle Client Install",project_name="oracle_client_install",status="running"} 0.0
-rundeck_project_execution_status{job_id="oracle_client_install",job_name="Oracle Client Install",project_name="oracle_client_install",status="failed"} 0.0
-rundeck_project_execution_status{job_id="oracle_client_install",job_name="Oracle Client Install",project_name="oracle_client_install",status="aborted"} 0.0
-rundeck_project_execution_status{job_id="oracle_client_install",job_name="Oracle Client Install",project_name="oracle_client_install",status="unknown"} 0.0
+rundeck_project_execution_status{execution_id=2016550, job_id="oracle_client_install",job_name="Oracle Client Install",project_name="oracle_client_install",status="succeeded"} 1.0
+rundeck_project_execution_status{execution_id=2016550, job_id="oracle_client_install",job_name="Oracle Client Install",project_name="oracle_client_install",status="running"} 0.0
+rundeck_project_execution_status{execution_id=2016550, job_id="oracle_client_install",job_name="Oracle Client Install",project_name="oracle_client_install",status="failed"} 0.0
+rundeck_project_execution_status{execution_id=2016550, job_id="oracle_client_install",job_name="Oracle Client Install",project_name="oracle_client_install",status="aborted"} 0.0
+rundeck_project_execution_status{execution_id=2016550, job_id="oracle_client_install",job_name="Oracle Client Install",project_name="oracle_client_install",status="unknown"} 0.0
 ....
 ```
 
