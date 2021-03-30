@@ -1,5 +1,4 @@
 ## Rundeck Metrics Documentation
----
 
 ## rundeck_system_info
 
