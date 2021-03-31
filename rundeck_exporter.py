@@ -138,14 +138,21 @@ class RundeckMetricsCollector(object):
         jobs_list = list()
         metrics = None
         endpoint = f'/project/{project_name}/executions?recentFilter=1d'
+        endpoint_running_executions = f'/project/{project_name}/executions/running?recentFilter=1d'
+
 
         try:
             if self.args.rundeck_projects_executions_cache:
-                project_executions = self.cached_request_data_from(endpoint)
+                project_executions_running_info = self.cached_request_data_from(endpoint_running_executions)
+                project_executions_info = self.cached_request_data_from(endpoint)
             else:
-                project_executions = self.request_data_from(endpoint)
+                project_executions_running_info = self.request_data_from(endpoint_running_executions)
+                project_executions_info = self.request_data_from(endpoint)
 
-            for project_execution in project_executions['executions']:
+            project_executions = (project_executions_running_info.get('executions', [])
+                                  + project_executions_info.get('executions', []))
+
+            for project_execution in project_executions:
                 job_info = project_execution.get('job', {})
                 job_id = job_info.get('id', 'None')
                 job_name = job_info.get('name', 'None')

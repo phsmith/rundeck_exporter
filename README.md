@@ -198,6 +198,9 @@ docker run --rm -d -p 9620:9620 -e RUNDECK_TOKEN=$RUNDECK_TOKEN rundeck_exporter
 ```
 
 ## Changelog
+`2.2.6`:
+* Fix issue #14 - Fixed the info about running status
+
 `2.2.5`:
 * Fix issue #13 - Added new label execution_id to rundeck_project_execution_status metrics
 
