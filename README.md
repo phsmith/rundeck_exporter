@@ -41,6 +41,7 @@ Rundeck Metrics Exporter
 optional arguments:
   -h, --help            show this help message and exit
   --debug               Enable debug mode.
+  -v, --version         Shows rundeck_exporter current release version.
   --host RUNDECK_EXPORTER_HOST
                         Host binding address. Default: 127.0.0.1.
   --port RUNDECK_EXPORTER_PORT
@@ -54,10 +55,13 @@ optional arguments:
                         Get projects executions metrics.
   --rundeck.projects.filter RUNDECK_PROJECTS_FILTER [RUNDECK_PROJECTS_FILTER ...]
                         Get executions only from listed projects (delimiter = space).
-  --rundeck.projects.executions.cache RUNDECK_PROJECTS_EXECUTIONS_CACHE
+  --rundeck.projects.executions.cache
                         Cache requests for project executions metrics query.
   --rundeck.cached.requests.ttl RUNDECK_CACHED_REQUESTS_TTL
                         Rundeck cached requests expiration time. Default: 120
+  --rundeck.cpu.stats   Show Rundeck CPU usage stats
+  --rundeck.memory.stats
+                        Show Rundeck memory usage stats
 ```
 
 Optionally, it's possible to pass the following environment variables to the rundeck_exporter:
@@ -75,6 +79,8 @@ Optionally, it's possible to pass the following environment variables to the run
 | RUNDECK_PROJECTS_FILTER | [] | Get executions only from listed projects. |
 | RUNDECK_PROJECTS_EXECUTIONS_CACHE | <ul><li>True</li><li>False (default)</li></ul> | Cache requests for project executions metrics query. |
 | RUNDECK_CACHED_REQUESTS_TTL | Default: 120 | Rundeck cached requests expiration time. |
+| RUNDECK_CPU_STATS | <ul><li>True</li><li>False (default)</li></ul> | Show Rundeck CPU usage stats |
+| RUNDECK_MEMORY_STATS | <ul><li>True</li><li>False (default)</li></ul> | Show Rundeck memory usage stats |
 
 Example output:
 
