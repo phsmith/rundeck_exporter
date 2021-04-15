@@ -18,6 +18,11 @@ from prometheus_client.core import (
     REGISTRY
 )
 
+__author__ = 'Phillipe Smith'
+__author_email__ = 'phsmithcc@gmail.com'
+__app__ = 'rundeck_exporter'
+__version__ = '2.3.0'
+
 # Disable InsecureRequestWarning
 requests.urllib3.disable_warnings()
 
@@ -31,6 +36,10 @@ class RundeckMetricsCollector(object):
     args_parser.add_argument('--debug',
                              help='Enable debug mode.',
                              default=getenv('RUNDECK_EXPORTER_DEBUG', False),
+                             action='store_true'
+                             )
+    args_parser.add_argument('-v', '--version',
+                             help='Shows rundeck_exporter current release version.',
                              action='store_true'
                              )
     args_parser.add_argument('--host',
@@ -85,6 +94,18 @@ class RundeckMetricsCollector(object):
                              type=int,
                              default=getenv('RUNDECK_CACHED_REQUESTS_TTL', 120)
                              )
+    args_parser.add_argument('--rundeck.cpu.stats',
+                             dest='rundeck_cpu_stats',
+                             help='Show Rundeck CPU usage stats',
+                             action='store_true',
+                             default=getenv('RUNDECK_CPU_STATS', False)
+                             )
+    args_parser.add_argument('--rundeck.memory.stats',
+                             dest='rundeck_memory_stats',
+                             help='Show Rundeck memory usage stats',
+                             action='store_true',
+                             default=getenv('RUNDECK_MEMORY_STATS', False)
+                             )
 
     args = args_parser.parse_args()
 
@@ -97,6 +118,10 @@ class RundeckMetricsCollector(object):
     logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=loglevel)
 
     def __init__(self):
+        if self.args.version:
+            print(f'{__app__} {__version__}')
+            exit(0)
+
         if not self.args.rundeck_url or not self.rundeck_token:
             self.exit_with_msg(msg='Rundeck URL and Token are required.', level='critical')
 
@@ -139,7 +164,6 @@ class RundeckMetricsCollector(object):
         metrics = None
         endpoint = f'/project/{project_name}/executions?recentFilter=1d'
         endpoint_running_executions = f'/project/{project_name}/executions/running?recentFilter=1d'
-
 
         try:
             if self.args.rundeck_projects_executions_cache:
@@ -237,14 +261,22 @@ class RundeckMetricsCollector(object):
     """
     def get_system_stats(self, system_info: dict):
         for stat, stat_values in system_info['system']['stats'].items():
-            if stat in ['cpu', 'memory']:
-                continue
-
             for counter, value in stat_values.items():
                 if counter in ['unit', 'duration']:
                     continue
                 elif stat == 'uptime' and counter == 'since':
                     value = value['epoch']
+                elif stat == 'cpu':
+                    if self.args.rundeck_cpu_stats and isinstance(value, dict):
+                        counter = f'{counter}_ratio'
+                        value = value['average']
+                    else:
+                        continue
+                elif stat == 'memory':
+                    if self.args.rundeck_memory_stats:
+                        counter = f'{counter}_bytes'
+                    else:
+                        continue
 
                 rundeck_system_stats = GaugeMetricFamily(
                     f'rundeck_system_stats_{stat}_{counter}',
@@ -331,8 +363,8 @@ class RundeckMetricsCollector(object):
         """
         if api_version >= self.args.rundeck_api_version < 25:
             logging.warning(f'Unsupported API version "{self.args.rundeck_api_version}" '
-                         + f'for API request: /api/{self.args.rundeck_api_version}/metrics/metrics. '
-                         + 'Minimum supported version is 25')
+                            + f'for API request: /api/{self.args.rundeck_api_version}/metrics/metrics. '
+                            + 'Minimum supported version is 25')
         else:
             metrics = self.request_data_from('/metrics/metrics')
 
