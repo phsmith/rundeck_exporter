@@ -180,6 +180,7 @@ class RundeckMetricsCollector(object):
                 job_info = project_execution.get('job', {})
                 job_id = job_info.get('id', 'None')
                 job_name = job_info.get('name', 'None')
+                job_group = job_info.get('group', 'None')
                 execution_id = str(project_execution.get('id', 'None'))
 
                 if job_id in jobs_list:
@@ -190,19 +191,19 @@ class RundeckMetricsCollector(object):
                 start_metrics = GaugeMetricFamily(
                     'rundeck_project_start_timestamp',
                     f'Rundeck Project {project_name} Start Timestamp',
-                    labels=['project_name', 'job_id', 'job_name', 'execution_id']
+                    labels=['project_name', 'job_id', 'job_name', 'job_group', 'execution_id']
                 )
 
                 duration_metrics = GaugeMetricFamily(
                     'rundeck_project_execution_duration_seconds',
                     f'Rundeck Project {project_name} Execution Duration',
-                    labels=['project_name', 'job_id', 'job_name', 'execution_id']
+                    labels=['project_name', 'job_id', 'job_name', 'job_group', 'execution_id']
                 )
 
                 metrics = GaugeMetricFamily(
                     'rundeck_project_execution_status',
                     f'Rundeck Project {project_name} Execution Status',
-                    labels=['project_name', 'job_id', 'job_name', 'execution_id', 'status']
+                    labels=['project_name', 'job_id', 'job_name', 'job_group', 'execution_id', 'status']
                 )
 
                 # Job start/end times
@@ -215,6 +216,7 @@ class RundeckMetricsCollector(object):
                         project_name,
                         job_id,
                         job_name,
+                        job_group,
                         execution_id
                     ],
                     job_start_time
@@ -226,6 +228,7 @@ class RundeckMetricsCollector(object):
                         project_name,
                         job_id,
                         job_name,
+                        job_group,
                         execution_id
                     ],
                     job_execution_duration
@@ -244,6 +247,7 @@ class RundeckMetricsCollector(object):
                             project_name,
                             job_id,
                             job_name,
+                            job_group,
                             execution_id,
                             status
                         ],
