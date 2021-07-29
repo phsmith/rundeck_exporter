@@ -204,6 +204,9 @@ docker run --rm -d -p 9620:9620 -e RUNDECK_TOKEN=$RUNDECK_TOKEN rundeck_exporter
 ```
 
 ## Changelog
+`2.3.1`:
+* PR #19: Add job_group label to job metrics
+
 `2.3.0`:
 * Fix issue #16 - Added options --rundeck.cpu.stats, --rundeck.memory.stats and --version
 
