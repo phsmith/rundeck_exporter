@@ -14,11 +14,9 @@ LABEL maintainer="Phillipe Smith <phsmithcc@gmail.com>" \
       org.label-schema.version=$VERSION \
       org.label-schema.schema-version="1.0"
 
-RUN pip install --no-cache-dir \
-        cachetools==4.1.1 \
-        prometheus-client==0.8.0 \
-        requests==2.24.0
-
+COPY requirements.txt $PWD/requirements.txt
 COPY rundeck_exporter.py /usr/bin
+
+RUN pip install --no-cache-dir --disable-pip-version-check -r requirements.txt
 
 ENTRYPOINT ["/usr/bin/rundeck_exporter.py"]
