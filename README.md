@@ -204,6 +204,13 @@ docker run --rm -d -p 9620:9620 -e RUNDECK_TOKEN=$RUNDECK_TOKEN rundeck_exporter
 ```
 
 ## Changelog
+`2.3.2`:
+* Fix -h/--help description about required RUNDECK_TOKEN env var
+* Add pip requirements.txt file
+* Update .gitignore
+* Update Dockefile to use requirements.txt
+* Update Makefile to get VERSION from rundeck_exporter.py
+
 `2.3.1`:
 * PR #19: Add job_group label to job metrics
 
