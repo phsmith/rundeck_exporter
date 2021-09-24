@@ -4,10 +4,11 @@
 import re
 import logging
 import requests
+import textwrap
 from os import getenv
 from time import sleep
 from ast import literal_eval
-from argparse import ArgumentParser
+from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from concurrent.futures import ThreadPoolExecutor
 from cachetools import cached, TTLCache
 from prometheus_client import start_http_server
@@ -21,7 +22,7 @@ from prometheus_client.core import (
 __author__ = 'Phillipe Smith'
 __author_email__ = 'phsmithcc@gmail.com'
 __app__ = 'rundeck_exporter'
-__version__ = '2.3.0'
+__version__ = '2.3.2'
 
 # Disable InsecureRequestWarning
 requests.urllib3.disable_warnings()
@@ -32,7 +33,15 @@ class RundeckMetricsCollector(object):
     default_port = 9620
     rundeck_token = getenv('RUNDECK_TOKEN')
 
-    args_parser = ArgumentParser(description='Rundeck Metrics Exporter')
+    args_parser = ArgumentParser(
+        description=textwrap.dedent('''
+            Rundeck Metrics Exporter
+
+            required environment vars:
+                RUNDECK_TOKEN\tRundeck API Token
+        '''),
+        formatter_class=RawDescriptionHelpFormatter
+    )
     args_parser.add_argument('--debug',
                              help='Enable debug mode.',
                              default=getenv('RUNDECK_EXPORTER_DEBUG', False),
