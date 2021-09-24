@@ -1,4 +1,5 @@
 PROJECT_NAME = $(notdir $(PWD))
+VERSION = $(shell sed -nr "s/__version__ = '(.*)'/\1/p" rundeck_exporter.py)
 
 .SILENT: push
 
