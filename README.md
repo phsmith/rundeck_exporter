@@ -371,7 +371,6 @@ Optionally, it's possible to pass the following environment variables to the run
   ....
   ```
 </details>
-<br/>
 
 #### Running in Docker
 
