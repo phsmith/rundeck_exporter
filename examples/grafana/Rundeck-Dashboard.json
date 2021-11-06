@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 1,
-  "iteration": 1634906399786,
+  "iteration": 1636198779616,
   "links": [],
   "panels": [
     {
@@ -222,7 +222,7 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 6,
+        "w": 7,
         "x": 10,
         "y": 0
       },
@@ -289,15 +289,15 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 6,
-        "x": 16,
+        "w": 7,
+        "x": 17,
         "y": 0
       },
       "id": 21,
       "options": {
         "displayLabels": [],
         "legend": {
-          "displayMode": "list",
+          "displayMode": "table",
           "placement": "right",
           "values": [
             "value"
@@ -317,10 +317,10 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "topk(10, sum(rundeck_project_execution_duration_seconds) by (job_name)) > 0",
+          "expr": "topk(10, sum(rundeck_project_execution_duration_seconds{instance=\"$instance\"}) by (project_name,job_name)) > 0",
           "instant": false,
           "interval": "",
-          "legendFormat": "{{job_name}}",
+          "legendFormat": "{{project_name}} - {{job_name}}",
           "refId": "A"
         }
       ],
@@ -430,7 +430,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "rundeck_web_requests_requestTimer_total{instance=\"$instance\"}",
+          "expr": "abs(rundeck_api_requests_requestTimer_total{instance=\"$instance\"} - rundeck_web_requests_requestTimer_total{instance=\"$instance\"})",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -465,7 +465,7 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 11,
+        "w": 12,
         "x": 0,
         "y": 8
       },
@@ -532,8 +532,8 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 11,
-        "x": 11,
+        "w": 12,
+        "x": 12,
         "y": 8
       },
       "id": 22,
@@ -583,7 +583,7 @@
       "fillGradient": 0,
       "gridPos": {
         "h": 8,
-        "w": 12,
+        "w": 13,
         "x": 0,
         "y": 16
       },
@@ -622,6 +622,7 @@
           "exemplar": true,
           "expr": "rundeck_system_stats_memory_free_bytes{instance=\"$instance\"}",
           "interval": "",
+          "intervalFactor": 1,
           "legendFormat": "Free",
           "refId": "A"
         },
@@ -662,14 +663,16 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:183",
           "format": "bytes",
           "label": null,
-          "logBase": 1,
+          "logBase": 2,
           "max": null,
           "min": null,
           "show": true
         },
         {
+          "$$hashKey": "object:184",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -699,8 +702,8 @@
       "fillGradient": 0,
       "gridPos": {
         "h": 8,
-        "w": 10,
-        "x": 12,
+        "w": 11,
+        "x": 13,
         "y": 16
       },
       "hiddenSeries": false,
@@ -784,7 +787,7 @@
       }
     }
   ],
-  "refresh": "10s",
+  "refresh": "30s",
   "schemaVersion": 27,
   "style": "dark",
   "tags": [],
@@ -828,12 +831,12 @@
     ]
   },
   "time": {
-    "from": "now-30m",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Rundeck",
   "uid": "-roav3Gnk",
-  "version": 30
+  "version": 32
 }
