@@ -22,7 +22,7 @@ from prometheus_client.core import (
 __author__ = 'Phillipe Smith'
 __author_email__ = 'phsmithcc@gmail.com'
 __app__ = 'rundeck_exporter'
-__version__ = '2.3.2'
+__version__ = '2.4.0'
 
 # Disable InsecureRequestWarning
 requests.urllib3.disable_warnings()
@@ -174,10 +174,10 @@ class RundeckMetricsCollector(object):
         endpoint = f'/project/{project_name}/executions?recentFilter=1d'
         endpoint_running_executions = f'/project/{project_name}/executions/running?recentFilter=1d'
         default_labels = [
-            'project_name', 
-            'job_id', 
-            'job_name', 
-            'job_group', 
+            'project_name',
+            'job_id',
+            'job_name',
+            'job_group',
             'execution_id',
             'execution_type',
             'user'
@@ -216,7 +216,7 @@ class RundeckMetricsCollector(object):
                     execution_id,
                     execution_type,
                     user
-                ]                    
+                ]
 
                 start_metrics = GaugeMetricFamily(
                     'rundeck_project_start_timestamp',
@@ -239,7 +239,7 @@ class RundeckMetricsCollector(object):
                 # Job start/end times
                 job_start_time = project_execution.get('date-started', {}).get('unixtime', 0)
                 job_end_time = project_execution.get('date-ended', {}).get('unixtime', 0)
-                job_execution_duration = (job_end_time - job_start_time)                
+                job_execution_duration = (job_end_time - job_start_time)
 
                 start_metrics.add_metric(
                     default_metrics,
