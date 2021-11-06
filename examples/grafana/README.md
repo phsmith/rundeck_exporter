@@ -1,9 +1,14 @@
 ## Rundeck Exporter Grafana Dashboard
 ---
 
-Below is a example of a Grafana Dashboard. 
+Below is a example of a Grafana Dashboard.
 
-It can be imported from the following JSON file:
+The following parameters are required to make the dashboard works as in the image:
+- rundeck.projects.executions
+- rundeck.cpu.stats
+- rundeck.memory.stats
+
+The dashboard can be imported from the following JSON file:
 
 [Rundeck Grafana Dashboard JSON](Rundeck-Dashboard.json)
 
