@@ -22,7 +22,7 @@ from prometheus_client.core import (
 __author__ = 'Phillipe Smith'
 __author_email__ = 'phsmithcc@gmail.com'
 __app__ = 'rundeck_exporter'
-__version__ = '2.3.2'
+__version__ = '2.4.0'
 
 # Disable InsecureRequestWarning
 requests.urllib3.disable_warnings()
@@ -173,6 +173,15 @@ class RundeckMetricsCollector(object):
         metrics = None
         endpoint = f'/project/{project_name}/executions?recentFilter=1d'
         endpoint_running_executions = f'/project/{project_name}/executions/running?recentFilter=1d'
+        default_labels = [
+            'project_name',
+            'job_id',
+            'job_name',
+            'job_group',
+            'execution_id',
+            'execution_type',
+            'user'
+        ]
 
         try:
             if self.args.rundeck_projects_executions_cache:
@@ -191,28 +200,40 @@ class RundeckMetricsCollector(object):
                 job_name = job_info.get('name', 'None')
                 job_group = job_info.get('group', 'None')
                 execution_id = str(project_execution.get('id', 'None'))
+                execution_type = project_execution.get('executionType')
+                user = project_execution.get('user')
 
                 if job_id in jobs_list:
                     continue
 
                 jobs_list.append(job_id)
 
+                default_metrics = [
+                    project_name,
+                    job_id,
+                    job_name,
+                    job_group,
+                    execution_id,
+                    execution_type,
+                    user
+                ]
+
                 start_metrics = GaugeMetricFamily(
                     'rundeck_project_start_timestamp',
                     f'Rundeck Project {project_name} Start Timestamp',
-                    labels=['project_name', 'job_id', 'job_name', 'job_group', 'execution_id']
+                    labels=default_labels
                 )
 
                 duration_metrics = GaugeMetricFamily(
                     'rundeck_project_execution_duration_seconds',
                     f'Rundeck Project {project_name} Execution Duration',
-                    labels=['project_name', 'job_id', 'job_name', 'job_group', 'execution_id']
+                    labels=default_labels
                 )
 
                 metrics = GaugeMetricFamily(
                     'rundeck_project_execution_status',
                     f'Rundeck Project {project_name} Execution Status',
-                    labels=['project_name', 'job_id', 'job_name', 'job_group', 'execution_id', 'status']
+                    labels=default_labels + ['status']
                 )
 
                 # Job start/end times
@@ -221,25 +242,13 @@ class RundeckMetricsCollector(object):
                 job_execution_duration = (job_end_time - job_start_time)
 
                 start_metrics.add_metric(
-                    [
-                        project_name,
-                        job_id,
-                        job_name,
-                        job_group,
-                        execution_id
-                    ],
+                    default_metrics,
                     job_start_time
                 )
                 project_executions_status.append(start_metrics)
 
                 duration_metrics.add_metric(
-                    [
-                        project_name,
-                        job_id,
-                        job_name,
-                        job_group,
-                        execution_id
-                    ],
+                    default_metrics,
                     job_execution_duration
                 )
 
@@ -252,14 +261,7 @@ class RundeckMetricsCollector(object):
                         value = 1
 
                     metrics.add_metric(
-                        [
-                            project_name,
-                            job_id,
-                            job_name,
-                            job_group,
-                            execution_id,
-                            status
-                        ],
+                        default_metrics + [status],
                         value
                     )
 
