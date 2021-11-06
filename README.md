@@ -1,8 +1,3 @@
----
-title: Scrollable code blocks
-output: html_document
----
-
 ## Rundeck_Exporter
 
 ![Docker Pulls](https://img.shields.io/docker/pulls/phsmith/rundeck-exporter?logo=docker&)
