@@ -367,9 +367,9 @@ Optionally, it's possible to pass the following environment variables to the run
   ```
 </details>
 
-#### Running in Docker
+#### Running with Docker
 
-```
+```sh
 docker build -t rundeck_exporter .
 
 docker run --rm -d -p 9620:9620 -e RUNDECK_TOKEN=$RUNDECK_TOKEN rundeck_exporter \
@@ -377,8 +377,25 @@ docker run --rm -d -p 9620:9620 -e RUNDECK_TOKEN=$RUNDECK_TOKEN rundeck_exporter
 --rundeck.url https://rundeck.test.com \
 --rundeck.skip_ssl
 ```
+#### Running with Docker-Compose
+
+```sh
+cd examples/docker-compose
+docker-compose up -d
+```
+
+Docker Compose services:
+- Rundeck - http://localhost:4440
+- Rundeck Exporter - http://localhost:9620
+- Prometheus - http://localhost:9090 (already configured to scrape rundeck_exporter metrics)
+- Grafana - http://localhost:3000 (already configured with Prometheus Datasource and Rundeck Dashboard)
+
+After provisioning of the docker-compose services, access Rundeck from http://localhost:4440/user/profile and gerate a new API token. Place the token at **RUNDECK_TOKEN** environment variable in the **docker-compose.yml** and run `docker-compose up -d` again.
 
 ## Changelog
+`2.4.1`:
+* Add docker-compose example
+
 `2.4.0`:
 * Add Grafana dashboard examples
 * Add execution_type and user to rundeck_project_execution_status metrics
