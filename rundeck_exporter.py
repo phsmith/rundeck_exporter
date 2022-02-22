@@ -22,7 +22,7 @@ from prometheus_client.core import (
 __author__ = 'Phillipe Smith'
 __author_email__ = 'phsmithcc@gmail.com'
 __app__ = 'rundeck_exporter'
-__version__ = '2.4.0'
+__version__ = '2.4.2'
 
 # Disable InsecureRequestWarning
 requests.urllib3.disable_warnings()
@@ -379,7 +379,8 @@ class RundeckMetricsCollector(object):
         if api_version >= self.args.rundeck_api_version < 25:
             logging.warning(f'Unsupported API version "{self.args.rundeck_api_version}" '
                             + f'for API request: /api/{self.args.rundeck_api_version}/metrics/metrics. '
-                            + 'Minimum supported version is 25')
+                            + 'Minimum supported version is 25.'
+                            + 'Some metrics like rundeck_scheduler_quartz_* will not be available.')
         else:
             metrics = self.request_data_from('/metrics/metrics')
 
