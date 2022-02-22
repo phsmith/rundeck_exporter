@@ -69,7 +69,7 @@ jobs:
 
       - name: Push image hub.docker.com
         run: |
-          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login hub.docker.com -u ${{ github.actor }} --password-stdin
+          echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u ${{ github.actor }} --password-stdin
 
           IMAGE_ID=${{ github.actor }}/$IMAGE_NAME
 
