@@ -393,6 +393,10 @@ Docker Compose services:
 After provisioning of the docker-compose services, access Rundeck from http://localhost:4440/user/profile and gerate a new API token. Place the token at **RUNDECK_TOKEN** environment variable in the **docker-compose.yml** and run `docker-compose up -d` again.
 
 ## Changelog
+`2.4.3`:
+* Fix issue #27 rundeck_scheduler_quartz_scheduledJobs not showing up
+* Add rundeck.username and RUNDECK_PASSWORD env support for Rundeck API versions older than 24
+
 `2.4.2`:
 * Add hub.docker.com image build and publish
 * Add .gitkeep file

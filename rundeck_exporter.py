@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 import re
+import json
 import logging
 import requests
 import textwrap
@@ -22,7 +23,7 @@ from prometheus_client.core import (
 __author__ = 'Phillipe Smith'
 __author_email__ = 'phsmithcc@gmail.com'
 __app__ = 'rundeck_exporter'
-__version__ = '2.4.2'
+__version__ = '2.4.3'
 
 # Disable InsecureRequestWarning
 requests.urllib3.disable_warnings()
@@ -32,13 +33,17 @@ class RundeckMetricsCollector(object):
     default_host = '127.0.0.1'
     default_port = 9620
     rundeck_token = getenv('RUNDECK_TOKEN')
+    rundeck_userpassword = getenv('RUNDECK_USERPASSWORD')
 
     args_parser = ArgumentParser(
         description=textwrap.dedent('''
             Rundeck Metrics Exporter
 
             required environment vars:
-                RUNDECK_TOKEN\tRundeck API Token
+                RUNDECK_TOKEN\t Rundeck API Token
+                RUNDECK_USERPASSWORD Rundeck User Password (rundeck.username is needed too)
+                                     to retrieve data from /metrics/metrics
+                                     from Rundeck with API versions older than 25
         '''),
         formatter_class=RawDescriptionHelpFormatter
     )
@@ -78,6 +83,12 @@ class RundeckMetricsCollector(object):
                              help='Default: 34.',
                              type=int,
                              default=getenv('RUNDECK_API_VERSION', 34)
+                             )
+    args_parser.add_argument('--rundeck.username',
+                             dest='rundeck_username',
+                             help='Rundeck User with access to the system information.',
+                             default=getenv('RUNDECK_USERNAME'),
+                             required=False
                              )
     args_parser.add_argument('--rundeck.projects.executions',
                              dest='rundeck_projects_executions',
@@ -139,22 +150,38 @@ class RundeckMetricsCollector(object):
     """
     def request_data_from(self, endpoint: str) -> dict:
         response = None
+        session = requests.Session()
 
         try:
-            response = requests.get(
-                f'{self.args.rundeck_url}/api/{self.args.rundeck_api_version}{endpoint}',
-                headers={
-                    'Accept': 'application/json',
-                    'X-Rundeck-Auth-Token': self.rundeck_token
-                },
-                verify=not self.args.rundeck_skip_ssl
-            )
-            response_json = response.json()
+            if self.args.rundeck_username and self.rundeck_userpassword and endpoint == '/metrics/metrics':
+                request_url = f'{self.args.rundeck_url}{endpoint}'
+
+                session.post(
+                    f'{self.args.rundeck_url}/j_security_check',
+                    data={"j_username": self.args.rundeck_username, "j_password": self.rundeck_userpassword},
+                    verify=not self.args.rundeck_skip_ssl
+                )
+
+                response = session.get(request_url)
+                response_json = json.loads(response.text)
+            else:
+                request_url = f'{self.args.rundeck_url}/api/{self.args.rundeck_api_version}{endpoint}'
+                response = requests.get(
+                    request_url,
+                    headers={
+                        'Accept': 'application/json',
+                        'X-Rundeck-Auth-Token': self.rundeck_token
+                    },
+                    verify=not self.args.rundeck_skip_ssl
+                )
+                response_json = response.json()
 
             if response_json and isinstance(response_json, dict) and response_json.get('error') is True:
                 raise Exception(response_json.get('message'))
 
             return response_json
+        except json.JSONDecodeError as error:
+            self.exit_with_msg(msg=f'Invalid JSON Response from {request_url}', level='critical')
         except Exception as error:
             self.exit_with_msg(msg=response.text if response else str(error), level='critical')
 
@@ -376,7 +403,8 @@ class RundeckMetricsCollector(object):
         """
         Rundeck counters
         """
-        if api_version >= self.args.rundeck_api_version < 25:
+        if api_version >= self.args.rundeck_api_version < 25 \
+            and not (self.args.rundeck_username and self.rundeck_userpassword):
             logging.warning(f'Unsupported API version "{self.args.rundeck_api_version}" '
                             + f'for API request: /api/{self.args.rundeck_api_version}/metrics/metrics. '
                             + 'Minimum supported version is 25.'
