@@ -38,11 +38,22 @@ Rundeck token must be passed as a environment variable (RUNDECK_TOKEN) to work.
 The rundeck_exporter supports the following paramenters:
 
 ```
-$ ./rundeck_exporter.py -h
+$ ./rundeck_exporter.py --help
+
+usage: rundeck_exporter.py [-h] [--debug] [-v] [--host RUNDECK_EXPORTER_HOST] [--port RUNDECK_EXPORTER_PORT] [--rundeck.url RUNDECK_URL] [--rundeck.skip_ssl]
+                           [--rundeck.api.version RUNDECK_API_VERSION] [--rundeck.username RUNDECK_USERNAME] [--rundeck.projects.executions]
+                           [--rundeck.projects.filter RUNDECK_PROJECTS_FILTER [RUNDECK_PROJECTS_FILTER ...]] [--rundeck.projects.executions.cache]
+                           [--rundeck.cached.requests.ttl RUNDECK_CACHED_REQUESTS_TTL] [--rundeck.cpu.stats] [--rundeck.memory.stats]
 
 Rundeck Metrics Exporter
 
-optional arguments:
+required environment vars:
+    RUNDECK_TOKEN        Rundeck API Token
+    RUNDECK_USERPASSWORD Rundeck User Password (rundeck.username is needed too)
+                         to retrieve data from /metrics/metrics
+                         from Rundeck with API versions older than 25
+
+options:
   -h, --help            show this help message and exit
   --debug               Enable debug mode.
   -v, --version         Shows rundeck_exporter current release version.
@@ -55,6 +66,8 @@ optional arguments:
   --rundeck.skip_ssl    Rundeck Skip SSL Cert Validate.
   --rundeck.api.version RUNDECK_API_VERSION
                         Default: 34.
+  --rundeck.username RUNDECK_USERNAME
+                        Rundeck User with access to the system information.
   --rundeck.projects.executions
                         Get projects executions metrics.
   --rundeck.projects.filter RUNDECK_PROJECTS_FILTER [RUNDECK_PROJECTS_FILTER ...]
