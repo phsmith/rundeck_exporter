@@ -90,6 +90,7 @@ Optionally, it's possible to pass the following environment variables to the run
 | RUNDECK_EXPORTER_PORT | Default: 9620 | Binding port. |
 | RUNDECK_URL (required) | | Rundeck base URL |
 | RUNDECK_TOKEN (required) | | Rundeck access token |
+| RUNDECK_USERNAME | | Rundeck User with access to the system information |
 | RUNDECK_API_VERSION | Default: 31 | Rundeck API version. |
 | RUNDECK_SKIP_SSL | <ul><li>True</li><li>False (default)</li></ul> | Skip SSL certificate check. |
 | RUNDECK_PROJECTS_EXECUTIONS | <ul><li>True</li><li>False (default)</li></ul> | Get projects executions metrics. |
