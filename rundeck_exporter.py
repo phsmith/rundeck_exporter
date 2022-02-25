@@ -23,7 +23,7 @@ from prometheus_client.core import (
 __author__ = 'Phillipe Smith'
 __author_email__ = 'phsmithcc@gmail.com'
 __app__ = 'rundeck_exporter'
-__version__ = '2.4.3'
+__version__ = '2.4.4'
 
 # Disable InsecureRequestWarning
 requests.urllib3.disable_warnings()
@@ -41,9 +41,7 @@ class RundeckMetricsCollector(object):
 
             required environment vars:
                 RUNDECK_TOKEN\t Rundeck API Token
-                RUNDECK_USERPASSWORD Rundeck User Password (rundeck.username is needed too)
-                                     to retrieve data from /metrics/metrics
-                                     from Rundeck with API versions older than 25
+                RUNDECK_USERPASSWORD Rundeck User Password (RUNDECK_USERNAME or --rundeck.username are required too)
         '''),
         formatter_class=RawDescriptionHelpFormatter
     )
@@ -142,8 +140,9 @@ class RundeckMetricsCollector(object):
             print(f'{__app__} {__version__}')
             exit(0)
 
-        if not self.args.rundeck_url or not self.rundeck_token:
-            self.exit_with_msg(msg='Rundeck URL and Token are required.', level='critical')
+        if not self.args.rundeck_url \
+            or not (self.rundeck_token or self.args.rundeck_username and self.rundeck_userpassword):
+            self.exit_with_msg(msg='Rundeck URL and Token or User/Password are required.', level='critical')
 
     """
     Method to manage requests on Rundeck API Endpoints
@@ -153,20 +152,20 @@ class RundeckMetricsCollector(object):
         session = requests.Session()
 
         try:
-            if self.args.rundeck_username and self.rundeck_userpassword and endpoint == '/metrics/metrics':
-                request_url = f'{self.args.rundeck_url}{endpoint}'
-
+            if self.args.rundeck_username and self.rundeck_userpassword:
                 session.post(
                     f'{self.args.rundeck_url}/j_security_check',
                     data={"j_username": self.args.rundeck_username, "j_password": self.rundeck_userpassword},
                     verify=not self.args.rundeck_skip_ssl
                 )
 
+            if endpoint == '/metrics/metrics' and session.cookies.get('JSESSIONID'):
+                request_url = f'{self.args.rundeck_url}{endpoint}'
                 response = session.get(request_url)
                 response_json = json.loads(response.text)
             else:
                 request_url = f'{self.args.rundeck_url}/api/{self.args.rundeck_api_version}{endpoint}'
-                response = requests.get(
+                response = session.get(
                     request_url,
                     headers={
                         'Accept': 'application/json',
@@ -405,10 +404,11 @@ class RundeckMetricsCollector(object):
         """
         if api_version >= self.args.rundeck_api_version < 25 \
             and not (self.args.rundeck_username and self.rundeck_userpassword):
-            logging.warning(f'Unsupported API version "{self.args.rundeck_api_version}" '
-                            + f'for API request: /api/{self.args.rundeck_api_version}/metrics/metrics. '
-                            + 'Minimum supported version is 25.'
-                            + 'Some metrics like rundeck_scheduler_quartz_* will not be available.')
+            logging.warning(f'Unsupported API version "{self.args.rundeck_api_version}"'
+                            + f' for API request: /api/{self.args.rundeck_api_version}/metrics/metrics.'
+                            + ' Minimum supported version is 25.'
+                            + ' Some metrics like rundeck_scheduler_quartz_* will not be available.'
+                            + ' Use Username and Password options to get the metrics.')
         else:
             metrics = self.request_data_from('/metrics/metrics')
 

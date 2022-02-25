@@ -33,7 +33,9 @@ pip install prometheus-client requests cachetools
 
 ## Usage
 
-Rundeck token must be passed as a environment variable (RUNDECK_TOKEN) to work.
+Rundeck token or username and password are required.
+
+The token (`RUNDECK_TOKEN`) or password (`RUNDECK_USERPASSWORD`) must be passed as environment variables to work.
 
 The rundeck_exporter supports the following paramenters:
 
@@ -49,9 +51,7 @@ Rundeck Metrics Exporter
 
 required environment vars:
     RUNDECK_TOKEN        Rundeck API Token
-    RUNDECK_USERPASSWORD Rundeck User Password (rundeck.username is needed too)
-                         to retrieve data from /metrics/metrics
-                         from Rundeck with API versions older than 25
+    RUNDECK_USERPASSWORD Rundeck User Password (RUNDECK_USERNAME or --rundeck.username are required too)
 
 options:
   -h, --help            show this help message and exit
@@ -407,6 +407,9 @@ Docker Compose services:
 After provisioning of the docker-compose services, access Rundeck from http://localhost:4440/user/profile and gerate a new API token. Place the token at **RUNDECK_TOKEN** environment variable in the **docker-compose.yml** and run `docker-compose up -d` again.
 
 ## Changelog
+`2.4.4`:
+* Remove the Rundeck token requiment if username and password options are used
+
 `2.4.3`:
 * Fix issue #27 rundeck_scheduler_quartz_scheduledJobs not showing up
 * Add rundeck.username and RUNDECK_PASSWORD env support for Rundeck API versions older than 24
