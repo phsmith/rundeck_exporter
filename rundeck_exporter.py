@@ -23,7 +23,7 @@ from prometheus_client.core import (
 __author__ = 'Phillipe Smith'
 __author_email__ = 'phsmithcc@gmail.com'
 __app__ = 'rundeck_exporter'
-__version__ = '2.4.4'
+__version__ = '2.4.5'
 
 # Disable InsecureRequestWarning
 requests.urllib3.disable_warnings()
@@ -191,7 +191,7 @@ class RundeckMetricsCollector(object):
     """
     Method to get Rundeck projects executions info
     """
-    def get_project_executions(self, project: dict):
+    def get_project_executions(self, node: str, project: dict):
         project_name = project['name']
         project_executions = None
         project_executions_status = list()
@@ -200,6 +200,7 @@ class RundeckMetricsCollector(object):
         endpoint = f'/project/{project_name}/executions?recentFilter=1d'
         endpoint_running_executions = f'/project/{project_name}/executions/running?recentFilter=1d'
         default_labels = [
+            'node',
             'project_name',
             'job_id',
             'job_name',
@@ -235,6 +236,7 @@ class RundeckMetricsCollector(object):
                 jobs_list.append(job_id)
 
                 default_metrics = [
+                    node,
                     project_name,
                     job_id,
                     job_name,
@@ -331,7 +333,7 @@ class RundeckMetricsCollector(object):
     """
     Method to get Rundeck metrics counters, gauges and timers
     """
-    def get_counters(self, metrics: dict):
+    def get_counters(self, node: str, metrics: dict):
         for metric, metric_value in metrics.items():
             if not isinstance(metric_value, dict):
                 continue
@@ -347,9 +349,13 @@ class RundeckMetricsCollector(object):
 
                 if metric == 'counters' and 'status' not in counter_name:
                     counter_value = counter_value['count']
-                    rundeck_counters = GaugeMetricFamily(counter_name, 'Rundeck counters metrics')
+                    rundeck_counters = GaugeMetricFamily(
+                        name=counter_name,
+                        documentation='Rundeck counters metrics',
+                        labels=["node"]
+                    )
 
-                    rundeck_counters.add_metric([], counter_value)
+                    rundeck_counters.add_metric([node], counter_value)
 
                     yield rundeck_counters
 
@@ -357,14 +363,22 @@ class RundeckMetricsCollector(object):
                     counter_value = counter_value['value']
 
                     if 'services' in counter_name:
-                        rundeck_gauges = CounterMetricFamily(counter_name, 'Rundeck gauges metrics')
+                        rundeck_gauges = CounterMetricFamily(
+                            name=counter_name,
+                            documentation='Rundeck gauges metrics',
+                            labels=["node"]
+                        )
                     else:
-                        rundeck_gauges = GaugeMetricFamily(counter_name, 'Rundeck gauges metrics')
+                        rundeck_gauges = GaugeMetricFamily(
+                            name=counter_name,
+                            documentation='Rundeck gauges metrics',
+                            labels=["node"]
+                        )
 
                     if counter_value is not None:
-                        rundeck_gauges.add_metric([], counter_value)
+                        rundeck_gauges.add_metric([node], counter_value)
                     else:
-                        rundeck_gauges.add_metric([], 0)
+                        rundeck_gauges.add_metric([node], 0)
 
                     yield rundeck_gauges
 
@@ -372,11 +386,12 @@ class RundeckMetricsCollector(object):
                     for counter, value in counter_value.items():
                         if counter == 'count' and not isinstance(value, str):
                             rundeck_meters_timers = CounterMetricFamily(
-                                counter_name,
-                                f"Rundeck {metric} metrics"
+                                name=counter_name,
+                                documentation=f"Rundeck {metric} metrics",
+                                labels=["node"]
                             )
 
-                            rundeck_meters_timers.add_metric([], value)
+                            rundeck_meters_timers.add_metric([node], value)
 
                             yield rundeck_meters_timers
 
@@ -389,6 +404,7 @@ class RundeckMetricsCollector(object):
         """
         system_info = self.request_data_from('/system/info')
         api_version = system_info['system']['rundeck']['apiversion']
+        rundeck_node = system_info['system']['rundeck']['node']
         rundeck_system_info = InfoMetricFamily('rundeck_system', 'Rundeck system info')
         rundeck_system_info.add_metric([], {x: str(y) for x, y in system_info['system']['rundeck'].items()})
         yield rundeck_system_info
@@ -412,7 +428,7 @@ class RundeckMetricsCollector(object):
         else:
             metrics = self.request_data_from('/metrics/metrics')
 
-            for counters in self.get_counters(metrics):
+            for counters in self.get_counters(rundeck_node, metrics):
                 yield counters
 
         """
@@ -430,7 +446,7 @@ class RundeckMetricsCollector(object):
                     projects = self.request_data_from(endpoint)
 
             with ThreadPoolExecutor() as threadpool:
-                project_executions = threadpool.map(self.get_project_executions, projects)
+                project_executions = threadpool.map(self.get_project_executions, [rundeck_node], projects)
 
                 for executions in project_executions:
                     for execution in executions:
