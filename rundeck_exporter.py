@@ -302,7 +302,7 @@ class RundeckMetricsCollector(object):
     """
     Method to get Rundeck system stats
     """
-    def get_system_stats(self, system_info: dict):
+    def get_system_stats(self, node: str, system_info: dict):
         for stat, stat_values in system_info['system']['stats'].items():
             for counter, value in stat_values.items():
                 if counter in ['unit', 'duration']:
@@ -322,11 +322,12 @@ class RundeckMetricsCollector(object):
                         continue
 
                 rundeck_system_stats = GaugeMetricFamily(
-                    f'rundeck_system_stats_{stat}_{counter}',
-                    'Rundeck system stats'
+                    name=f'rundeck_system_stats_{stat}_{counter}',
+                    documentation='Rundeck system stats',
+                    labels=['node']
                 )
 
-                rundeck_system_stats.add_metric([], value)
+                rundeck_system_stats.add_metric([node], value)
 
                 yield rundeck_system_stats
 
@@ -352,7 +353,7 @@ class RundeckMetricsCollector(object):
                     rundeck_counters = GaugeMetricFamily(
                         name=counter_name,
                         documentation='Rundeck counters metrics',
-                        labels=["node"]
+                        labels=['node']
                     )
 
                     rundeck_counters.add_metric([node], counter_value)
@@ -366,13 +367,13 @@ class RundeckMetricsCollector(object):
                         rundeck_gauges = CounterMetricFamily(
                             name=counter_name,
                             documentation='Rundeck gauges metrics',
-                            labels=["node"]
+                            labels=['node']
                         )
                     else:
                         rundeck_gauges = GaugeMetricFamily(
                             name=counter_name,
                             documentation='Rundeck gauges metrics',
-                            labels=["node"]
+                            labels=['node']
                         )
 
                     if counter_value is not None:
@@ -388,7 +389,7 @@ class RundeckMetricsCollector(object):
                             rundeck_meters_timers = CounterMetricFamily(
                                 name=counter_name,
                                 documentation=f"Rundeck {metric} metrics",
-                                labels=["node"]
+                                labels=['node']
                             )
 
                             rundeck_meters_timers.add_metric([node], value)
@@ -412,7 +413,7 @@ class RundeckMetricsCollector(object):
         """
         Rundeck system stats
         """
-        for system_stats in self.get_system_stats(system_info):
+        for system_stats in self.get_system_stats(rundeck_node, system_info):
             yield system_stats
 
         """
