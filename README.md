@@ -108,7 +108,6 @@ Optionally, it's possible to pass the following environment variables to the run
   ```
   $ curl -s http://127.0.0.1:9620
 
-  # HELP python_gc_objects_collected_total Objects collected during gc
   # TYPE python_gc_objects_collected_total counter
   python_gc_objects_collected_total{generation="0"} 1030.0
   python_gc_objects_collected_total{generation="1"} 170.0
@@ -131,13 +130,13 @@ Optionally, it's possible to pass the following environment variables to the run
   process_virtual_memory_bytes 6.54348288e+08
   # HELP process_resident_memory_bytes Resident memory size in bytes.
   # TYPE process_resident_memory_bytes gauge
-  process_resident_memory_bytes 3.9186432e+07
+  process_resident_memory_bytes 3.9170048e+07
   # HELP process_start_time_seconds Start time of the process since unix epoch in seconds.
   # TYPE process_start_time_seconds gauge
-  process_start_time_seconds 1.6463067603e+09
+  process_start_time_seconds 1.64648236585e+09
   # HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.
   # TYPE process_cpu_seconds_total counter
-  process_cpu_seconds_total 0.91
+  process_cpu_seconds_total 0.61
   # HELP process_open_fds Number of open file descriptors.
   # TYPE process_open_fds gauge
   process_open_fds 7.0
@@ -146,243 +145,243 @@ Optionally, it's possible to pass the following environment variables to the run
   process_max_fds 8192.0
   # HELP rundeck_system_info Rundeck system info
   # TYPE rundeck_system_info gauge
-  rundeck_system_info{apiversion="40",base="/home/rundeck",build="3.4.8-20211214",buildGit="v3.4.8-0-g62288dc",node="e95f20a5cf9b",serverUUID="a14bc3e6-75e8-4fe4-a90d-a16dcc976bf6",version="3.4.8-20211214"} 1.0
+  rundeck_system_info{apiversion="40",base="/home/rundeck",build="3.4.8-20211214",buildGit="v3.4.8-0-g62288dc",instance_address="localhost:4440",node="e95f20a5cf9b",serverUUID="a14bc3e6-75e8-4fe4-a90d-a16dcc976bf6",version="3.4.8-20211214"} 1.0
   # HELP rundeck_system_stats_uptime_since Rundeck system stats
   # TYPE rundeck_system_stats_uptime_since gauge
-  rundeck_system_stats_uptime_since{node="e95f20a5cf9b"} 1.646301608168e+012
+  rundeck_system_stats_uptime_since{instance_address="localhost:4440"} 1.64648126618e+012
   # HELP rundeck_system_stats_scheduler_running Rundeck system stats
   # TYPE rundeck_system_stats_scheduler_running gauge
-  rundeck_system_stats_scheduler_running{node="e95f20a5cf9b"} 2.0
+  rundeck_system_stats_scheduler_running{instance_address="localhost:4440"} 0.0
   # HELP rundeck_system_stats_scheduler_threadPoolSize Rundeck system stats
   # TYPE rundeck_system_stats_scheduler_threadPoolSize gauge
-  rundeck_system_stats_scheduler_threadPoolSize{node="e95f20a5cf9b"} 10.0
+  rundeck_system_stats_scheduler_threadPoolSize{instance_address="localhost:4440"} 10.0
   # HELP rundeck_system_stats_threads_active Rundeck system stats
   # TYPE rundeck_system_stats_threads_active gauge
-  rundeck_system_stats_threads_active{node="e95f20a5cf9b"} 48.0
+  rundeck_system_stats_threads_active{instance_address="localhost:4440"} 39.0
   # HELP rundeck_com_dtolabs_rundeck_server_AuthContextEvaluatorCacheManager_authContextEvaluatorCache_evictionCount Rundeck gauges metrics
   # TYPE rundeck_com_dtolabs_rundeck_server_AuthContextEvaluatorCacheManager_authContextEvaluatorCache_evictionCount gauge
-  rundeck_com_dtolabs_rundeck_server_AuthContextEvaluatorCacheManager_authContextEvaluatorCache_evictionCount{node="e95f20a5cf9b"} 0.0
+  rundeck_com_dtolabs_rundeck_server_AuthContextEvaluatorCacheManager_authContextEvaluatorCache_evictionCount{instance_address="localhost:4440"} 0.0
   # HELP rundeck_com_dtolabs_rundeck_server_AuthContextEvaluatorCacheManager_authContextEvaluatorCache_hitCount Rundeck gauges metrics
   # TYPE rundeck_com_dtolabs_rundeck_server_AuthContextEvaluatorCacheManager_authContextEvaluatorCache_hitCount gauge
-  rundeck_com_dtolabs_rundeck_server_AuthContextEvaluatorCacheManager_authContextEvaluatorCache_hitCount{node="e95f20a5cf9b"} 0.0
+  rundeck_com_dtolabs_rundeck_server_AuthContextEvaluatorCacheManager_authContextEvaluatorCache_hitCount{instance_address="localhost:4440"} 0.0
   # HELP rundeck_com_dtolabs_rundeck_server_AuthContextEvaluatorCacheManager_authContextEvaluatorCache_loadExceptionCount Rundeck gauges metrics
   # TYPE rundeck_com_dtolabs_rundeck_server_AuthContextEvaluatorCacheManager_authContextEvaluatorCache_loadExceptionCount gauge
-  rundeck_com_dtolabs_rundeck_server_AuthContextEvaluatorCacheManager_authContextEvaluatorCache_loadExceptionCount{node="e95f20a5cf9b"} 0.0
+  rundeck_com_dtolabs_rundeck_server_AuthContextEvaluatorCacheManager_authContextEvaluatorCache_loadExceptionCount{instance_address="localhost:4440"} 0.0
   # HELP rundeck_com_dtolabs_rundeck_server_AuthContextEvaluatorCacheManager_authContextEvaluatorCache_missCount Rundeck gauges metrics
   # TYPE rundeck_com_dtolabs_rundeck_server_AuthContextEvaluatorCacheManager_authContextEvaluatorCache_missCount gauge
-  rundeck_com_dtolabs_rundeck_server_AuthContextEvaluatorCacheManager_authContextEvaluatorCache_missCount{node="e95f20a5cf9b"} 0.0
+  rundeck_com_dtolabs_rundeck_server_AuthContextEvaluatorCacheManager_authContextEvaluatorCache_missCount{instance_address="localhost:4440"} 0.0
   # HELP rundeck_dataSource_connection_pingTime Rundeck gauges metrics
   # TYPE rundeck_dataSource_connection_pingTime gauge
-  rundeck_dataSource_connection_pingTime{node="e95f20a5cf9b"} 0.0
+  rundeck_dataSource_connection_pingTime{instance_address="localhost:4440"} 0.0
   # HELP rundeck_scheduler_quartz_runningExecutions Rundeck gauges metrics
   # TYPE rundeck_scheduler_quartz_runningExecutions gauge
-  rundeck_scheduler_quartz_runningExecutions{node="e95f20a5cf9b"} 2.0
+  rundeck_scheduler_quartz_runningExecutions{instance_address="localhost:4440"} 0.0
   # HELP rundeck_services_AuthorizationService_sourceCache_evictionCount_total Rundeck gauges metrics
   # TYPE rundeck_services_AuthorizationService_sourceCache_evictionCount_total counter
-  rundeck_services_AuthorizationService_sourceCache_evictionCount_total{node="e95f20a5cf9b"} 0.0
+  rundeck_services_AuthorizationService_sourceCache_evictionCount_total{instance_address="localhost:4440"} 0.0
   # HELP rundeck_services_AuthorizationService_sourceCache_hitCount_total Rundeck gauges metrics
   # TYPE rundeck_services_AuthorizationService_sourceCache_hitCount_total counter
-  rundeck_services_AuthorizationService_sourceCache_hitCount_total{node="e95f20a5cf9b"} 0.0
+  rundeck_services_AuthorizationService_sourceCache_hitCount_total{instance_address="localhost:4440"} 0.0
   # HELP rundeck_services_AuthorizationService_sourceCache_loadExceptionCount_total Rundeck gauges metrics
   # TYPE rundeck_services_AuthorizationService_sourceCache_loadExceptionCount_total counter
-  rundeck_services_AuthorizationService_sourceCache_loadExceptionCount_total{node="e95f20a5cf9b"} 0.0
+  rundeck_services_AuthorizationService_sourceCache_loadExceptionCount_total{instance_address="localhost:4440"} 0.0
   # HELP rundeck_services_AuthorizationService_sourceCache_missCount_total Rundeck gauges metrics
   # TYPE rundeck_services_AuthorizationService_sourceCache_missCount_total counter
-  rundeck_services_AuthorizationService_sourceCache_missCount_total{node="e95f20a5cf9b"} 0.0
+  rundeck_services_AuthorizationService_sourceCache_missCount_total{instance_address="localhost:4440"} 0.0
   # HELP rundeck_services_NodeService_nodeCache_evictionCount_total Rundeck gauges metrics
   # TYPE rundeck_services_NodeService_nodeCache_evictionCount_total counter
-  rundeck_services_NodeService_nodeCache_evictionCount_total{node="e95f20a5cf9b"} 0.0
+  rundeck_services_NodeService_nodeCache_evictionCount_total{instance_address="localhost:4440"} 0.0
   # HELP rundeck_services_NodeService_nodeCache_hitCount_total Rundeck gauges metrics
   # TYPE rundeck_services_NodeService_nodeCache_hitCount_total counter
-  rundeck_services_NodeService_nodeCache_hitCount_total{node="e95f20a5cf9b"} 814.0
+  rundeck_services_NodeService_nodeCache_hitCount_total{instance_address="localhost:4440"} 182.0
   # HELP rundeck_services_NodeService_nodeCache_loadExceptionCount_total Rundeck gauges metrics
   # TYPE rundeck_services_NodeService_nodeCache_loadExceptionCount_total counter
-  rundeck_services_NodeService_nodeCache_loadExceptionCount_total{node="e95f20a5cf9b"} 0.0
+  rundeck_services_NodeService_nodeCache_loadExceptionCount_total{instance_address="localhost:4440"} 0.0
   # HELP rundeck_services_NodeService_nodeCache_missCount_total Rundeck gauges metrics
   # TYPE rundeck_services_NodeService_nodeCache_missCount_total counter
-  rundeck_services_NodeService_nodeCache_missCount_total{node="e95f20a5cf9b"} 8.0
+  rundeck_services_NodeService_nodeCache_missCount_total{instance_address="localhost:4440"} 10.0
   # HELP rundeck_services_ProjectManagerService_fileCache_evictionCount_total Rundeck gauges metrics
   # TYPE rundeck_services_ProjectManagerService_fileCache_evictionCount_total counter
-  rundeck_services_ProjectManagerService_fileCache_evictionCount_total{node="e95f20a5cf9b"} 0.0
+  rundeck_services_ProjectManagerService_fileCache_evictionCount_total{instance_address="localhost:4440"} 0.0
   # HELP rundeck_services_ProjectManagerService_fileCache_hitCount_total Rundeck gauges metrics
   # TYPE rundeck_services_ProjectManagerService_fileCache_hitCount_total counter
-  rundeck_services_ProjectManagerService_fileCache_hitCount_total{node="e95f20a5cf9b"} 0.0
+  rundeck_services_ProjectManagerService_fileCache_hitCount_total{instance_address="localhost:4440"} 0.0
   # HELP rundeck_services_ProjectManagerService_fileCache_loadExceptionCount_total Rundeck gauges metrics
   # TYPE rundeck_services_ProjectManagerService_fileCache_loadExceptionCount_total counter
-  rundeck_services_ProjectManagerService_fileCache_loadExceptionCount_total{node="e95f20a5cf9b"} 0.0
+  rundeck_services_ProjectManagerService_fileCache_loadExceptionCount_total{instance_address="localhost:4440"} 0.0
   # HELP rundeck_services_ProjectManagerService_fileCache_missCount_total Rundeck gauges metrics
   # TYPE rundeck_services_ProjectManagerService_fileCache_missCount_total counter
-  rundeck_services_ProjectManagerService_fileCache_missCount_total{node="e95f20a5cf9b"} 0.0
+  rundeck_services_ProjectManagerService_fileCache_missCount_total{instance_address="localhost:4440"} 0.0
   # HELP rundeck_services_ProjectManagerService_projectCache_evictionCount_total Rundeck gauges metrics
   # TYPE rundeck_services_ProjectManagerService_projectCache_evictionCount_total counter
-  rundeck_services_ProjectManagerService_projectCache_evictionCount_total{node="e95f20a5cf9b"} 0.0
+  rundeck_services_ProjectManagerService_projectCache_evictionCount_total{instance_address="localhost:4440"} 0.0
   # HELP rundeck_services_ProjectManagerService_projectCache_hitCount_total Rundeck gauges metrics
   # TYPE rundeck_services_ProjectManagerService_projectCache_hitCount_total counter
-  rundeck_services_ProjectManagerService_projectCache_hitCount_total{node="e95f20a5cf9b"} 24602.0
+  rundeck_services_ProjectManagerService_projectCache_hitCount_total{instance_address="localhost:4440"} 5124.0
   # HELP rundeck_services_ProjectManagerService_projectCache_loadExceptionCount_total Rundeck gauges metrics
   # TYPE rundeck_services_ProjectManagerService_projectCache_loadExceptionCount_total counter
-  rundeck_services_ProjectManagerService_projectCache_loadExceptionCount_total{node="e95f20a5cf9b"} 0.0
+  rundeck_services_ProjectManagerService_projectCache_loadExceptionCount_total{instance_address="localhost:4440"} 0.0
   # HELP rundeck_services_ProjectManagerService_projectCache_missCount_total Rundeck gauges metrics
   # TYPE rundeck_services_ProjectManagerService_projectCache_missCount_total counter
-  rundeck_services_ProjectManagerService_projectCache_missCount_total{node="e95f20a5cf9b"} 2.0
+  rundeck_services_ProjectManagerService_projectCache_missCount_total{instance_address="localhost:4440"} 2.0
   # HELP rundeck_scheduler_quartz_scheduledJobs Rundeck counters metrics
   # TYPE rundeck_scheduler_quartz_scheduledJobs gauge
-  rundeck_scheduler_quartz_scheduledJobs{node="e95f20a5cf9b"} 8.0
+  rundeck_scheduler_quartz_scheduledJobs{instance_address="localhost:4440"} 8.0
   # HELP rundeck_services_AuthorizationService_systemAuthorization_evaluateMeter_total Rundeck meters metrics
   # TYPE rundeck_services_AuthorizationService_systemAuthorization_evaluateMeter_total counter
-  rundeck_services_AuthorizationService_systemAuthorization_evaluateMeter_total{node="e95f20a5cf9b"} 3.0
+  rundeck_services_AuthorizationService_systemAuthorization_evaluateMeter_total{instance_address="localhost:4440"} 2.0
   # HELP rundeck_services_AuthorizationService_systemAuthorization_evaluateSetMeter_total Rundeck meters metrics
   # TYPE rundeck_services_AuthorizationService_systemAuthorization_evaluateSetMeter_total counter
-  rundeck_services_AuthorizationService_systemAuthorization_evaluateSetMeter_total{node="e95f20a5cf9b"} 40.0
+  rundeck_services_AuthorizationService_systemAuthorization_evaluateSetMeter_total{instance_address="localhost:4440"} 0.0
   # HELP rundeck_services_ExecutionService_executionFailureMeter_total Rundeck meters metrics
   # TYPE rundeck_services_ExecutionService_executionFailureMeter_total counter
-  rundeck_services_ExecutionService_executionFailureMeter_total{node="e95f20a5cf9b"} 153.0
+  rundeck_services_ExecutionService_executionFailureMeter_total{instance_address="localhost:4440"} 37.0
   # HELP rundeck_services_ExecutionService_executionJobStartMeter_total Rundeck meters metrics
   # TYPE rundeck_services_ExecutionService_executionJobStartMeter_total counter
-  rundeck_services_ExecutionService_executionJobStartMeter_total{node="e95f20a5cf9b"} 274.0
+  rundeck_services_ExecutionService_executionJobStartMeter_total{instance_address="localhost:4440"} 64.0
   # HELP rundeck_services_ExecutionService_executionStartMeter_total Rundeck meters metrics
   # TYPE rundeck_services_ExecutionService_executionStartMeter_total counter
-  rundeck_services_ExecutionService_executionStartMeter_total{node="e95f20a5cf9b"} 274.0
+  rundeck_services_ExecutionService_executionStartMeter_total{instance_address="localhost:4440"} 64.0
   # HELP rundeck_services_ExecutionService_executionSuccessMeter_total Rundeck meters metrics
   # TYPE rundeck_services_ExecutionService_executionSuccessMeter_total counter
-  rundeck_services_ExecutionService_executionSuccessMeter_total{node="e95f20a5cf9b"} 119.0
+  rundeck_services_ExecutionService_executionSuccessMeter_total{instance_address="localhost:4440"} 27.0
   # HELP rundeck_org_rundeck_app_authorization_TimedAuthContextEvaluator_authorizeProjectResource_total Rundeck timers metrics
   # TYPE rundeck_org_rundeck_app_authorization_TimedAuthContextEvaluator_authorizeProjectResource_total counter
-  rundeck_org_rundeck_app_authorization_TimedAuthContextEvaluator_authorizeProjectResource_total{node="e95f20a5cf9b"} 188.0
+  rundeck_org_rundeck_app_authorization_TimedAuthContextEvaluator_authorizeProjectResource_total{instance_address="localhost:4440"} 2.0
   # HELP rundeck_org_rundeck_app_authorization_TimedAuthContextEvaluator_filterAuthorizedProjectExecutionsAll_total Rundeck timers metrics
   # TYPE rundeck_org_rundeck_app_authorization_TimedAuthContextEvaluator_filterAuthorizedProjectExecutionsAll_total counter
-  rundeck_org_rundeck_app_authorization_TimedAuthContextEvaluator_filterAuthorizedProjectExecutionsAll_total{node="e95f20a5cf9b"} 188.0
+  rundeck_org_rundeck_app_authorization_TimedAuthContextEvaluator_filterAuthorizedProjectExecutionsAll_total{instance_address="localhost:4440"} 2.0
   # HELP rundeck_api_requests_requestTimer_total Rundeck timers metrics
   # TYPE rundeck_api_requests_requestTimer_total counter
-  rundeck_api_requests_requestTimer_total{node="e95f20a5cf9b"} 781.0
+  rundeck_api_requests_requestTimer_total{instance_address="localhost:4440"} 22.0
   # HELP rundeck_controllers_MenuController_apiExecutionsRunningv14_queryQueue_total Rundeck timers metrics
   # TYPE rundeck_controllers_MenuController_apiExecutionsRunningv14_queryQueue_total counter
-  rundeck_controllers_MenuController_apiExecutionsRunningv14_queryQueue_total{node="e95f20a5cf9b"} 188.0
+  rundeck_controllers_MenuController_apiExecutionsRunningv14_queryQueue_total{instance_address="localhost:4440"} 2.0
   # HELP rundeck_quartzjobs_ExecutionJob_executionTimer_total Rundeck timers metrics
   # TYPE rundeck_quartzjobs_ExecutionJob_executionTimer_total counter
-  rundeck_quartzjobs_ExecutionJob_executionTimer_total{node="e95f20a5cf9b"} 8016.0
+  rundeck_quartzjobs_ExecutionJob_executionTimer_total{instance_address="localhost:4440"} 1602.0
   # HELP rundeck_services_AuthorizationService_getSystemAuthorization_total Rundeck timers metrics
   # TYPE rundeck_services_AuthorizationService_getSystemAuthorization_total counter
-  rundeck_services_AuthorizationService_getSystemAuthorization_total{node="e95f20a5cf9b"} 16940.0
+  rundeck_services_AuthorizationService_getSystemAuthorization_total{instance_address="localhost:4440"} 3241.0
   # HELP rundeck_services_AuthorizationService_systemAuthorization_evaluateSetTimer_total Rundeck timers metrics
   # TYPE rundeck_services_AuthorizationService_systemAuthorization_evaluateSetTimer_total counter
-  rundeck_services_AuthorizationService_systemAuthorization_evaluateSetTimer_total{node="e95f20a5cf9b"} 40.0
+  rundeck_services_AuthorizationService_systemAuthorization_evaluateSetTimer_total{instance_address="localhost:4440"} 0.0
   # HELP rundeck_services_AuthorizationService_systemAuthorization_evaluateTimer_total Rundeck timers metrics
   # TYPE rundeck_services_AuthorizationService_systemAuthorization_evaluateTimer_total counter
-  rundeck_services_AuthorizationService_systemAuthorization_evaluateTimer_total{node="e95f20a5cf9b"} 3.0
+  rundeck_services_AuthorizationService_systemAuthorization_evaluateTimer_total{instance_address="localhost:4440"} 2.0
   # HELP rundeck_services_FrameworkService_filterNodeSet_total Rundeck timers metrics
   # TYPE rundeck_services_FrameworkService_filterNodeSet_total counter
-  rundeck_services_FrameworkService_filterNodeSet_total{node="e95f20a5cf9b"} 822.0
+  rundeck_services_FrameworkService_filterNodeSet_total{instance_address="localhost:4440"} 192.0
   # HELP rundeck_services_NodeService_project_Test_loadNodes_total Rundeck timers metrics
   # TYPE rundeck_services_NodeService_project_Test_loadNodes_total counter
-  rundeck_services_NodeService_project_Test_loadNodes_total{node="e95f20a5cf9b"} 34.0
+  rundeck_services_NodeService_project_Test_loadNodes_total{instance_address="localhost:4440"} 8.0
   # HELP rundeck_web_requests_requestTimer_total Rundeck timers metrics
   # TYPE rundeck_web_requests_requestTimer_total counter
-  rundeck_web_requests_requestTimer_total{node="e95f20a5cf9b"} 791.0
+  rundeck_web_requests_requestTimer_total{instance_address="localhost:4440"} 22.0
   # HELP rundeck_project_start_timestamp Rundeck Project Test Start Timestamp
   # TYPE rundeck_project_start_timestamp gauge
-  rundeck_project_start_timestamp{execution_id="3950",execution_type="scheduled",job_group="",job_id="8ebf87b0-dd93-47fb-9e9e-7c5fc628a511",job_name="Fail after 90s",node="e95f20a5cf9b",project_name="Test",user="admin"} 1.64630670003e+012
+  rundeck_project_start_timestamp{execution_id="7378",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="f062ab2b-ac23-45a7-81fd-825bbb108afe",job_name="Fail after 120s",project_name="Test",user="admin"} 1.646482200032e+012
   # HELP rundeck_project_execution_duration_seconds Rundeck Project Test Execution Duration
   # TYPE rundeck_project_execution_duration_seconds gauge
-  rundeck_project_execution_duration_seconds{execution_id="3950",execution_type="scheduled",job_group="",job_id="8ebf87b0-dd93-47fb-9e9e-7c5fc628a511",job_name="Fail after 90s",node="e95f20a5cf9b",project_name="Test",user="admin"} -1646306700030.0
+  rundeck_project_execution_duration_seconds{execution_id="7378",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="f062ab2b-ac23-45a7-81fd-825bbb108afe",job_name="Fail after 120s",project_name="Test",user="admin"} 120108.0
   # HELP rundeck_project_execution_status Rundeck Project Test Execution Status
   # TYPE rundeck_project_execution_status gauge
-  rundeck_project_execution_status{execution_id="3950",execution_type="scheduled",job_group="",job_id="8ebf87b0-dd93-47fb-9e9e-7c5fc628a511",job_name="Fail after 90s",node="e95f20a5cf9b",project_name="Test",status="succeeded",user="admin"} 0.0
-  rundeck_project_execution_status{execution_id="3950",execution_type="scheduled",job_group="",job_id="8ebf87b0-dd93-47fb-9e9e-7c5fc628a511",job_name="Fail after 90s",node="e95f20a5cf9b",project_name="Test",status="running",user="admin"} 1.0
-  rundeck_project_execution_status{execution_id="3950",execution_type="scheduled",job_group="",job_id="8ebf87b0-dd93-47fb-9e9e-7c5fc628a511",job_name="Fail after 90s",node="e95f20a5cf9b",project_name="Test",status="failed",user="admin"} 0.0
-  rundeck_project_execution_status{execution_id="3950",execution_type="scheduled",job_group="",job_id="8ebf87b0-dd93-47fb-9e9e-7c5fc628a511",job_name="Fail after 90s",node="e95f20a5cf9b",project_name="Test",status="aborted",user="admin"} 0.0
-  rundeck_project_execution_status{execution_id="3950",execution_type="scheduled",job_group="",job_id="8ebf87b0-dd93-47fb-9e9e-7c5fc628a511",job_name="Fail after 90s",node="e95f20a5cf9b",project_name="Test",status="unknown",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7378",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="f062ab2b-ac23-45a7-81fd-825bbb108afe",job_name="Fail after 120s",project_name="Test",status="succeeded",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7378",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="f062ab2b-ac23-45a7-81fd-825bbb108afe",job_name="Fail after 120s",project_name="Test",status="running",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7378",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="f062ab2b-ac23-45a7-81fd-825bbb108afe",job_name="Fail after 120s",project_name="Test",status="failed",user="admin"} 1.0
+  rundeck_project_execution_status{execution_id="7378",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="f062ab2b-ac23-45a7-81fd-825bbb108afe",job_name="Fail after 120s",project_name="Test",status="aborted",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7378",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="f062ab2b-ac23-45a7-81fd-825bbb108afe",job_name="Fail after 120s",project_name="Test",status="unknown",user="admin"} 0.0
   # HELP rundeck_project_start_timestamp Rundeck Project Test Start Timestamp
   # TYPE rundeck_project_start_timestamp gauge
-  rundeck_project_start_timestamp{execution_id="3947",execution_type="scheduled",job_group="",job_id="f062ab2b-ac23-45a7-81fd-825bbb108afe",job_name="Fail after 120s",node="e95f20a5cf9b",project_name="Test",user="admin"} 1.64630670003e+012
+  rundeck_project_start_timestamp{execution_id="7380",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="8ebf87b0-dd93-47fb-9e9e-7c5fc628a511",job_name="Fail after 90s",project_name="Test",user="admin"} 1.646482200048e+012
   # HELP rundeck_project_execution_duration_seconds Rundeck Project Test Execution Duration
   # TYPE rundeck_project_execution_duration_seconds gauge
-  rundeck_project_execution_duration_seconds{execution_id="3947",execution_type="scheduled",job_group="",job_id="f062ab2b-ac23-45a7-81fd-825bbb108afe",job_name="Fail after 120s",node="e95f20a5cf9b",project_name="Test",user="admin"} -1646306700030.0
+  rundeck_project_execution_duration_seconds{execution_id="7380",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="8ebf87b0-dd93-47fb-9e9e-7c5fc628a511",job_name="Fail after 90s",project_name="Test",user="admin"} 90110.0
   # HELP rundeck_project_execution_status Rundeck Project Test Execution Status
   # TYPE rundeck_project_execution_status gauge
-  rundeck_project_execution_status{execution_id="3947",execution_type="scheduled",job_group="",job_id="f062ab2b-ac23-45a7-81fd-825bbb108afe",job_name="Fail after 120s",node="e95f20a5cf9b",project_name="Test",status="succeeded",user="admin"} 0.0
-  rundeck_project_execution_status{execution_id="3947",execution_type="scheduled",job_group="",job_id="f062ab2b-ac23-45a7-81fd-825bbb108afe",job_name="Fail after 120s",node="e95f20a5cf9b",project_name="Test",status="running",user="admin"} 1.0
-  rundeck_project_execution_status{execution_id="3947",execution_type="scheduled",job_group="",job_id="f062ab2b-ac23-45a7-81fd-825bbb108afe",job_name="Fail after 120s",node="e95f20a5cf9b",project_name="Test",status="failed",user="admin"} 0.0
-  rundeck_project_execution_status{execution_id="3947",execution_type="scheduled",job_group="",job_id="f062ab2b-ac23-45a7-81fd-825bbb108afe",job_name="Fail after 120s",node="e95f20a5cf9b",project_name="Test",status="aborted",user="admin"} 0.0
-  rundeck_project_execution_status{execution_id="3947",execution_type="scheduled",job_group="",job_id="f062ab2b-ac23-45a7-81fd-825bbb108afe",job_name="Fail after 120s",node="e95f20a5cf9b",project_name="Test",status="unknown",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7380",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="8ebf87b0-dd93-47fb-9e9e-7c5fc628a511",job_name="Fail after 90s",project_name="Test",status="succeeded",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7380",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="8ebf87b0-dd93-47fb-9e9e-7c5fc628a511",job_name="Fail after 90s",project_name="Test",status="running",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7380",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="8ebf87b0-dd93-47fb-9e9e-7c5fc628a511",job_name="Fail after 90s",project_name="Test",status="failed",user="admin"} 1.0
+  rundeck_project_execution_status{execution_id="7380",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="8ebf87b0-dd93-47fb-9e9e-7c5fc628a511",job_name="Fail after 90s",project_name="Test",status="aborted",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7380",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="8ebf87b0-dd93-47fb-9e9e-7c5fc628a511",job_name="Fail after 90s",project_name="Test",status="unknown",user="admin"} 0.0
   # HELP rundeck_project_start_timestamp Rundeck Project Test Start Timestamp
   # TYPE rundeck_project_start_timestamp gauge
-  rundeck_project_start_timestamp{execution_id="3962",execution_type="scheduled",job_group="",job_id="fff6e7b1-4fdd-467b-b807-e168f9ee8865",job_name="Success after 15s",node="e95f20a5cf9b",project_name="Test",user="admin"} 1.646306748017e+012
+  rundeck_project_start_timestamp{execution_id="7388",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="fff6e7b1-4fdd-467b-b807-e168f9ee8865",job_name="Success after 15s",project_name="Test",user="admin"} 1.646482248021e+012
   # HELP rundeck_project_execution_duration_seconds Rundeck Project Test Execution Duration
   # TYPE rundeck_project_execution_duration_seconds gauge
-  rundeck_project_execution_duration_seconds{execution_id="3962",execution_type="scheduled",job_group="",job_id="fff6e7b1-4fdd-467b-b807-e168f9ee8865",job_name="Success after 15s",node="e95f20a5cf9b",project_name="Test",user="admin"} 15306.0
+  rundeck_project_execution_duration_seconds{execution_id="7388",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="fff6e7b1-4fdd-467b-b807-e168f9ee8865",job_name="Success after 15s",project_name="Test",user="admin"} 15334.0
   # HELP rundeck_project_execution_status Rundeck Project Test Execution Status
   # TYPE rundeck_project_execution_status gauge
-  rundeck_project_execution_status{execution_id="3962",execution_type="scheduled",job_group="",job_id="fff6e7b1-4fdd-467b-b807-e168f9ee8865",job_name="Success after 15s",node="e95f20a5cf9b",project_name="Test",status="succeeded",user="admin"} 1.0
-  rundeck_project_execution_status{execution_id="3962",execution_type="scheduled",job_group="",job_id="fff6e7b1-4fdd-467b-b807-e168f9ee8865",job_name="Success after 15s",node="e95f20a5cf9b",project_name="Test",status="running",user="admin"} 0.0
-  rundeck_project_execution_status{execution_id="3962",execution_type="scheduled",job_group="",job_id="fff6e7b1-4fdd-467b-b807-e168f9ee8865",job_name="Success after 15s",node="e95f20a5cf9b",project_name="Test",status="failed",user="admin"} 0.0
-  rundeck_project_execution_status{execution_id="3962",execution_type="scheduled",job_group="",job_id="fff6e7b1-4fdd-467b-b807-e168f9ee8865",job_name="Success after 15s",node="e95f20a5cf9b",project_name="Test",status="aborted",user="admin"} 0.0
-  rundeck_project_execution_status{execution_id="3962",execution_type="scheduled",job_group="",job_id="fff6e7b1-4fdd-467b-b807-e168f9ee8865",job_name="Success after 15s",node="e95f20a5cf9b",project_name="Test",status="unknown",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7388",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="fff6e7b1-4fdd-467b-b807-e168f9ee8865",job_name="Success after 15s",project_name="Test",status="succeeded",user="admin"} 1.0
+  rundeck_project_execution_status{execution_id="7388",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="fff6e7b1-4fdd-467b-b807-e168f9ee8865",job_name="Success after 15s",project_name="Test",status="running",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7388",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="fff6e7b1-4fdd-467b-b807-e168f9ee8865",job_name="Success after 15s",project_name="Test",status="failed",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7388",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="fff6e7b1-4fdd-467b-b807-e168f9ee8865",job_name="Success after 15s",project_name="Test",status="aborted",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7388",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="fff6e7b1-4fdd-467b-b807-e168f9ee8865",job_name="Success after 15s",project_name="Test",status="unknown",user="admin"} 0.0
   # HELP rundeck_project_start_timestamp Rundeck Project Test Start Timestamp
   # TYPE rundeck_project_start_timestamp gauge
-  rundeck_project_start_timestamp{execution_id="3961",execution_type="scheduled",job_group="",job_id="e4a5400d-117b-4b76-9f8c-8e8a0eca76e8",job_name="Fail after 15s",node="e95f20a5cf9b",project_name="Test",user="admin"} 1.646306748012e+012
+  rundeck_project_start_timestamp{execution_id="7387",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="e4a5400d-117b-4b76-9f8c-8e8a0eca76e8",job_name="Fail after 15s",project_name="Test",user="admin"} 1.646482248018e+012
   # HELP rundeck_project_execution_duration_seconds Rundeck Project Test Execution Duration
   # TYPE rundeck_project_execution_duration_seconds gauge
-  rundeck_project_execution_duration_seconds{execution_id="3961",execution_type="scheduled",job_group="",job_id="e4a5400d-117b-4b76-9f8c-8e8a0eca76e8",job_name="Fail after 15s",node="e95f20a5cf9b",project_name="Test",user="admin"} 15059.0
+  rundeck_project_execution_duration_seconds{execution_id="7387",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="e4a5400d-117b-4b76-9f8c-8e8a0eca76e8",job_name="Fail after 15s",project_name="Test",user="admin"} 15089.0
   # HELP rundeck_project_execution_status Rundeck Project Test Execution Status
   # TYPE rundeck_project_execution_status gauge
-  rundeck_project_execution_status{execution_id="3961",execution_type="scheduled",job_group="",job_id="e4a5400d-117b-4b76-9f8c-8e8a0eca76e8",job_name="Fail after 15s",node="e95f20a5cf9b",project_name="Test",status="succeeded",user="admin"} 0.0
-  rundeck_project_execution_status{execution_id="3961",execution_type="scheduled",job_group="",job_id="e4a5400d-117b-4b76-9f8c-8e8a0eca76e8",job_name="Fail after 15s",node="e95f20a5cf9b",project_name="Test",status="running",user="admin"} 0.0
-  rundeck_project_execution_status{execution_id="3961",execution_type="scheduled",job_group="",job_id="e4a5400d-117b-4b76-9f8c-8e8a0eca76e8",job_name="Fail after 15s",node="e95f20a5cf9b",project_name="Test",status="failed",user="admin"} 1.0
-  rundeck_project_execution_status{execution_id="3961",execution_type="scheduled",job_group="",job_id="e4a5400d-117b-4b76-9f8c-8e8a0eca76e8",job_name="Fail after 15s",node="e95f20a5cf9b",project_name="Test",status="aborted",user="admin"} 0.0
-  rundeck_project_execution_status{execution_id="3961",execution_type="scheduled",job_group="",job_id="e4a5400d-117b-4b76-9f8c-8e8a0eca76e8",job_name="Fail after 15s",node="e95f20a5cf9b",project_name="Test",status="unknown",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7387",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="e4a5400d-117b-4b76-9f8c-8e8a0eca76e8",job_name="Fail after 15s",project_name="Test",status="succeeded",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7387",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="e4a5400d-117b-4b76-9f8c-8e8a0eca76e8",job_name="Fail after 15s",project_name="Test",status="running",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7387",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="e4a5400d-117b-4b76-9f8c-8e8a0eca76e8",job_name="Fail after 15s",project_name="Test",status="failed",user="admin"} 1.0
+  rundeck_project_execution_status{execution_id="7387",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="e4a5400d-117b-4b76-9f8c-8e8a0eca76e8",job_name="Fail after 15s",project_name="Test",status="aborted",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7387",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="e4a5400d-117b-4b76-9f8c-8e8a0eca76e8",job_name="Fail after 15s",project_name="Test",status="unknown",user="admin"} 0.0
   # HELP rundeck_project_start_timestamp Rundeck Project Test Start Timestamp
   # TYPE rundeck_project_start_timestamp gauge
-  rundeck_project_start_timestamp{execution_id="3957",execution_type="scheduled",job_group="",job_id="5fb2705f-73bb-4bdc-a158-b5f046e3b474",job_name="Success after 30s",node="e95f20a5cf9b",project_name="Test",user="admin"} 1.646306731019e+012
+  rundeck_project_start_timestamp{execution_id="7383",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="5fb2705f-73bb-4bdc-a158-b5f046e3b474",job_name="Success after 30s",project_name="Test",user="admin"} 1.646482231023e+012
   # HELP rundeck_project_execution_duration_seconds Rundeck Project Test Execution Duration
   # TYPE rundeck_project_execution_duration_seconds gauge
-  rundeck_project_execution_duration_seconds{execution_id="3957",execution_type="scheduled",job_group="",job_id="5fb2705f-73bb-4bdc-a158-b5f046e3b474",job_name="Success after 30s",node="e95f20a5cf9b",project_name="Test",user="admin"} 30321.0
+  rundeck_project_execution_duration_seconds{execution_id="7383",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="5fb2705f-73bb-4bdc-a158-b5f046e3b474",job_name="Success after 30s",project_name="Test",user="admin"} 30320.0
   # HELP rundeck_project_execution_status Rundeck Project Test Execution Status
   # TYPE rundeck_project_execution_status gauge
-  rundeck_project_execution_status{execution_id="3957",execution_type="scheduled",job_group="",job_id="5fb2705f-73bb-4bdc-a158-b5f046e3b474",job_name="Success after 30s",node="e95f20a5cf9b",project_name="Test",status="succeeded",user="admin"} 1.0
-  rundeck_project_execution_status{execution_id="3957",execution_type="scheduled",job_group="",job_id="5fb2705f-73bb-4bdc-a158-b5f046e3b474",job_name="Success after 30s",node="e95f20a5cf9b",project_name="Test",status="running",user="admin"} 0.0
-  rundeck_project_execution_status{execution_id="3957",execution_type="scheduled",job_group="",job_id="5fb2705f-73bb-4bdc-a158-b5f046e3b474",job_name="Success after 30s",node="e95f20a5cf9b",project_name="Test",status="failed",user="admin"} 0.0
-  rundeck_project_execution_status{execution_id="3957",execution_type="scheduled",job_group="",job_id="5fb2705f-73bb-4bdc-a158-b5f046e3b474",job_name="Success after 30s",node="e95f20a5cf9b",project_name="Test",status="aborted",user="admin"} 0.0
-  rundeck_project_execution_status{execution_id="3957",execution_type="scheduled",job_group="",job_id="5fb2705f-73bb-4bdc-a158-b5f046e3b474",job_name="Success after 30s",node="e95f20a5cf9b",project_name="Test",status="unknown",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7383",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="5fb2705f-73bb-4bdc-a158-b5f046e3b474",job_name="Success after 30s",project_name="Test",status="succeeded",user="admin"} 1.0
+  rundeck_project_execution_status{execution_id="7383",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="5fb2705f-73bb-4bdc-a158-b5f046e3b474",job_name="Success after 30s",project_name="Test",status="running",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7383",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="5fb2705f-73bb-4bdc-a158-b5f046e3b474",job_name="Success after 30s",project_name="Test",status="failed",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7383",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="5fb2705f-73bb-4bdc-a158-b5f046e3b474",job_name="Success after 30s",project_name="Test",status="aborted",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7383",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="5fb2705f-73bb-4bdc-a158-b5f046e3b474",job_name="Success after 30s",project_name="Test",status="unknown",user="admin"} 0.0
   # HELP rundeck_project_start_timestamp Rundeck Project Test Start Timestamp
   # TYPE rundeck_project_start_timestamp gauge
-  rundeck_project_start_timestamp{execution_id="3958",execution_type="scheduled",job_group="",job_id="a5d6a578-50fe-4d4f-ae40-77eff506ea02",job_name="Fail after 30s",node="e95f20a5cf9b",project_name="Test",user="admin"} 1.646306731022e+012
+  rundeck_project_start_timestamp{execution_id="7384",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="a5d6a578-50fe-4d4f-ae40-77eff506ea02",job_name="Fail after 30s",project_name="Test",user="admin"} 1.646482231025e+012
   # HELP rundeck_project_execution_duration_seconds Rundeck Project Test Execution Duration
   # TYPE rundeck_project_execution_duration_seconds gauge
-  rundeck_project_execution_duration_seconds{execution_id="3958",execution_type="scheduled",job_group="",job_id="a5d6a578-50fe-4d4f-ae40-77eff506ea02",job_name="Fail after 30s",node="e95f20a5cf9b",project_name="Test",user="admin"} 30076.0
+  rundeck_project_execution_duration_seconds{execution_id="7384",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="a5d6a578-50fe-4d4f-ae40-77eff506ea02",job_name="Fail after 30s",project_name="Test",user="admin"} 30065.0
   # HELP rundeck_project_execution_status Rundeck Project Test Execution Status
   # TYPE rundeck_project_execution_status gauge
-  rundeck_project_execution_status{execution_id="3958",execution_type="scheduled",job_group="",job_id="a5d6a578-50fe-4d4f-ae40-77eff506ea02",job_name="Fail after 30s",node="e95f20a5cf9b",project_name="Test",status="succeeded",user="admin"} 0.0
-  rundeck_project_execution_status{execution_id="3958",execution_type="scheduled",job_group="",job_id="a5d6a578-50fe-4d4f-ae40-77eff506ea02",job_name="Fail after 30s",node="e95f20a5cf9b",project_name="Test",status="running",user="admin"} 0.0
-  rundeck_project_execution_status{execution_id="3958",execution_type="scheduled",job_group="",job_id="a5d6a578-50fe-4d4f-ae40-77eff506ea02",job_name="Fail after 30s",node="e95f20a5cf9b",project_name="Test",status="failed",user="admin"} 1.0
-  rundeck_project_execution_status{execution_id="3958",execution_type="scheduled",job_group="",job_id="a5d6a578-50fe-4d4f-ae40-77eff506ea02",job_name="Fail after 30s",node="e95f20a5cf9b",project_name="Test",status="aborted",user="admin"} 0.0
-  rundeck_project_execution_status{execution_id="3958",execution_type="scheduled",job_group="",job_id="a5d6a578-50fe-4d4f-ae40-77eff506ea02",job_name="Fail after 30s",node="e95f20a5cf9b",project_name="Test",status="unknown",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7384",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="a5d6a578-50fe-4d4f-ae40-77eff506ea02",job_name="Fail after 30s",project_name="Test",status="succeeded",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7384",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="a5d6a578-50fe-4d4f-ae40-77eff506ea02",job_name="Fail after 30s",project_name="Test",status="running",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7384",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="a5d6a578-50fe-4d4f-ae40-77eff506ea02",job_name="Fail after 30s",project_name="Test",status="failed",user="admin"} 1.0
+  rundeck_project_execution_status{execution_id="7384",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="a5d6a578-50fe-4d4f-ae40-77eff506ea02",job_name="Fail after 30s",project_name="Test",status="aborted",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7384",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="a5d6a578-50fe-4d4f-ae40-77eff506ea02",job_name="Fail after 30s",project_name="Test",status="unknown",user="admin"} 0.0
   # HELP rundeck_project_start_timestamp Rundeck Project Test Start Timestamp
   # TYPE rundeck_project_start_timestamp gauge
-  rundeck_project_start_timestamp{execution_id="3951",execution_type="scheduled",job_group="",job_id="dcba57e3-6d2c-4127-8401-21382079bf5e",job_name="Success after 60s",node="e95f20a5cf9b",project_name="Test",user="admin"} 1.64630670003e+012
+  rundeck_project_start_timestamp{execution_id="7376",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="dcba57e3-6d2c-4127-8401-21382079bf5e",job_name="Success after 60s",project_name="Test",user="admin"} 1.646482200029e+012
   # HELP rundeck_project_execution_duration_seconds Rundeck Project Test Execution Duration
   # TYPE rundeck_project_execution_duration_seconds gauge
-  rundeck_project_execution_duration_seconds{execution_id="3951",execution_type="scheduled",job_group="",job_id="dcba57e3-6d2c-4127-8401-21382079bf5e",job_name="Success after 60s",node="e95f20a5cf9b",project_name="Test",user="admin"} 60346.0
+  rundeck_project_execution_duration_seconds{execution_id="7376",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="dcba57e3-6d2c-4127-8401-21382079bf5e",job_name="Success after 60s",project_name="Test",user="admin"} 60384.0
   # HELP rundeck_project_execution_status Rundeck Project Test Execution Status
   # TYPE rundeck_project_execution_status gauge
-  rundeck_project_execution_status{execution_id="3951",execution_type="scheduled",job_group="",job_id="dcba57e3-6d2c-4127-8401-21382079bf5e",job_name="Success after 60s",node="e95f20a5cf9b",project_name="Test",status="succeeded",user="admin"} 1.0
-  rundeck_project_execution_status{execution_id="3951",execution_type="scheduled",job_group="",job_id="dcba57e3-6d2c-4127-8401-21382079bf5e",job_name="Success after 60s",node="e95f20a5cf9b",project_name="Test",status="running",user="admin"} 0.0
-  rundeck_project_execution_status{execution_id="3951",execution_type="scheduled",job_group="",job_id="dcba57e3-6d2c-4127-8401-21382079bf5e",job_name="Success after 60s",node="e95f20a5cf9b",project_name="Test",status="failed",user="admin"} 0.0
-  rundeck_project_execution_status{execution_id="3951",execution_type="scheduled",job_group="",job_id="dcba57e3-6d2c-4127-8401-21382079bf5e",job_name="Success after 60s",node="e95f20a5cf9b",project_name="Test",status="aborted",user="admin"} 0.0
-  rundeck_project_execution_status{execution_id="3951",execution_type="scheduled",job_group="",job_id="dcba57e3-6d2c-4127-8401-21382079bf5e",job_name="Success after 60s",node="e95f20a5cf9b",project_name="Test",status="unknown",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7376",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="dcba57e3-6d2c-4127-8401-21382079bf5e",job_name="Success after 60s",project_name="Test",status="succeeded",user="admin"} 1.0
+  rundeck_project_execution_status{execution_id="7376",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="dcba57e3-6d2c-4127-8401-21382079bf5e",job_name="Success after 60s",project_name="Test",status="running",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7376",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="dcba57e3-6d2c-4127-8401-21382079bf5e",job_name="Success after 60s",project_name="Test",status="failed",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7376",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="dcba57e3-6d2c-4127-8401-21382079bf5e",job_name="Success after 60s",project_name="Test",status="aborted",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7376",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="dcba57e3-6d2c-4127-8401-21382079bf5e",job_name="Success after 60s",project_name="Test",status="unknown",user="admin"} 0.0
   # HELP rundeck_project_start_timestamp Rundeck Project Test Start Timestamp
   # TYPE rundeck_project_start_timestamp gauge
-  rundeck_project_start_timestamp{execution_id="3953",execution_type="scheduled",job_group="",job_id="3fcc1617-74d4-422b-b7cf-bd3123b3f97c",job_name="Fail after 60s",node="e95f20a5cf9b",project_name="Test",user="admin"} 1.646306700034e+012
+  rundeck_project_start_timestamp{execution_id="7375",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="3fcc1617-74d4-422b-b7cf-bd3123b3f97c",job_name="Fail after 60s",project_name="Test",user="admin"} 1.646482200027e+012
   # HELP rundeck_project_execution_duration_seconds Rundeck Project Test Execution Duration
   # TYPE rundeck_project_execution_duration_seconds gauge
-  rundeck_project_execution_duration_seconds{execution_id="3953",execution_type="scheduled",job_group="",job_id="3fcc1617-74d4-422b-b7cf-bd3123b3f97c",job_name="Fail after 60s",node="e95f20a5cf9b",project_name="Test",user="admin"} 60099.0
+  rundeck_project_execution_duration_seconds{execution_id="7375",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="3fcc1617-74d4-422b-b7cf-bd3123b3f97c",job_name="Fail after 60s",project_name="Test",user="admin"} 60136.0
   # HELP rundeck_project_execution_status Rundeck Project Test Execution Status
   # TYPE rundeck_project_execution_status gauge
-  rundeck_project_execution_status{execution_id="3953",execution_type="scheduled",job_group="",job_id="3fcc1617-74d4-422b-b7cf-bd3123b3f97c",job_name="Fail after 60s",node="e95f20a5cf9b",project_name="Test",status="succeeded",user="admin"} 0.0
-  rundeck_project_execution_status{execution_id="3953",execution_type="scheduled",job_group="",job_id="3fcc1617-74d4-422b-b7cf-bd3123b3f97c",job_name="Fail after 60s",node="e95f20a5cf9b",project_name="Test",status="running",user="admin"} 0.0
-  rundeck_project_execution_status{execution_id="3953",execution_type="scheduled",job_group="",job_id="3fcc1617-74d4-422b-b7cf-bd3123b3f97c",job_name="Fail after 60s",node="e95f20a5cf9b",project_name="Test",status="failed",user="admin"} 1.0
-  rundeck_project_execution_status{execution_id="3953",execution_type="scheduled",job_group="",job_id="3fcc1617-74d4-422b-b7cf-bd3123b3f97c",job_name="Fail after 60s",node="e95f20a5cf9b",project_name="Test",status="aborted",user="admin"} 0.0
-  rundeck_project_execution_status{execution_id="3953",execution_type="scheduled",job_group="",job_id="3fcc1617-74d4-422b-b7cf-bd3123b3f97c",job_name="Fail after 60s",node="e95f20a5cf9b",project_name="Test",status="unknown",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7375",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="3fcc1617-74d4-422b-b7cf-bd3123b3f97c",job_name="Fail after 60s",project_name="Test",status="succeeded",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7375",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="3fcc1617-74d4-422b-b7cf-bd3123b3f97c",job_name="Fail after 60s",project_name="Test",status="running",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7375",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="3fcc1617-74d4-422b-b7cf-bd3123b3f97c",job_name="Fail after 60s",project_name="Test",status="failed",user="admin"} 1.0
+  rundeck_project_execution_status{execution_id="7375",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="3fcc1617-74d4-422b-b7cf-bd3123b3f97c",job_name="Fail after 60s",project_name="Test",status="aborted",user="admin"} 0.0
+  rundeck_project_execution_status{execution_id="7375",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="3fcc1617-74d4-422b-b7cf-bd3123b3f97c",job_name="Fail after 60s",project_name="Test",status="unknown",user="admin"} 0.0
   ```
 </details>
 
@@ -412,6 +411,11 @@ Docker Compose services:
 After provisioning of the docker-compose services, access Rundeck from http://localhost:4440/user/profile and gerate a new API token. Place the token at **RUNDECK_TOKEN** environment variable in the **docker-compose.yml** and run `docker-compose up -d` again.
 
 ## Changelog
+`2.4.6`:
+* Fix issue #34 Put RUNDECK_URL into the label instance
+* Added `instance_address` label in metrics
+* Removed `node` label from metrics
+
 `2.4.5`:
 * Fix issue #34 Put RUNDECK_URL into the label instance
 * Add `node` label in metrics
