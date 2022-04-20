@@ -23,7 +23,7 @@ from prometheus_client.core import (
 __author__ = 'Phillipe Smith'
 __author_email__ = 'phsmithcc@gmail.com'
 __app__ = 'rundeck_exporter'
-__version__ = '2.4.6'
+__version__ = '2.4.7'
 
 # Disable InsecureRequestWarning
 requests.urllib3.disable_warnings()
@@ -268,8 +268,7 @@ class RundeckMetricsCollector(object):
 
                 # Job start/end times
                 job_start_time = project_execution.get('date-started', {}).get('unixtime', 0)
-                job_end_time = project_execution.get('date-ended', {}).get('unixtime', 0)
-                job_execution_duration = (job_end_time - job_start_time)
+                job_execution_duration = job_info.get('averageDuration', 0)
 
                 start_metrics.add_metric(
                     default_metrics,
