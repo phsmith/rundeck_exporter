@@ -411,6 +411,10 @@ Docker Compose services:
 After provisioning of the docker-compose services, access Rundeck from http://localhost:4440/user/profile and gerate a new API token. Place the token at **RUNDECK_TOKEN** environment variable in the **docker-compose.yml** and run `docker-compose up -d` again.
 
 ## Changelog
+`2.4.7`:
+* Fix issue #40, negative job_execution_duration value
+* Changed the job_execution_duration calc to get info from job attribute `averageDuration`
+
 `2.4.6`:
 * Fix issue #34 Put RUNDECK_URL into the label instance
 * Added `instance_address` label in metrics
