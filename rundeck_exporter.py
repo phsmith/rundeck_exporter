@@ -215,7 +215,6 @@ class RundeckMetricsCollector(object):
             project_executions = (project_executions_running_info.get('executions', [])
                                   + project_executions_info.get('executions', []))
 
-
             for project_execution in project_executions:
                 job_info = project_execution.get('job', {})
                 job_id = job_info.get('id', 'None')
