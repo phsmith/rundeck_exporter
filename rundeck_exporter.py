@@ -197,10 +197,8 @@ class RundeckMetricsCollector(object):
     """
     def get_project_executions(self, project: dict):
         project_name = project['name']
-        project_executions = None
         project_executions_status = list()
         jobs_list = list()
-        metrics = None
         endpoint = f'/project/{project_name}/executions?recentFilter=1d'
         endpoint_running_executions = f'/project/{project_name}/executions/running?recentFilter=1d'
         default_labels = self.default_labels + [
@@ -223,6 +221,24 @@ class RundeckMetricsCollector(object):
 
             project_executions = (project_executions_running_info.get('executions', [])
                                   + project_executions_info.get('executions', []))
+
+            start_metrics = GaugeMetricFamily(
+                'rundeck_project_start_timestamp',
+                f'Rundeck Project {project_name} Start Timestamp',
+                labels=default_labels
+            )
+
+            duration_metrics = GaugeMetricFamily(
+                'rundeck_project_execution_duration_seconds',
+                f'Rundeck Project {project_name} Execution Duration',
+                labels=default_labels
+            )
+
+            metrics = GaugeMetricFamily(
+                'rundeck_project_execution_status',
+                f'Rundeck Project {project_name} Execution Status',
+                labels=default_labels + ['status']
+            )
 
             for project_execution in project_executions:
                 job_info = project_execution.get('job', {})
@@ -247,24 +263,6 @@ class RundeckMetricsCollector(object):
                     execution_type,
                     user
                 ]
-
-                start_metrics = GaugeMetricFamily(
-                    'rundeck_project_start_timestamp',
-                    f'Rundeck Project {project_name} Start Timestamp',
-                    labels=default_labels
-                )
-
-                duration_metrics = GaugeMetricFamily(
-                    'rundeck_project_execution_duration_seconds',
-                    f'Rundeck Project {project_name} Execution Duration',
-                    labels=default_labels
-                )
-
-                metrics = GaugeMetricFamily(
-                    'rundeck_project_execution_status',
-                    f'Rundeck Project {project_name} Execution Status',
-                    labels=default_labels + ['status']
-                )
 
                 # Job start/end times
                 job_start_time = project_execution.get('date-started', {}).get('unixtime', 0)
@@ -343,6 +341,22 @@ class RundeckMetricsCollector(object):
             for counter_name, counter_value in metric_value.items():
                 counter_name = re.sub(r'[-.]', '_', counter_name)
 
+                rundeck_meters_timers = CounterMetricFamily(
+                    name=counter_name,
+                    documentation=f"Rundeck {metric} metrics",
+                    labels=self.default_labels
+                )
+                rundeck_counters = GaugeMetricFamily(
+                    name=counter_name,
+                    documentation='Rundeck counters metrics',
+                    labels=self.default_labels
+                )
+                rundeck_gauges = GaugeMetricFamily(
+                    name=counter_name,
+                    documentation='Rundeck gauges metrics',
+                    labels=self.default_labels
+                )
+
                 if 'rate' in counter_name.lower():
                     continue
 
@@ -351,12 +365,6 @@ class RundeckMetricsCollector(object):
 
                 if metric == 'counters' and 'status' not in counter_name:
                     counter_value = counter_value['count']
-                    rundeck_counters = GaugeMetricFamily(
-                        name=counter_name,
-                        documentation='Rundeck counters metrics',
-                        labels=self.default_labels
-                    )
-
                     rundeck_counters.add_metric(self.default_labels_values, counter_value)
 
                     yield rundeck_counters
@@ -365,33 +373,20 @@ class RundeckMetricsCollector(object):
                     counter_value = counter_value['value']
 
                     if 'services' in counter_name:
-                        rundeck_gauges = CounterMetricFamily(
-                            name=counter_name,
-                            documentation='Rundeck gauges metrics',
-                            labels=self.default_labels
-                        )
+                        services_trackers = rundeck_gauges
                     else:
-                        rundeck_gauges = GaugeMetricFamily(
-                            name=counter_name,
-                            documentation='Rundeck gauges metrics',
-                            labels=self.default_labels
-                        )
+                        services_trackers = rundeck_counters
 
                     if counter_value is not None:
-                        rundeck_gauges.add_metric(self.default_labels_values, counter_value)
+                        services_trackers.add_metric(self.default_labels_values, counter_value)
                     else:
-                        rundeck_gauges.add_metric(self.default_labels_values, 0)
+                        services_trackers.add_metric(self.default_labels_values, 0)
 
-                    yield rundeck_gauges
+                    yield services_trackers
 
                 elif metric == 'meters' or metric == 'timers':
                     for counter, value in counter_value.items():
                         if counter == 'count' and not isinstance(value, str):
-                            rundeck_meters_timers = CounterMetricFamily(
-                                name=counter_name,
-                                documentation=f"Rundeck {metric} metrics",
-                                labels=self.default_labels
-                            )
 
                             rundeck_meters_timers.add_metric(self.default_labels_values, value)
 
