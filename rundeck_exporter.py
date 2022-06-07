@@ -375,7 +375,7 @@ class RundeckMetricsCollector(object):
         Rundeck system info
         """
         system_info = self.request_data_from('/system/info')
-        api_version = system_info['system']['rundeck']['apiversion']
+        api_version = int(system_info['system']['rundeck']['apiversion'])
         rundeck_system_info = InfoMetricFamily(
             name='rundeck_system',
             documentation='Rundeck system info',
