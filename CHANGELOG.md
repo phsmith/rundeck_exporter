@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Moved changelogs from README.md to CHANGELOG.md
+- Added changelogs version compare links
 
 ### Fixed
 - Update exporter version
@@ -184,3 +185,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2019-07-23
 ### Added
 - Initial release
+
+[unreleased]: https://github.com/phsmith/rundeck_exporter/compare/v2.4.11...HEAD
+[2.4.11]: https://github.com/phsmith/rundeck_exporter/compare/v2.4.10...v2.4.11
+[2.4.10]: https://github.com/phsmith/rundeck_exporter/compare/v2.4.9...v2.4.10
+[2.4.9]: https://github.com/phsmith/rundeck_exporter/compare/v2.4.8...v2.4.9
+[2.4.8]: https://github.com/phsmith/rundeck_exporter/compare/v2.4.7...v2.4.8
+[2.4.7]: https://github.com/phsmith/rundeck_exporter/compare/v2.4.6...v2.4.7
+[2.4.6]: https://github.com/phsmith/rundeck_exporter/compare/v2.4.5...v2.4.6
+[2.4.5]: https://github.com/phsmith/rundeck_exporter/compare/v2.4.4...v2.4.5
+[2.4.4]: https://github.com/phsmith/rundeck_exporter/compare/v2.4.3...v2.4.4
+[2.4.3]: https://github.com/phsmith/rundeck_exporter/compare/v2.4.2...v2.4.3
+[2.4.2]: https://github.com/phsmith/rundeck_exporter/compare/v2.4.1...v2.4.2
+[2.4.1]: https://github.com/phsmith/rundeck_exporter/compare/v2.4.0...v2.4.1
+[2.4.0]: https://github.com/phsmith/rundeck_exporter/compare/v2.3.2...v2.4.0
+[2.3.2]: https://github.com/phsmith/rundeck_exporter/compare/v2.3.1...v2.3.2
+[2.3.1]: https://github.com/phsmith/rundeck_exporter/compare/v2.3.0...v2.3.1
+[2.3.0]: https://github.com/phsmith/rundeck_exporter/compare/v2.2.6...v2.3.0
+[2.2.6]: https://github.com/phsmith/rundeck_exporter/compare/v2.2.5...v2.2.6
+[2.2.5]: https://github.com/phsmith/rundeck_exporter/compare/v2.2.4...v2.2.5
+[2.2.4]: https://github.com/phsmith/rundeck_exporter/compare/v2.2.3...v2.2.4
+[2.2.3]: https://github.com/phsmith/rundeck_exporter/compare/v2.2.2...v2.2.3
+[2.2.2]: https://github.com/phsmith/rundeck_exporter/compare/v2.2.1...v2.2.2
+[2.2.1]: https://github.com/phsmith/rundeck_exporter/compare/v2.2.0...v2.2.1
+[2.2.0]: https://github.com/phsmith/rundeck_exporter/compare/v2.1.0...v2.2.0
+[2.1.0]: https://github.com/phsmith/rundeck_exporter/compare/v2.0.0...v2.1.0
+[2.0.0]: https://github.com/phsmith/rundeck_exporter/compare/v1.2.0...v2.0.0
+[1.2.0]: https://github.com/phsmith/rundeck_exporter/compare/v1.1.1...v1.2.0
+[1.1.1]: https://github.com/phsmith/rundeck_exporter/compare/v1.1.0...v1.1.1
+[1.1.0]: https://github.com/phsmith/rundeck_exporter/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/phsmith/rundeck_exporter/releases/tag/v1.0.0
