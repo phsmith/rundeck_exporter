@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.13] - 2022-07-19
+
+### Added
+- Increased project executions max limit results to 250. Details on issue #56
+
 ## [2.4.12] - 2022-07-04
 
 ### Fixed

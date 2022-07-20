@@ -26,7 +26,7 @@ from prometheus_client.core import (
 __author__ = 'Phillipe Smith'
 __author_email__ = 'phsmithcc@gmail.com'
 __app__ = 'rundeck_exporter'
-__version__ = '2.4.12'
+__version__ = '2.4.13'
 
 # Disable InsecureRequestWarning
 requests.urllib3.disable_warnings()
@@ -220,8 +220,8 @@ class RundeckMetricsCollector(object):
         project_name = project['name']
         project_execution_records = list()
         jobs_list = list()
-        endpoint = f'/project/{project_name}/executions?recentFilter=1d'
-        endpoint_running_executions = f'/project/{project_name}/executions/running?recentFilter=1d'
+        endpoint = f'/project/{project_name}/executions?recentFilter=1d&max=250'
+        endpoint_running_executions = f'/project/{project_name}/executions/running?recentFilter=1d&max=250'
 
         try:
             if self.args.rundeck_projects_executions_cache:
