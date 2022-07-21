@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.14] - 2022-07-21
+
+### Added
+- rundeck.projects.executions.limit argument
+
+### Fixed
+- Inaccurate projects executions results, Details on issue #56
+
 ## [2.4.13] - 2022-07-19
 
 ### Added
