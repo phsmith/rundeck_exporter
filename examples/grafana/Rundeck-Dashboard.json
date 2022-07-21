@@ -3,24 +3,36 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
         "type": "dashboard"
       }
     ]
   },
   "editable": true,
-  "gnetId": null,
+  "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
-  "iteration": 1636198779616,
+  "iteration": 1658401391551,
   "links": [],
+  "liveNow": false,
   "panels": [
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -62,9 +74,13 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "7.5.2",
+      "pluginVersion": "9.0.2",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
           "exemplar": true,
           "expr": "rundeck_system_stats_uptime_since{instance=\"$instance\"}",
           "interval": "",
@@ -76,7 +92,10 @@
       "type": "stat"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -121,9 +140,13 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "7.5.2",
+      "pluginVersion": "9.0.2",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
           "exemplar": true,
           "expr": "rundeck_scheduler_quartz_scheduledJobs{instance=\"$instance\"}",
           "interval": "",
@@ -135,7 +158,10 @@
       "type": "stat"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -180,9 +206,13 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "7.5.2",
+      "pluginVersion": "9.0.2",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
           "exemplar": true,
           "expr": "rundeck_system_stats_scheduler_running{instance=\"$instance\"}",
           "interval": "",
@@ -190,32 +220,28 @@
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Running Jobs",
       "type": "stat"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
           },
+          "decimals": 0,
+          "mappings": [],
           "unit": "short"
         },
         "overrides": []
@@ -239,50 +265,54 @@
         "pieType": "pie",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "last"
           ],
           "fields": "",
           "values": false
         },
-        "text": {}
+        "text": {},
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
       },
       "pluginVersion": "7.5.2",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
           "exemplar": true,
-          "expr": "topk(10, sum(rundeck_project_execution_status{instance=\"$instance\", status=\"failed\"} > 0) by (project_name, job_name))",
+          "expr": "topk(10, sum(increase(rundeck_project_execution_status{instance=\"$instance\", status=\"failed\"}[$__range])) by (project_name, job_name))",
+          "hide": false,
           "instant": false,
           "interval": "",
           "legendFormat": "{{project_name}} - {{job_name}}",
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Top 10 Failed Jobs",
       "type": "piechart"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
           },
+          "mappings": [],
           "unit": "ms"
         },
         "overrides": []
@@ -311,13 +341,21 @@
           "fields": "",
           "values": false
         },
-        "text": {}
+        "text": {},
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
       },
       "pluginVersion": "7.5.2",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
           "exemplar": true,
-          "expr": "topk(10, sum(rundeck_project_execution_duration_seconds{instance=\"$instance\"}) by (project_name,job_name)) > 0",
+          "expr": "topk(10, avg(rundeck_project_execution_duration_seconds{instance=\"$instance\"}) by (project_name,job_name)) > 0",
           "instant": false,
           "interval": "",
           "legendFormat": "{{project_name}} - {{job_name}}",
@@ -328,7 +366,10 @@
       "type": "piechart"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -369,9 +410,13 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "7.5.2",
+      "pluginVersion": "9.0.2",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
           "exemplar": true,
           "expr": "rundeck_api_requests_requestTimer_total{instance=\"$instance\"}",
           "interval": "",
@@ -379,13 +424,14 @@
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "API Requests",
       "type": "stat"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -426,9 +472,13 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "7.5.2",
+      "pluginVersion": "9.0.2",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
           "exemplar": true,
           "expr": "abs(rundeck_api_requests_requestTimer_total{instance=\"$instance\"} - rundeck_web_requests_requestTimer_total{instance=\"$instance\"})",
           "interval": "",
@@ -440,7 +490,10 @@
       "type": "stat"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -472,6 +525,8 @@
       "id": 27,
       "options": {
         "displayMode": "gradient",
+        "minVizHeight": 10,
+        "minVizWidth": 0,
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
@@ -483,9 +538,13 @@
         "showUnfilled": true,
         "text": {}
       },
-      "pluginVersion": "7.5.2",
+      "pluginVersion": "9.0.2",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
           "exemplar": true,
           "expr": "rundeck_system_stats_scheduler_threadPoolSize{instance=\"$instance\"}",
           "interval": "",
@@ -493,6 +552,10 @@
           "refId": "A"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
           "exemplar": true,
           "expr": "rundeck_system_stats_threads_active{instance=\"$instance\"}",
           "hide": false,
@@ -505,7 +568,10 @@
       "type": "bargauge"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -539,6 +605,8 @@
       "id": 22,
       "options": {
         "displayMode": "gradient",
+        "minVizHeight": 10,
+        "minVizWidth": 0,
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
@@ -550,11 +618,15 @@
         "showUnfilled": true,
         "text": {}
       },
-      "pluginVersion": "7.5.2",
+      "pluginVersion": "9.0.2",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
           "exemplar": true,
-          "expr": "topk(10, sum(rundeck_project_execution_status{instance=\"$instance\", status=\"running\"} > 0) by (project_name, job_name))",
+          "expr": "topk(10, max(rundeck_project_execution_status{instance=\"$instance\", status=\"running\"}) by (project_name, job_name))",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -562,8 +634,6 @@
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Top 10 Running Jobs",
       "type": "bargauge"
     },
@@ -572,7 +642,10 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
       "fieldConfig": {
         "defaults": {
           "unit": "bytes"
@@ -609,7 +682,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.2",
+      "pluginVersion": "9.0.2",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -619,6 +692,10 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
           "exemplar": true,
           "expr": "rundeck_system_stats_memory_free_bytes{instance=\"$instance\"}",
           "interval": "",
@@ -627,6 +704,10 @@
           "refId": "A"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
           "exemplar": true,
           "expr": "rundeck_system_stats_memory_total_bytes{instance=\"$instance\"} - rundeck_system_stats_memory_free_bytes{instance=\"$instance\"}",
           "hide": false,
@@ -635,6 +716,10 @@
           "refId": "B"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
           "exemplar": true,
           "expr": "rundeck_system_stats_memory_max_bytes{instance=\"$instance\"}",
           "hide": false,
@@ -644,9 +729,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Memory Usage",
       "tooltip": {
         "shared": true,
@@ -655,9 +738,7 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
@@ -665,25 +746,18 @@
         {
           "$$hashKey": "object:183",
           "format": "bytes",
-          "label": null,
           "logBase": 2,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
           "$$hashKey": "object:184",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -691,7 +765,10 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
       "fieldConfig": {
         "defaults": {
           "unit": "percent"
@@ -728,7 +805,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.2",
+      "pluginVersion": "9.0.2",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -738,6 +815,10 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
           "exemplar": true,
           "expr": "rundeck_system_stats_cpu_loadAverage_ratio{instance=\"$instance\"}",
           "interval": "",
@@ -746,9 +827,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "CPU Usage",
       "tooltip": {
         "shared": true,
@@ -757,57 +836,44 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
       "yaxes": [
         {
           "format": "percent",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     }
   ],
   "refresh": "30s",
-  "schemaVersion": 27,
+  "schemaVersion": 36,
   "style": "dark",
   "tags": [],
   "templating": {
     "list": [
       {
-        "allValue": null,
         "current": {
-          "selected": true,
-          "text": [
-            "localhost:9620"
-          ],
-          "value": [
-            "localhost:9620"
-          ]
+          "selected": false,
+          "text": "rundeck_exporter:9620",
+          "value": "rundeck_exporter:9620"
         },
-        "datasource": null,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "PBFA97CFB590B2093"
+        },
         "definition": "label_values(instance)",
-        "description": null,
-        "error": null,
         "hide": 0,
         "includeAll": false,
         "label": "Instance",
@@ -823,7 +889,6 @@
         "skipUrlSync": false,
         "sort": 0,
         "tagValuesQuery": "",
-        "tags": [],
         "tagsQuery": "",
         "type": "query",
         "useTags": false
@@ -838,5 +903,6 @@
   "timezone": "",
   "title": "Rundeck",
   "uid": "-roav3Gnk",
-  "version": 32
+  "version": 1,
+  "weekStart": ""
 }
