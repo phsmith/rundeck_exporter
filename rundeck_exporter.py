@@ -115,11 +115,11 @@ class RundeckMetricsCollector(object):
                              default=literal_eval(getenv('RUNDECK_PROJECTS_EXECUTIONS', 'False').capitalize()),
                              action='store_true'
                              )
-    args_parser.add_argument('--rundeck.projects.filter',
-                             dest='rundeck_projects_filter',
-                             help='Get executions only from listed projects (delimiter = space).',
-                             default=getenv('RUNDECK_PROJECTS_FILTER', []),
-                             nargs='+'
+    args_parser.add_argument('--rundeck.projects.executions.limit',
+                             dest='rundeck_projects_executions_limit',
+                             help='Project executions max results per query. Default: 20.',
+                             type=int,
+                             default=getenv('RUNDECK_PROJECTS_EXECUTIONS_LIMIT', 20)
                              )
     args_parser.add_argument('--rundeck.projects.executions.cache',
                              dest='rundeck_projects_executions_cache',
@@ -127,6 +127,12 @@ class RundeckMetricsCollector(object):
                              default=literal_eval(getenv('RUNDECK_PROJECTS_EXECUTIONS_CACHE', 'False').capitalize()),
                              action='store_true'
                              )
+    args_parser.add_argument('--rundeck.projects.filter',
+                            dest='rundeck_projects_filter',
+                            help='Get executions only from listed projects (delimiter = space).',
+                            default=getenv('RUNDECK_PROJECTS_FILTER', []),
+                            nargs='+'
+                            )
     args_parser.add_argument('--rundeck.cached.requests.ttl',
                              dest='rundeck_cached_requests_ttl',
                              help='Rundeck cached requests expiration time. Default: 120',
@@ -219,9 +225,9 @@ class RundeckMetricsCollector(object):
     def get_project_executions(self, project: dict):
         project_name = project['name']
         project_execution_records = list()
-        jobs_list = list()
-        endpoint = f'/project/{project_name}/executions?recentFilter=1d&max=250'
-        endpoint_running_executions = f'/project/{project_name}/executions/running?recentFilter=1d&max=250'
+        project_executions_limit = self.args.rundeck_projects_executions_limit
+        endpoint = f'/project/{project_name}/executions?recentFilter=1d&max={project_executions_limit}'
+        endpoint_running_executions = f'/project/{project_name}/executions/running?recentFilter=1d&max={project_executions_limit}'
 
         try:
             if self.args.rundeck_projects_executions_cache:
@@ -242,12 +248,6 @@ class RundeckMetricsCollector(object):
                 execution_id = str(project_execution.get('id', 'None'))
                 execution_type = project_execution.get('executionType')
                 user = project_execution.get('user')
-
-                if job_id in jobs_list:
-                    continue
-
-                jobs_list.append(job_id)
-
                 default_metrics = self.default_labels_values + [
                     project_name,
                     job_id,
