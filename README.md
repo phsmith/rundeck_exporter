@@ -44,8 +44,9 @@ $ ./rundeck_exporter.py --help
 
 usage: rundeck_exporter.py [-h] [--debug] [-v] [--host RUNDECK_EXPORTER_HOST] [--port RUNDECK_EXPORTER_PORT] [--rundeck.url RUNDECK_URL] [--rundeck.skip_ssl]
                            [--rundeck.api.version RUNDECK_API_VERSION] [--rundeck.username RUNDECK_USERNAME] [--rundeck.projects.executions]
-                           [--rundeck.projects.filter RUNDECK_PROJECTS_FILTER [RUNDECK_PROJECTS_FILTER ...]] [--rundeck.projects.executions.cache]
-                           [--rundeck.cached.requests.ttl RUNDECK_CACHED_REQUESTS_TTL] [--rundeck.cpu.stats] [--rundeck.memory.stats]
+                           [--rundeck.projects.executions.limit RUNDECK_PROJECTS_EXECUTIONS_LIMIT] [--rundeck.projects.executions.cache]
+                           [--rundeck.projects.filter RUNDECK_PROJECTS_FILTER [RUNDECK_PROJECTS_FILTER ...]] [--rundeck.cached.requests.ttl RUNDECK_CACHED_REQUESTS_TTL]
+                           [--rundeck.cpu.stats] [--rundeck.memory.stats]
 
 Rundeck Metrics Exporter
 
@@ -70,10 +71,12 @@ options:
                         Rundeck User with access to the system information.
   --rundeck.projects.executions
                         Get projects executions metrics.
-  --rundeck.projects.filter RUNDECK_PROJECTS_FILTER [RUNDECK_PROJECTS_FILTER ...]
-                        Get executions only from listed projects (delimiter = space).
+  --rundeck.projects.executions.limit RUNDECK_PROJECTS_EXECUTIONS_LIMIT
+                        Project executions max results per query. Default: 20.
   --rundeck.projects.executions.cache
                         Cache requests for project executions metrics query.
+  --rundeck.projects.filter RUNDECK_PROJECTS_FILTER [RUNDECK_PROJECTS_FILTER ...]
+                        Get executions only from listed projects (delimiter = space).
   --rundeck.cached.requests.ttl RUNDECK_CACHED_REQUESTS_TTL
                         Rundeck cached requests expiration time. Default: 120
   --rundeck.cpu.stats   Show Rundeck CPU usage stats
@@ -96,6 +99,7 @@ Optionally, it's possible to pass the following environment variables to the run
 | RUNDECK_SKIP_SSL | <ul><li>True</li><li>False (default)</li></ul> | Skip SSL certificate check. |
 | RUNDECK_PROJECTS_EXECUTIONS | <ul><li>True</li><li>False (default)</li></ul> | Get projects executions metrics. |
 | RUNDECK_PROJECTS_FILTER | [] | Get executions only from listed projects. |
+| RUNDECK_PROJECTS_EXECUTIONS_LIMIT | Default: 20 | Projects executions max results per query |
 | RUNDECK_PROJECTS_EXECUTIONS_CACHE | <ul><li>True</li><li>False (default)</li></ul> | Cache requests for project executions metrics query. |
 | RUNDECK_CACHED_REQUESTS_TTL | Default: 120 | Rundeck cached requests expiration time. |
 | RUNDECK_CPU_STATS | <ul><li>True</li><li>False (default)</li></ul> | Show Rundeck CPU usage stats |
