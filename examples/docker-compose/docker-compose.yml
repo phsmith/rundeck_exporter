@@ -1,7 +1,7 @@
 version: "3"
 services:
   rundeck:
-    image: rundeck/rundeck:3.4.8
+    image: rundeck/rundeck:4.6.1
     ports:
       - 4440:4440
     environment:
@@ -9,6 +9,7 @@ services:
     tty: true
     volumes:
       - ./data/rundeck:/home/rundeck/server/data
+      - ./configs/rundeck/remco/templates/rundeck-config.properties:/etc/remco/templates/rundeck-config.properties
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:4440"]
       interval: 30s
