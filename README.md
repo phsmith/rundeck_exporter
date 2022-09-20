@@ -17,6 +17,9 @@ This exporter uses the prometheus_client and requests Python module to expose Ru
 
  This code was tested on Rundeck API version 31+.
 
+ > **Warning**:
+ > Since version 4.x.x. the `/api/V/metrics` endpoint is disabled, so you need to enable it in `rundeck-config.properties` to get the exporter to work. See [config-file-reference.html#metrics-capturing](https://docs.rundeck.com/docs/administration/configuration/config-file-reference.html#metrics-capturing)
+
 ## Metrics
 
 All metrics are exported with **rundeck_** prefix.
