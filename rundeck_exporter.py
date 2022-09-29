@@ -421,11 +421,16 @@ class RundeckMetricsCollector(object):
         """
         Rundeck projects executions info
         """
+        rundeck_projects_filter = self.args.rundeck_projects_filter
+
         if self.args.rundeck_projects_executions:
             endpoint = '/projects'
 
-            if self.args.rundeck_projects_filter:
-                projects = [{"name": x} for x in self.args.rundeck_projects_filter]
+            if rundeck_projects_filter:
+                if isinstance(rundeck_projects_filter, str):
+                    rundeck_projects_filter = rundeck_projects_filter.split()
+
+                projects = [{"name": x} for x in rundeck_projects_filter]
             else:
                 if self.args.rundeck_projects_executions_cache:
                     projects = self.cached_request_data_from(endpoint)

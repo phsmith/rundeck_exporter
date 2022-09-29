@@ -101,7 +101,7 @@ Optionally, it's possible to pass the following environment variables to the run
 | RUNDECK_API_VERSION | Default: 31 | Rundeck API version. |
 | RUNDECK_SKIP_SSL | <ul><li>True</li><li>False (default)</li></ul> | Skip SSL certificate check. |
 | RUNDECK_PROJECTS_EXECUTIONS | <ul><li>True</li><li>False (default)</li></ul> | Get projects executions metrics. |
-| RUNDECK_PROJECTS_FILTER | [] | Get executions only from listed projects. |
+| RUNDECK_PROJECTS_FILTER | | Get executions only from listed projects e.g. "project-1 project-2 ..." |
 | RUNDECK_PROJECTS_EXECUTIONS_LIMIT | Default: 20 | Projects executions max results per query |
 | RUNDECK_PROJECTS_EXECUTIONS_CACHE | <ul><li>True</li><li>False (default)</li></ul> | Cache requests for project executions metrics query. |
 | RUNDECK_CACHED_REQUESTS_TTL | Default: 120 | Rundeck cached requests expiration time. |
