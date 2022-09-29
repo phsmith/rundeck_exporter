@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.0] - 2022-09-29
+
+### Added
+- Added new metric rundeck_project_executions_total
+
+### Fixed
+- Fixed issue #59, unable to pass the RUNDECK_PROJECTS_FILTER environment variables
+
 ## [2.4.14] - 2022-07-21
 
 ### Added

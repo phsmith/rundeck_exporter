@@ -390,6 +390,10 @@ Optionally, it's possible to pass the following environment variables to the run
   rundeck_project_execution_status{execution_id="7375",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="3fcc1617-74d4-422b-b7cf-bd3123b3f97c",job_name="Fail after 60s",project_name="Test",status="failed",user="admin"} 1.0
   rundeck_project_execution_status{execution_id="7375",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="3fcc1617-74d4-422b-b7cf-bd3123b3f97c",job_name="Fail after 60s",project_name="Test",status="aborted",user="admin"} 0.0
   rundeck_project_execution_status{execution_id="7375",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="3fcc1617-74d4-422b-b7cf-bd3123b3f97c",job_name="Fail after 60s",project_name="Test",status="unknown",user="admin"} 0.0
+  # HELP rundeck_project_executions_total Rundeck Project ProjectName Total Executions
+  # TYPE rundeck_project_executions_total counter
+  rundeck_project_executions_total{instance_address="localhost:4440",project_name="Test"} 300.0
+
   ```
 </details>
 

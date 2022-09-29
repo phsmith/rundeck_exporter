@@ -26,7 +26,7 @@ from prometheus_client.core import (
 __author__ = 'Phillipe Smith'
 __author_email__ = 'phsmithcc@gmail.com'
 __app__ = 'rundeck_exporter'
-__version__ = '2.4.13'
+__version__ = '2.5.0'
 
 # Disable InsecureRequestWarning
 requests.urllib3.disable_warnings()
@@ -237,6 +237,10 @@ class RundeckMetricsCollector(object):
                 project_executions_running_info = self.request_data_from(endpoint_running_executions)
                 project_executions_info = self.request_data_from(endpoint)
 
+            project_executions_total = {
+                'project': project_name,
+                'total_executions': project_executions_info['paging']['total']
+            }
             project_executions = (project_executions_running_info.get('executions', [])
                                   + project_executions_info.get('executions', []))
 
@@ -279,10 +283,10 @@ class RundeckMetricsCollector(object):
                         RundeckProjectExecutionRecord(default_metrics + [status], value, RundeckProjectExecution.STATUS)
                     )
 
-        except Exception:  # nosec
-            pass
+        except Exception as error:  # nosec
+            logging.error(error)
 
-        return project_execution_records
+        return project_execution_records, project_executions_total
 
 
     """
@@ -468,7 +472,17 @@ class RundeckMetricsCollector(object):
                     labels=default_labels + ['status']
                 )
 
-                for project_execution_record_group in project_execution_records:
+                project_executions_total_metrics = CounterMetricFamily(
+                    'rundeck_project_executions_total',
+                    f'Rundeck Project ProjectName Total Executions',
+                    labels=self.default_labels + ['project_name']
+                )
+
+                for project_execution_record_group, project_executions_total in project_execution_records:
+                    project_executions_total_metrics.add_metric(
+                        self.default_labels_values + [project_executions_total['project']],
+                        project_executions_total['total_executions']
+                    )
                     for project_execution_record in project_execution_record_group:
                         if project_execution_record.execution_type == RundeckProjectExecution.START:
                             project_start_metrics.add_metric(project_execution_record.tags, project_execution_record.value)
@@ -480,6 +494,7 @@ class RundeckMetricsCollector(object):
                 yield project_start_metrics
                 yield project_duration_metrics
                 yield project_metrics
+                yield project_executions_total_metrics
 
     @staticmethod
     def exit_with_msg(msg: str, level: str):
