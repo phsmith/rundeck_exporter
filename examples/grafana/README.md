@@ -13,3 +13,13 @@ The dashboard can be imported from the following JSON file:
 [Rundeck Grafana Dashboard JSON](Rundeck-Dashboard.json)
 
 ![Rundeck-Grafana-Dashboard](Rundeck-Grafana-Dashboard.png)
+
+<br>
+
+## Rundeck Exporter Grafana Dashboard - Detailed jobs
+The dashboard bellow includes some detailed information about jobs executions.
+
+
+[Dashboard JSON file](rundeck-exporter-job-detailed.json)
+
+![Rundeck-Grafana-Dashboard](rundeck-exporter-job-detailed.png)
