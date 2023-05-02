@@ -1,6 +1,7 @@
 ## Rundeck_Exporter
 
 ![Docker Pulls](https://img.shields.io/docker/pulls/phsmith/rundeck-exporter?logo=docker&)
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/phsmith/rundeck_exporter?color=%23e3e3e3)
 
 Rundeck Metrics Exporter for Prometheus.
 
