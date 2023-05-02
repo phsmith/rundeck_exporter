@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.2] - 2023-05-02
+
+### Changed
+- Update Dockerfile and Makefile to support the new VERSION file
+
+### Fixed
+- Fixed rundeck_project_execution_duration_seconds metric return values from milliseconds to seconds.
+
 ## [2.5.1] - 2023-05-02
 
 ### Added
@@ -220,7 +228,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[unreleased]: https://github.com/phsmith/rundeck_exporter/compare/v2.5.1...HEAD
+[unreleased]: https://github.com/phsmith/rundeck_exporter/compare/v2.5.2...HEAD
+[2.5.2]: https://github.com/phsmith/rundeck_exporter/compare/v2.5.1...v2.5.2
 [2.5.1]: https://github.com/phsmith/rundeck_exporter/compare/v2.5.0...v2.5.1
 [2.5.0]: https://github.com/phsmith/rundeck_exporter/compare/v2.4.14...v2.5.0
 [2.4.14]: https://github.com/phsmith/rundeck_exporter/compare/v2.4.13...v2.4.14
