@@ -221,7 +221,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release
 
 [unreleased]: https://github.com/phsmith/rundeck_exporter/compare/v2.5.1...HEAD
-[2.5.0]: https://github.com/phsmith/rundeck_exporter/compare/v2.5.0...v2.5.1
+[2.5.1]: https://github.com/phsmith/rundeck_exporter/compare/v2.5.0...v2.5.1
 [2.5.0]: https://github.com/phsmith/rundeck_exporter/compare/v2.4.14...v2.5.0
 [2.4.14]: https://github.com/phsmith/rundeck_exporter/compare/v2.4.13...v2.4.14
 [2.4.13]: https://github.com/phsmith/rundeck_exporter/compare/v2.4.12...v2.4.13
