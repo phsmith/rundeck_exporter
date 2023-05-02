@@ -10,6 +10,7 @@ import textwrap
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from ast import literal_eval
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
 from enum import Enum
 from os import getenv
 from time import sleep
@@ -26,7 +27,9 @@ from prometheus_client.core import (
 __author__ = 'Phillipe Smith'
 __author_email__ = 'phsmithcc@gmail.com'
 __app__ = 'rundeck_exporter'
-__version__ = '2.5.0'
+__version__ = open('VERSION').read()
+
+print(__version__)
 
 # Disable InsecureRequestWarning
 requests.urllib3.disable_warnings()
@@ -263,8 +266,10 @@ class RundeckMetricsCollector(object):
                 ]
 
                 # Job start/end times
+                timestamp_now = datetime.now().timestamp() * 1000
                 job_start_time = project_execution.get('date-started', {}).get('unixtime', 0)
-                job_execution_duration = job_info.get('averageDuration', 0)
+                job_end_time = project_execution.get('date-ended', {}).get('unixtime', timestamp_now)
+                job_execution_duration = job_end_time - job_start_time
 
                 project_execution_records.append(
                     RundeckProjectExecutionRecord(default_metrics, job_start_time, RundeckProjectExecution.START)

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.1] - 2023-05-02
+
+### Added
+- Added VERSION file
+
+### Fixed
+- Fixed issue #65, rundeck_project_execution_duration_seconds metric reporting wrong values. Instead of using the job `averageDuration` attribute, now the value is calculated based on the `start time` and `end time`.
+
 ## [2.5.0] - 2022-09-29
 
 ### Added
@@ -212,7 +220,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[unreleased]: https://github.com/phsmith/rundeck_exporter/compare/v2.4.11...HEAD
+[unreleased]: https://github.com/phsmith/rundeck_exporter/compare/v2.5.1...HEAD
+[2.5.0]: https://github.com/phsmith/rundeck_exporter/compare/v2.5.0...v2.5.1
+[2.5.0]: https://github.com/phsmith/rundeck_exporter/compare/v2.4.14...v2.5.0
+[2.4.14]: https://github.com/phsmith/rundeck_exporter/compare/v2.4.13...v2.4.14
+[2.4.13]: https://github.com/phsmith/rundeck_exporter/compare/v2.4.12...v2.4.13
+[2.4.12]: https://github.com/phsmith/rundeck_exporter/compare/v2.4.11...v2.4.12
 [2.4.11]: https://github.com/phsmith/rundeck_exporter/compare/v2.4.10...v2.4.11
 [2.4.10]: https://github.com/phsmith/rundeck_exporter/compare/v2.4.9...v2.4.10
 [2.4.9]: https://github.com/phsmith/rundeck_exporter/compare/v2.4.8...v2.4.9
