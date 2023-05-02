@@ -82,7 +82,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "exemplar": true,
-          "expr": "rundeck_system_stats_uptime_since{instance=\"$instance\"}",
+          "expr": "rundeck_system_stats_uptime_since{instance_address=\"$instance_address\"}",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -148,7 +148,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "exemplar": true,
-          "expr": "rundeck_scheduler_quartz_scheduledJobs{instance=\"$instance\"}",
+          "expr": "rundeck_scheduler_quartz_scheduledJobs{instance_address=\"$instance_address\"}",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -214,7 +214,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "exemplar": true,
-          "expr": "rundeck_system_stats_scheduler_running{instance=\"$instance\"}",
+          "expr": "rundeck_system_stats_scheduler_running{instance_address=\"$instance_address\"}",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -284,7 +284,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "exemplar": true,
-          "expr": "topk(10, sum(increase(rundeck_project_execution_status{instance=\"$instance\", status=\"failed\"}[$__range])) by (project_name, job_name))",
+          "expr": "topk(10, sum(increase(rundeck_project_execution_status{instance_address=\"$instance_address\", status=\"failed\"}[$__range])) by (project_name, job_name))",
           "hide": false,
           "instant": false,
           "interval": "",
@@ -313,7 +313,7 @@
             }
           },
           "mappings": [],
-          "unit": "ms"
+          "unit": "s"
         },
         "overrides": []
       },
@@ -355,7 +355,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "exemplar": true,
-          "expr": "topk(10, avg(rundeck_project_execution_duration_seconds{instance=\"$instance\"}) by (project_name,job_name)) > 0",
+          "expr": "topk(10, avg(rundeck_project_execution_duration_seconds{instance_address=\"$instance_address\"}) by (project_name,job_name)) > 0",
           "instant": false,
           "interval": "",
           "legendFormat": "{{project_name}} - {{job_name}}",
@@ -418,7 +418,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "exemplar": true,
-          "expr": "rundeck_api_requests_requestTimer_total{instance=\"$instance\"}",
+          "expr": "rundeck_api_requests_requestTimer_total{instance_address=\"$instance_address\"}",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -480,7 +480,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "exemplar": true,
-          "expr": "abs(rundeck_api_requests_requestTimer_total{instance=\"$instance\"} - rundeck_web_requests_requestTimer_total{instance=\"$instance\"})",
+          "expr": "abs(rundeck_api_requests_requestTimer_total{instance_address=\"$instance_address\"} - rundeck_web_requests_requestTimer_total{instance_address=\"$instance_address\"})",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -546,7 +546,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "exemplar": true,
-          "expr": "rundeck_system_stats_scheduler_threadPoolSize{instance=\"$instance\"}",
+          "expr": "rundeck_system_stats_scheduler_threadPoolSize{instance_address=\"$instance_address\"}",
           "interval": "",
           "legendFormat": "Thread Pool Size",
           "refId": "A"
@@ -557,7 +557,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "exemplar": true,
-          "expr": "rundeck_system_stats_threads_active{instance=\"$instance\"}",
+          "expr": "rundeck_system_stats_threads_active{instance_address=\"$instance_address\"}",
           "hide": false,
           "interval": "",
           "legendFormat": "Threads active",
@@ -626,7 +626,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "exemplar": true,
-          "expr": "topk(10, max(rundeck_project_execution_status{instance=\"$instance\", status=\"running\"}) by (project_name, job_name))",
+          "expr": "topk(10, max(rundeck_project_execution_status{instance_address=\"$instance_address\", status=\"running\"}) by (project_name, job_name))",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -697,7 +697,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "exemplar": true,
-          "expr": "rundeck_system_stats_memory_free_bytes{instance=\"$instance\"}",
+          "expr": "rundeck_system_stats_memory_free_bytes{instance_address=\"$instance_address\"}",
           "interval": "",
           "intervalFactor": 1,
           "legendFormat": "Free",
@@ -709,7 +709,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "exemplar": true,
-          "expr": "rundeck_system_stats_memory_total_bytes{instance=\"$instance\"} - rundeck_system_stats_memory_free_bytes{instance=\"$instance\"}",
+          "expr": "rundeck_system_stats_memory_total_bytes{instance_address=\"$instance_address\"} - rundeck_system_stats_memory_free_bytes{instance_address=\"$instance_address\"}",
           "hide": false,
           "interval": "",
           "legendFormat": "Used",
@@ -721,7 +721,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "exemplar": true,
-          "expr": "rundeck_system_stats_memory_max_bytes{instance=\"$instance\"}",
+          "expr": "rundeck_system_stats_memory_max_bytes{instance_address=\"$instance_address\"}",
           "hide": false,
           "interval": "",
           "legendFormat": "Limit",
@@ -820,7 +820,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "exemplar": true,
-          "expr": "rundeck_system_stats_cpu_loadAverage_ratio{instance=\"$instance\"}",
+          "expr": "rundeck_system_stats_cpu_loadAverage_ratio{instance_address=\"$instance_address\"}",
           "interval": "",
           "legendFormat": "Load average",
           "refId": "A"
@@ -873,19 +873,19 @@
           "type": "prometheus",
           "uid": "PBFA97CFB590B2093"
         },
-        "definition": "label_values(instance)",
+        "definition": "label_values(instance_address)",
         "hide": 0,
         "includeAll": false,
-        "label": "Instance",
+        "label": "instance_address",
         "multi": true,
-        "name": "instance",
+        "name": "instance_address",
         "options": [],
         "query": {
-          "query": "label_values(instance)",
+          "query": "label_values(instance_address)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 1,
-        "regex": "/.*:9620/",
+        "regex": "/.*:4440/",
         "skipUrlSync": false,
         "sort": 0,
         "tagValuesQuery": "",

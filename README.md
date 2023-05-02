@@ -5,7 +5,7 @@
 
 Rundeck Metrics Exporter for Prometheus.
 
-![Rundeck-Grafana-Dashboard](examples/grafana/Rundeck-Grafana-Dashboard.png)
+![Rundeck-Grafana-Dashboard](examples/grafana/rundeck-grafana-dashboard.png)
 
 *Dashboard example can be found in: [examples/grafana](examples/grafana)*
 

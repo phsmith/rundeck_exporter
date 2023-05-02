@@ -760,7 +760,7 @@
               }
             ]
           },
-          "unit": "ms"
+          "unit": "s"
         },
         "overrides": [
           {
@@ -1457,7 +1457,7 @@
             "properties": [
               {
                 "id": "unit",
-                "value": "ms"
+                "value": "s"
               }
             ]
           }

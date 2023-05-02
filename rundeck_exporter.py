@@ -269,7 +269,7 @@ class RundeckMetricsCollector(object):
                 timestamp_now = datetime.now().timestamp() * 1000
                 job_start_time = project_execution.get('date-started', {}).get('unixtime', 0)
                 job_end_time = project_execution.get('date-ended', {}).get('unixtime', timestamp_now)
-                job_execution_duration = job_end_time - job_start_time
+                job_execution_duration = (job_end_time - job_start_time) / 1000
 
                 project_execution_records.append(
                     RundeckProjectExecutionRecord(default_metrics, job_start_time, RundeckProjectExecution.START)
