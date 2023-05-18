@@ -13,6 +13,8 @@ This exporter uses the prometheus_client and requests Python module to expose Ru
 
  * RUNDECK_URL/*api_version*/system/info
  * RUNDECK_URL/*api_version*/metrics/metrics
+ * RUNDECK_URL/*api_version*/project/*project_name*/executions
+ * RUNDECK_URL/*api_version*/project/*project_name*/executions/running
 
  Where *version* represents the Rundeck API version, like: 31,32,33,34,etc.
 
