@@ -11,10 +11,10 @@ Rundeck Metrics Exporter for Prometheus.
 
 This exporter uses the prometheus_client and requests Python module to expose Rundeck metrics found in:
 
- * RUNDECK_URL/*api_version*/system/info
- * RUNDECK_URL/*api_version*/metrics/metrics
- * RUNDECK_URL/*api_version*/project/*project_name*/executions
- * RUNDECK_URL/*api_version*/project/*project_name*/executions/running
+ * [RUNDECK_URL/*api_version*/system/info](https://docs.rundeck.com/docs/api/rundeck-api.html#system-info)
+ * [RUNDECK_URL/*api_version*/metrics/metrics](https://docs.rundeck.com/docs/api/rundeck-api.html#list-metrics)
+ * [RUNDECK_URL/*api_version*/project/*project_name*/executions](https://docs.rundeck.com/docs/api/rundeck-api.html#execution-query)
+ * [RUNDECK_URL/*api_version*/project/*project_name*/executions/running](https://docs.rundeck.com/docs/api/rundeck-api.html#listing-running-executions)
 
  Where *version* represents the Rundeck API version, like: 31,32,33,34,etc.
 
