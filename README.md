@@ -11,8 +11,10 @@ Rundeck Metrics Exporter for Prometheus.
 
 This exporter uses the prometheus_client and requests Python module to expose Rundeck metrics found in:
 
- * RUNDECK_URL/*api_version*/system/info
- * RUNDECK_URL/*api_version*/metrics/metrics
+ * [RUNDECK_URL/*api_version*/system/info](https://docs.rundeck.com/docs/api/rundeck-api.html#system-info)
+ * [RUNDECK_URL/*api_version*/metrics/metrics](https://docs.rundeck.com/docs/api/rundeck-api.html#list-metrics)
+ * [RUNDECK_URL/*api_version*/project/*project_name*/executions](https://docs.rundeck.com/docs/api/rundeck-api.html#execution-query)
+ * [RUNDECK_URL/*api_version*/project/*project_name*/executions/running](https://docs.rundeck.com/docs/api/rundeck-api.html#listing-running-executions)
 
  Where *version* represents the Rundeck API version, like: 31,32,33,34,etc.
 
@@ -35,11 +37,58 @@ More detailed information about the metrics can be found in [Documentations](doc
 pip install prometheus-client requests cachetools
 ```
 
-## Usage
+## API Authentication
 
 Rundeck token or username and password are required.
 
 The token (`RUNDECK_TOKEN`) or password (`RUNDECK_USERPASSWORD`) must be passed as environment variables to work.
+
+The ACL associated with the token/user must have the following policy rules as a minimum:
+* `system:read` (system context)
+* `project:read` (system context)
+* `events:read` (project context)
+
+Example ACL Policy allowing a user named "exporter" to get system metrics as well as execution metrics for any project:
+
+```yaml
+by:
+  username: exporter
+description: system:read
+for:
+  resource:
+  - allow:
+    - read
+    equals:
+      kind: system
+context:
+  application: rundeck
+---
+by:
+  username: exporter
+description: project:read
+for:
+  project:
+  - allow:
+    - read
+    match:
+      name: .*
+context:
+  application: rundeck
+---
+by:
+  username: exporter
+description: events:read
+for:
+  resource:
+  - allow:
+    - read
+    equals:
+      kind: event
+context:
+  project: .*
+```
+
+## Usage
 
 The rundeck_exporter supports the following paramenters:
 
