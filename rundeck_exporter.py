@@ -29,8 +29,6 @@ __author_email__ = 'phsmithcc@gmail.com'
 __app__ = 'rundeck_exporter'
 __version__ = open('VERSION').read()
 
-print(__version__)
-
 # Disable InsecureRequestWarning
 requests.urllib3.disable_warnings()
 
@@ -118,6 +116,15 @@ class RundeckMetricsCollector(object):
                              default=literal_eval(getenv('RUNDECK_PROJECTS_EXECUTIONS', 'False').capitalize()),
                              action='store_true'
                              )
+    args_parser.add_argument('--rundeck.projects.executions.filter',
+                             dest='rundeck_project_executions_filter',
+                             help='''
+                             Project executions filter by a period of time.
+                             Can be in: [s]: seconds, [n]: minutes, [h]: hour, [d]: day, [w]: week, [m]: month, [y]: year.
+                             Default: 1h.
+                             ''',
+                             default=getenv('RUNDECK_PROJECTS_EXECUTIONS_FILTER', '1h')
+                             )
     args_parser.add_argument('--rundeck.projects.executions.limit',
                              dest='rundeck_projects_executions_limit',
                              help='Project executions max results per query. Default: 20.',
@@ -133,8 +140,8 @@ class RundeckMetricsCollector(object):
     args_parser.add_argument('--rundeck.projects.filter',
                             dest='rundeck_projects_filter',
                             help='Get executions only from listed projects (delimiter = space).',
-                            default=getenv('RUNDECK_PROJECTS_FILTER', []),
-                            nargs='+'
+                            default=getenv('RUNDECK_PROJECTS_FILTER'),
+                            required=False
                             )
     args_parser.add_argument('--rundeck.cached.requests.ttl',
                              dest='rundeck_cached_requests_ttl',
@@ -167,7 +174,7 @@ class RundeckMetricsCollector(object):
 
     def __init__(self):
         if self.args.version:
-            print(f'{__app__} {__version__}')
+            print(f'{__app__} v{__version__}', end='')
             exit(0)
 
         if not self.args.rundeck_url \
@@ -229,7 +236,8 @@ class RundeckMetricsCollector(object):
         project_name = project['name']
         project_execution_records = list()
         project_executions_limit = self.args.rundeck_projects_executions_limit
-        endpoint = f'/project/{project_name}/executions?recentFilter=1d&max={project_executions_limit}'
+        project_executions_filter = self.args.rundeck_project_executions_filter
+        endpoint = f'/project/{project_name}/executions?recentFilter={project_executions_filter}&max={project_executions_limit}'
         endpoint_running_executions = f'/project/{project_name}/executions/running?recentFilter=1d&max={project_executions_limit}'
 
         try:
