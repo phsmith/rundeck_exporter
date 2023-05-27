@@ -123,7 +123,7 @@ class RundeckMetricsCollector(object):
                              Can be in: [s]: seconds, [n]: minutes, [h]: hour, [d]: day, [w]: week, [m]: month, [y]: year.
                              Default: 5n.
                              ''',
-                             default=getenv('RUNDECK_PROJECTS_EXECUTIONS_FILTER', '1h')
+                             default=getenv('RUNDECK_PROJECTS_EXECUTIONS_FILTER', '5n')
                              )
     args_parser.add_argument('--rundeck.projects.executions.limit',
                              dest='rundeck_projects_executions_limit',
