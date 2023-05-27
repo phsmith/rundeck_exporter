@@ -119,9 +119,9 @@ class RundeckMetricsCollector(object):
     args_parser.add_argument('--rundeck.projects.executions.filter',
                              dest='rundeck_project_executions_filter',
                              help='''
-                             Project executions filter by a period of time.
+                             Get the latest project executions filtered by time period.
                              Can be in: [s]: seconds, [n]: minutes, [h]: hour, [d]: day, [w]: week, [m]: month, [y]: year.
-                             Default: 1h.
+                             Default: 5n.
                              ''',
                              default=getenv('RUNDECK_PROJECTS_EXECUTIONS_FILTER', '1h')
                              )
