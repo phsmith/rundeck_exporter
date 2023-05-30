@@ -140,7 +140,8 @@ class RundeckMetricsCollector(object):
     args_parser.add_argument('--rundeck.projects.filter',
                             dest='rundeck_projects_filter',
                             help='Get executions only from listed projects (delimiter = space).',
-                            default=getenv('RUNDECK_PROJECTS_FILTER'),
+                            default=getenv('RUNDECK_PROJECTS_FILTER', []),
+                            nargs='+',
                             required=False
                             )
     args_parser.add_argument('--rundeck.cached.requests.ttl',
