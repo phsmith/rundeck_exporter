@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.6.1] - 2023-06-01
+
+### Fixed
+- [PR#70](https://github.com/phsmith/rundeck_exporter/pull/70) Removed `recentFilter` query string from `/executions/running` endpoint
+- [PR#71](https://github.com/phsmith/rundeck_exporter/pull/71) Bumped requests library version to [latest stable version](https://github.com/psf/requests/releases/tag/v2.31.0) that mitigates [CVE-2023-32681](https://nvd.nist.gov/vuln/detail/CVE-2023-32681)
+
 ## [2.6.0] - 2023-05-30
 
 ### Added
@@ -233,7 +239,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[unreleased]: https://github.com/phsmith/rundeck_exporter/compare/v2.6.0...HEAD
+[unreleased]: https://github.com/phsmith/rundeck_exporter/compare/v2.6.1...HEAD
+[2.6.1]: https://github.com/phsmith/rundeck_exporter/compare/v2.6.0...v2.6.1
 [2.6.0]: https://github.com/phsmith/rundeck_exporter/compare/v2.5.2...v2.6.0
 [2.5.2]: https://github.com/phsmith/rundeck_exporter/compare/v2.5.1...v2.5.2
 [2.5.1]: https://github.com/phsmith/rundeck_exporter/compare/v2.5.0...v2.5.1
