@@ -239,7 +239,7 @@ class RundeckMetricsCollector(object):
         project_executions_limit = self.args.rundeck_projects_executions_limit
         project_executions_filter = self.args.rundeck_project_executions_filter
         endpoint = f'/project/{project_name}/executions?recentFilter={project_executions_filter}&max={project_executions_limit}'
-        endpoint_running_executions = f'/project/{project_name}/executions/running?recentFilter={project_executions_filter}&max={project_executions_limit}'
+        endpoint_running_executions = f'/project/{project_name}/executions/running?max={project_executions_limit}'
 
         try:
             if self.args.rundeck_projects_executions_cache:
