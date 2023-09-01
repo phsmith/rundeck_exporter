@@ -4,7 +4,9 @@ Description=Rundeck Exporter
 [Service]
 User=rundeck_exporter
 EnvironmentFile=/etc/default/rundeck_exporter
-ExecStart=/usr/bin/rundeck_exporter $OPTIONS
+ExecStart=/usr/bin/rundeck_exporter $RUNDECK_OPTIONS
+StandardOutput=append:/var/log/rundeck_exporter.log
+StandardError=append:/var/log/rundeck_exporter.log
 
 [Install]
 WantedBy=multi-user.target

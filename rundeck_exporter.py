@@ -12,7 +12,7 @@ from ast import literal_eval
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from enum import Enum
-from os import getenv
+from os import getenv, path
 from time import sleep
 
 from cachetools import cached, TTLCache
@@ -27,7 +27,7 @@ from prometheus_client.core import (
 __author__ = 'Phillipe Smith'
 __author_email__ = 'phsmithcc@gmail.com'
 __app__ = 'rundeck_exporter'
-__version__ = open('VERSION').read()
+__version__ = open(path.join(path.dirname(__file__),'VERSION')).read()
 
 # Disable InsecureRequestWarning
 requests.urllib3.disable_warnings()
