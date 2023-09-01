@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.6.2] - 2023-09-01
 ### Fixed
 - Issue [#73](https://github.com/phsmith/rundeck_exporter/issues/73), fix VERSION file path.
+- VERSION not found in docker image
 
 ## [2.6.1] - 2023-06-01
 

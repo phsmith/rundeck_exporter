@@ -14,9 +14,10 @@ LABEL maintainer="Phillipe Smith <phsmithcc@gmail.com>" \
       org.label-schema.version=$VERSION \
       org.label-schema.schema-version="1.0"
 
-COPY VERSION requirements.txt /
-COPY rundeck_exporter.py /usr/bin/rundeck_exporter
+COPY VERSION requirements.txt /app/
 
-RUN pip install --no-cache-dir --disable-pip-version-check -r requirements.txt
+RUN pip install --no-cache-dir --disable-pip-version-check -r /app/requirements.txt
 
-ENTRYPOINT ["/usr/bin/rundeck_exporter"]
+COPY rundeck_exporter.py /app/
+
+ENTRYPOINT ["/app/rundeck_exporter.py"]
