@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.6.2] - 2023-09-01
+### Fixed
+- Issue [#73](https://github.com/phsmith/rundeck_exporter/issues/73), fix VERSION file path.
+
 ## [2.6.1] - 2023-06-01
 
 ### Fixed
@@ -239,7 +243,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[unreleased]: https://github.com/phsmith/rundeck_exporter/compare/v2.6.1...HEAD
+[unreleased]: https://github.com/phsmith/rundeck_exporter/compare/v2.6.2...HEAD
+[2.6.2]: https://github.com/phsmith/rundeck_exporter/compare/v2.6.1...v2.6.2
 [2.6.1]: https://github.com/phsmith/rundeck_exporter/compare/v2.6.0...v2.6.1
 [2.6.0]: https://github.com/phsmith/rundeck_exporter/compare/v2.5.2...v2.6.0
 [2.5.2]: https://github.com/phsmith/rundeck_exporter/compare/v2.5.1...v2.5.2
