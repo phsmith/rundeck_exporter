@@ -14,6 +14,7 @@ from datetime import datetime
 from enum import Enum
 from os import getenv, path
 from time import sleep
+from dotenv import load_dotenv
 
 from cachetools import cached, TTLCache
 from prometheus_client import start_http_server
@@ -32,6 +33,15 @@ __version__ = open(path.join(path.dirname(__file__),'VERSION')).read()
 # Disable InsecureRequestWarning
 requests.urllib3.disable_warnings()
 
+# Load envs from .evn file
+'''
+Create .env file in main directory and put all the credentials in the file as shown below.
+
+RUNDECK_TOKEN=My_Hard_Rundeck_Token
+RUNDECK_USERPASSWORD=My_Hard_RUNDECK_USERPASSWORD
+etc
+'''
+load_dotenv()
 
 class RundeckProjectExecution(Enum):
     '''Class for mapping Rundeck projects execution attributes'''
