@@ -1,0 +1,15 @@
+# service-monitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: rundeck-exporter-monitor
+  namespace: your-namespace-name
+spec:
+  endpoints:
+    - interval: 30s
+      path: /
+      port: your-rundeck-exporter-port
+      scrapeTimeout: 10s
+  selector:
+    matchLabels:
+      instance: your-rundeck-exporter-name

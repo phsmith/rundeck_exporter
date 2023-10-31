@@ -1,0 +1,12 @@
+apiVersion: v2
+appVersion: 1.16.0
+description: Rundeck Metrics Exporter for Prometheus.
+icon: https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKePwGb88xL3gFzccHHlCyYI7jWU-phaAaQRPRXfHB6ofpwBgLdVbNtabF-YRyccl85Rk&usqp=CAU
+keywords:
+- rundeck-exporter
+maintainers:
+- email: natalia.granato@jackexperts.com
+  name: Natália Granato
+name: rundeck-exporter
+type: application
+version: 0.1.8

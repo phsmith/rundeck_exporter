@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "rundeck-exporter.fullname" . }}
+  labels:
+    {{- include "rundeck-exporter.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "rundeck-exporter.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "rundeck-exporter.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          env:
+            - name: RUNDECK_EXPORTER_DEBUG
+              value: "{{ .Values.env.RUNDECK_EXPORTER_DEBUG }}"
+            - name: RUNDECK_EXPORTER_HOST
+              value: "{{ .Values.env.RUNDECK_EXPORTER_HOST }}"
+            - name: RUNDECK_EXPORTER_PORT
+              value: "{{ .Values.env.RUNDECK_EXPORTER_PORT }}"
+            - name: RUNDECK_TOKEN
+              value: "{{ .Values.env.RUNDECK_TOKEN }}"
+            - name: RUNDECK_URL
+              value: "{{ .Values.env.RUNDECK_URL }}"
+            - name: RUNDECK_USERNAME
+              value: "{{ .Values.env.RUNDECK_USERNAME }}"
+            - name: RUNDECK_USERPASSWORD
+              value: "{{ .Values.env.RUNDECK_USERPASSWORD }}"
+            - name: RUNDECK_API_VERSION
+              value: "{{ .Values.env.RUNDECK_API_VERSION }}"
+            - name: RUNDECK_SKIP_SSL
+              value: "{{ .Values.env.RUNDECK_SKIP_SSL }}"
+            - name: RUNDECK_PROJECTS_EXECUTIONS
+              value: "{{ .Values.env.RUNDECK_PROJECTS_EXECUTIONS }}"
+            - name: RUNDECK_PROJECTS_EXECUTIONS_CACHE
+              value: "{{ .Values.env.RUNDECK_PROJECTS_EXECUTIONS_CACHE }}"
+            - name: RUNDECK_CPU_STATS
+              value: "{{ .Values.env.RUNDECK_CPU_STATS }}"
+            - name: RUNDECK_MEMORY_STATS
+              value: "{{ .Values.env.RUNDECK_MEMORY_STATS }}"   
+          {{- include "rundeck-exporter.volumeMounts" . | nindent 6 }}
+      {{- include "rundeck-exporter.volumes" . | nindent 6 }}
+      {{- if not .Values.probe.disabled }}
+      {{- if .Values.serviceMonitor.enabled }}
+      metadata:
+        annotations:
+          prometheus.io/scrape: "true"
+          prometheus.io/path: "/metrics"
+          prometheus.io/port: "{{ .Values.service.port }}"
+      {{- end }}
+      readinessProbe:
+        httpGet:
+          path: /health
+          port: {{ .Values.service.port }}
+        initialDelaySeconds: {{ .Values.probe.initialDelaySeconds }}
+        periodSeconds: {{ .Values.probe.periodSeconds }}
+      livenessProbe:
+        httpGet:
+          path: /health
+          port: {{ .Values.service.port }}
+        initialDelaySeconds: {{ .Values.probe.initialDelaySeconds }}
+        periodSeconds: {{ .Values.probe.periodSeconds }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
