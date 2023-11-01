@@ -1,0 +1,92 @@
+replicaCount: 1
+
+image:
+  repository: phsmith/rundeck-exporter
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: 2.6.1
+
+env:
+  RUNDECK_EXPORTER_DEBUG: true
+  RUNDECK_EXPORTER_HOST: 0.0.0.0
+  RUNDECK_EXPORTER_PORT: 9620
+  RUNDECK_TOKEN: "your-rundeck-token"
+  RUNDECK_URL: "your-rundeck-url"
+  RUNDECK_USERNAME: "your-rundeck-username"
+  RUNDECK_USERPASSWORD: "your-rundeck-password"
+  RUNDECK_API_VERSION: 40
+  RUNDECK_SKIP_SSL: true
+  RUNDECK_PROJECTS_EXECUTIONS: true
+  RUNDECK_PROJECTS_EXECUTIONS_CACHE: true
+  RUNDECK_CPU_STATS: true
+  RUNDECK_MEMORY_STATS: true
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  {}
+  # fsGroup: 2000
+
+securityContext:
+  {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 9620
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+probe:
+  enabled: true
+  initialDelaySeconds: 10
+  periodSeconds: 10
+
+serviceMonitor:
+  enabled: true
+
+resources: {}
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

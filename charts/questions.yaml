@@ -1,0 +1,71 @@
+rancher_min_version: 2.5.0
+labels:
+  io.rancher.certified: community
+categories:
+  - Application
+questions:
+  - variable: env.RUNDECK_EXPORTER_DEBUG
+    default: "true"
+    type: string
+    label: exporter_debug
+    group: Exporter Variables
+  - variable: env.RUNDECK_EXPORTER_HOST
+    default: "0.0.0.0"
+    type: string
+    label: exporter_host
+    group: Exporter Variables
+  - variable: env.RUNDECK_EXPORTER_PORT
+    default: "9620"
+    type: string
+    label: exporter_port
+    group: Exporter Variables
+  - variable: env.RUNDECK_TOKEN
+    default: "your-rundeck-token"
+    type: string
+    label: rundeck_token
+    group: Rundeck Variables
+  - variable: env.RUNDECK_URL
+    default: "0.0.0.0"
+    type: string
+    label: exporter_url
+    group: Rundeck Variables
+  - variable: env.RUNDECK_USERNAME
+    default: "admin"
+    type: string
+    label: rundeck_username
+    group: Rundeck Variables
+  - variable: env.RUNDECK_USERPASSWORD
+    default: "your-rundeck-password"
+    type: string
+    label: rundeck_password
+    group: Rundeck Variables
+  - variable: env.RUNDECK_API_VERSION
+    default: "40"
+    type: string
+    label: rundeck_api_version
+    group: Rundeck Variables
+  - variable: env.RUNDECK_SKIP_SSL
+    default: "true"
+    type: string
+    label: rundeck_skip_ssl
+    group: Rundeck Variables
+  - variable: env.RUNDECK_PROJECTS_EXECUTIONS
+    default: "true"
+    type: string
+    label: rundeck_projects_executions
+    group: Rundeck Variables
+  - variable: env.RUNDECK_PROJECTS_EXECUTIONS_CACHE
+    default: "true"
+    type: string
+    label: rundeck_projects_executions_cache
+    group: Rundeck Variables
+  - variable: env.RUNDECK_CPU_STATS
+    default: "true"
+    type: string
+    label: rundeck_cpu_stats
+    group: Rundeck Variables
+  - variable: env.RUNDECK_MEMORY_STATS
+    default: "0.0.0.0"
+    type: string
+    label: rundeck_memory_stats
+    group: Rundeck Variables
