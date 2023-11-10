@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ## [2.6.3] - 2023-11-10
+### Added
+- Added Helm Chart by @nataliagranato in https://github.com/phsmith/rundeck_exporter/pull/76
+
 ### Fixed
 - Issue [#77](https://github.com/phsmith/rundeck_exporter/issues/77), systemd service doesn't work according to docs.
 
