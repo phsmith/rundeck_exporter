@@ -3,6 +3,8 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/phsmith/rundeck-exporter?logo=docker&)](https://hub.docker.com/r/phsmith/rundeck-exporter)
 [![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/phsmith/rundeck_exporter?color=%23e3e3e3)](https://github.com/phsmith/rundeck_exporter/releases)
 
+<a href="https://www.buymeacoffee.com/phsmith" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 38px !important;width: 150px !important;" ></a>
+
 Rundeck Metrics Exporter for Prometheus.
 
 ![Rundeck-Grafana-Dashboard](examples/grafana/rundeck-grafana-dashboard.png)
