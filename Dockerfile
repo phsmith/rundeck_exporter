@@ -14,7 +14,7 @@ LABEL maintainer="Phillipe Smith <phsmithcc@gmail.com>" \
       org.label-schema.version=$VERSION \
       org.label-schema.schema-version="1.0"
 
-COPY VERSION requirements.txt /app/
+COPY requirements.txt /app/
 
 RUN pip install --no-cache-dir --disable-pip-version-check -r /app/requirements.txt
 
