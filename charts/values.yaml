@@ -3,7 +3,6 @@ replicaCount: 1
 image:
   repository: phsmith/rundeck-exporter
   pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
   tag: 2.6.1
 
 env:
@@ -20,6 +19,9 @@ env:
   RUNDECK_PROJECTS_EXECUTIONS_CACHE: true
   RUNDECK_CPU_STATS: true
   RUNDECK_MEMORY_STATS: true
+
+# Specifies a secret to load environment variables from (e.g. RUNDECK_TOKEN)
+envSecret: ""
 
 imagePullSecrets: []
 nameOverride: ""
@@ -90,3 +92,20 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+# Create a dynamic manifests via values:
+extraObjects: []
+  # - apiVersion: external-secrets.io/v1beta1
+  #   kind: ExternalSecret
+  #   metadata:
+  #     name: rundeck-exporter-token
+  #   spec:
+  #     refreshInterval: 1h
+  #     secretStoreRef:
+  #       kind: ClusterSecretStore
+  #       name: gcp-store
+  #     target:
+  #       name: rundeck-exporter-token
+  #     dataFrom:
+  #     - extract:
+  #         key: rundeck-exporter-token
