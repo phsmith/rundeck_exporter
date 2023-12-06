@@ -1,3 +1,8 @@
 cachetools==4.2.2
+certifi==2023.7.22
+charset-normalizer==3.3.1
+idna==3.4
 prometheus-client==0.11.0
+python-dotenv==1.0.0
 requests==2.31.0
+urllib3==2.0.7
