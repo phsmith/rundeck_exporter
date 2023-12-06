@@ -11,6 +11,12 @@ spec:
       {{- include "rundeck-exporter.selectorLabels" . | nindent 6 }}
   template:
     metadata:
+      {{- if .Values.serviceMonitor.enabled }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "{{ .Values.service.port }}"
+      {{- end }}
       labels:
         {{- include "rundeck-exporter.selectorLabels" . | nindent 8 }}
     spec:
@@ -31,29 +37,22 @@ spec:
               value: "{{ $value }}"
             {{- end }}
           {{- end }}
+          {{- if not .Values.probe.disabled }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: {{ .Values.probe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probe.periodSeconds }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: {{ .Values.probe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probe.periodSeconds }}
+          {{- end }}
           {{- include "rundeck-exporter.volumeMounts" . | nindent 6 }}
       {{- include "rundeck-exporter.volumes" . | nindent 6 }}
-      {{- if not .Values.probe.disabled }}
-      {{- if .Values.serviceMonitor.enabled }}
-      metadata:
-        annotations:
-          prometheus.io/scrape: "true"
-          prometheus.io/path: "/metrics"
-          prometheus.io/port: "{{ .Values.service.port }}"
-      {{- end }}
-      readinessProbe:
-        httpGet:
-          path: /health
-          port: {{ .Values.service.port }}
-        initialDelaySeconds: {{ .Values.probe.initialDelaySeconds }}
-        periodSeconds: {{ .Values.probe.periodSeconds }}
-      livenessProbe:
-        httpGet:
-          path: /health
-          port: {{ .Values.service.port }}
-        initialDelaySeconds: {{ .Values.probe.initialDelaySeconds }}
-        periodSeconds: {{ .Values.probe.periodSeconds }}
-      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
