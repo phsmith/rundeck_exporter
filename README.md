@@ -86,6 +86,10 @@ for:
     - read
     equals:
       kind: event
+  job:
+  - allow:
+    - read
+    - view
 context:
   project: .*
 ```
