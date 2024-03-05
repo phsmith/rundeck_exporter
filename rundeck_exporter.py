@@ -27,7 +27,7 @@ from prometheus_client.core import (
 __author__ = 'Phillipe Smith'
 __author_email__ = 'phsmithcc@gmail.com'
 __app__ = 'rundeck_exporter'
-__version__ = '2.6.3'
+__version__ = '2.6.4'
 
 # Disable InsecureRequestWarning
 requests.urllib3.disable_warnings()
@@ -86,6 +86,12 @@ class RundeckMetricsCollector(object):
                              metavar="RUNDECK_EXPORTER_PORT",
                              type=int,
                              default=getenv('RUNDECK_EXPORTER_PORT', default_port)
+                             )
+    args_parser.add_argument('--no_checks_in_passive_mode',
+                             dest='no_checks_in_passive_mode',
+                             help='The rundeck_exporter will not perform any checks while the Rundeck host is in passive execution mode.',
+                             action='store_true',
+                             default=getenv('RUNDECK_EXPORTER_NO_CHECKS_IN_PASSIVE_MODE', False)
                              )
     args_parser.add_argument('--rundeck.url',
                              dest='rundeck_url',
@@ -406,12 +412,19 @@ class RundeckMetricsCollector(object):
         """
         system_info = self.request_data_from('/system/info')
         api_version = int(system_info['system']['rundeck']['apiversion'])
+        execution_mode = system_info['system'].get('executions', {}).get('executionMode')
         rundeck_system_info = InfoMetricFamily(
             name='rundeck_system',
             documentation='Rundeck system info',
             labels=self.default_labels
         )
         rundeck_system_info.add_metric(self.default_labels_values, {x: str(y) for x, y in system_info['system']['rundeck'].items()})
+
+        logging.debug(f'Rundeck execution mode: {execution_mode}.')
+
+        if self.args.no_checks_in_passive_mode and execution_mode == 'passive':
+            return
+
         yield rundeck_system_info
 
         """
