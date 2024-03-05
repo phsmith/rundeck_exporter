@@ -35,9 +35,16 @@ More detailed information about the metrics can be found in [Documentations](doc
 
 * A Rundeck token with permissions to make API requests
 * The following python modules:
-```
-pip install prometheus-client requests cachetools
-```
+
+  ```sh
+  pip install prometheus-client requests cachetools
+  ```
+
+  Or:
+
+  ```sh
+  pip install -r requirements.txt
+  ```
 
 ## API Authentication
 
@@ -98,12 +105,12 @@ context:
 
 The rundeck_exporter supports the following paramenters:
 
-```
+```text
 $ ./rundeck_exporter.py --help
 
-usage: rundeck_exporter.py [-h] [--debug] [-v] [--host RUNDECK_EXPORTER_HOST] [--port RUNDECK_EXPORTER_PORT] [--rundeck.url RUNDECK_URL] [--rundeck.skip_ssl] [--rundeck.api.version RUNDECK_API_VERSION] [--rundeck.username RUNDECK_USERNAME] [--rundeck.projects.executions]
-                           [--rundeck.projects.executions.filter RUNDECK_PROJECT_EXECUTIONS_FILTER] [--rundeck.projects.executions.limit RUNDECK_PROJECTS_EXECUTIONS_LIMIT] [--rundeck.projects.executions.cache]
-                           [--rundeck.projects.filter RUNDECK_PROJECTS_FILTER [RUNDECK_PROJECTS_FILTER ...]] [--rundeck.cached.requests.ttl RUNDECK_CACHED_REQUESTS_TTL] [--rundeck.cpu.stats] [--rundeck.memory.stats]
+usage: rundeck_exporter.py [-h] [--debug] [-v] [--host RUNDECK_EXPORTER_HOST] [--port RUNDECK_EXPORTER_PORT] [--no_checks_in_passive_mode] [--rundeck.url RUNDECK_URL] [--rundeck.skip_ssl] [--rundeck.api.version RUNDECK_API_VERSION] [--rundeck.username RUNDECK_USERNAME] [--rundeck.projects.executions]
+                           [--rundeck.projects.executions.filter RUNDECK_PROJECT_EXECUTIONS_FILTER] [--rundeck.projects.executions.limit RUNDECK_PROJECTS_EXECUTIONS_LIMIT] [--rundeck.projects.executions.cache] [--rundeck.projects.filter RUNDECK_PROJECTS_FILTER [RUNDECK_PROJECTS_FILTER ...]] [--rundeck.cached.requests.ttl RUNDECK_CACHED_REQUESTS_TTL]
+                           [--rundeck.cpu.stats] [--rundeck.memory.stats]
 
 Rundeck Metrics Exporter
 
@@ -119,6 +126,8 @@ options:
                         Host binding address. Default: 127.0.0.1.
   --port RUNDECK_EXPORTER_PORT
                         Host binding port. Default: 9620.
+  --no_checks_in_passive_mode
+                        The rundeck_exporter will not perform any checks while the Rundeck host is in passive execution mode.
   --rundeck.url RUNDECK_URL
                         Rundeck Base URL [ REQUIRED ].
   --rundeck.skip_ssl    Rundeck Skip SSL Cert Validate.
@@ -129,7 +138,7 @@ options:
   --rundeck.projects.executions
                         Get projects executions metrics.
   --rundeck.projects.executions.filter RUNDECK_PROJECT_EXECUTIONS_FILTER
-                        Project executions filter by a period of time. Can be in: [s]: seconds, [n]: minutes, [h]: hour, [d]: day, [w]: week, [m]: month, [y]: year. Default: 5n.
+                        Get the latest project executions filtered by time period. Can be in: [s]: seconds, [n]: minutes, [h]: hour, [d]: day, [w]: week, [m]: month, [y]: year. Default: 5n.
   --rundeck.projects.executions.limit RUNDECK_PROJECTS_EXECUTIONS_LIMIT
                         Project executions max results per query. Default: 20.
   --rundeck.projects.executions.cache
