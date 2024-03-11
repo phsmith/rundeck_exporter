@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.6.5] - 2024-03-011
+### Added
+- Issue [#85](https://github.com/phsmith/rundeck_exporter/issues/85), added new metric `rundeck_project_nodes_total`.
+
 ## [2.6.4] - 2024-03-05
 ### Added
 - Issue [#83](https://github.com/phsmith/rundeck_exporter/issues/83), added new `--no_checks_in_passive_mode` argument and `RUNDECK_EXPORTER_NO_CHECKS_IN_PASSIVE_MODE=<False|True>` env var introduced to keep the rundeck_exporter idle while the Rundeck host is in `passive` execution mode.
@@ -258,7 +262,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[unreleased]: https://github.com/phsmith/rundeck_exporter/compare/v2.6.4...HEAD
+[unreleased]: https://github.com/phsmith/rundeck_exporter/compare/v2.6.5...HEAD
+[2.6.5]: https://github.com/phsmith/rundeck_exporter/compare/v2.6.4...v2.6.5
 [2.6.4]: https://github.com/phsmith/rundeck_exporter/compare/v2.6.3...v2.6.4
 [2.6.3]: https://github.com/phsmith/rundeck_exporter/compare/v2.6.2...v2.6.3
 [2.6.2]: https://github.com/phsmith/rundeck_exporter/compare/v2.6.1...v2.6.2
