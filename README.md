@@ -22,8 +22,9 @@ This exporter uses the prometheus_client and requests Python module to expose Ru
 
  This code was tested on Rundeck API version 31+.
 
- > **Warning**:
- > Since version 4.x.x. the `/api/V/metrics` endpoint is disabled, so you need to enable it in `rundeck-config.properties` to get the exporter to work. See [config-file-reference.html#metrics-capturing](https://docs.rundeck.com/docs/administration/configuration/config-file-reference.html#metrics-capturing)
+> [!Warning]
+> - Since version 4.x.x. the `/api/V/metrics` endpoint is disabled, so you need to enable it in `rundeck-config.properties` to get the exporter to work. See [config-file-reference.html#metrics-capturing](https://docs.rundeck.com/docs/administration/configuration/config-file-reference.html#metrics-capturing)
+> - If audit logs are enabled, consider changing the default `INFO` log level to prevent excessive log growth.
 
 ## Metrics
 
@@ -97,6 +98,31 @@ for:
   - allow:
     - read
     - view
+context:
+  project: .*
+---
+by:
+  username: exporter
+description: Allow [read] for node
+for:
+  node:
+  - allow:
+    - read
+    match:
+      nodename: .*
+context:
+  project: .*
+
+---
+by:
+  username: exporter
+description: Allow [read] for (All) node
+for:
+  resource:
+  - allow:
+    - read
+    equals:
+      kind: node
 context:
   project: .*
 ```
