@@ -27,7 +27,7 @@ from prometheus_client.core import (
 __author__ = 'Phillipe Smith'
 __author_email__ = 'phsmithcc@gmail.com'
 __app__ = 'rundeck_exporter'
-__version__ = '2.6.4'
+__version__ = '2.6.5'
 
 # Disable InsecureRequestWarning
 requests.urllib3.disable_warnings()
@@ -308,6 +308,17 @@ class RundeckMetricsCollector(object):
 
         return project_execution_records, project_executions_total
 
+    """
+    Method to get Rundeck projects nodes info
+    """
+    def get_project_nodes(self, project: dict):
+        project_name = project['name']
+        endpoint = f'/project/{project_name}/resources'
+        project_nodes = self.request_data_from(endpoint)
+        project_nodes_info = {project['name']: list(project_nodes.values())}
+
+        return project_nodes_info
+
 
     """
     Method to get Rundeck system stats
@@ -468,8 +479,8 @@ class RundeckMetricsCollector(object):
                 else:
                     projects = self.request_data_from(endpoint)
 
-            with ThreadPoolExecutor() as threadpool:
-                project_execution_records = threadpool.map(self.get_project_executions, projects)
+            with ThreadPoolExecutor(thread_name_prefix='project_executions') as project_executions_threadpool:
+                project_execution_records = project_executions_threadpool.map(self.get_project_executions, projects)
 
                 default_labels = self.default_labels + [
                     'project_name',
@@ -522,6 +533,20 @@ class RundeckMetricsCollector(object):
                 yield project_duration_metrics
                 yield project_metrics
                 yield project_executions_total_metrics
+
+            with ThreadPoolExecutor(thread_name_prefix='project_nodes') as project_nodes_threadpool:
+                project_nodes_records = project_nodes_threadpool.map(self.get_project_nodes, projects)
+                project_nodes_total = GaugeMetricFamily(
+                    name='rundeck_project_nodes_total',
+                    documentation='Rundeck project nodes total',
+                    labels=self.default_labels + ['project_name']
+                )
+
+                for project_nodes in project_nodes_records:
+                    for project, nodes in project_nodes.items():
+                        project_nodes_total.add_metric(self.default_labels_values + [project], len(nodes))
+
+                yield project_nodes_total
 
     @staticmethod
     def exit_with_msg(msg: str, level: str):

@@ -499,6 +499,9 @@ $ RUNDECK_TOKEN=xxxxxxxx ./rundeck_exporter.py \
   # HELP rundeck_project_executions_total Rundeck Project ProjectName Total Executions
   # TYPE rundeck_project_executions_total counter
   rundeck_project_executions_total{instance_address="localhost:4440",project_name="Test"} 300.0
+  # HELP rundeck_project_nodes_total Rundeck project nodes total
+  # TYPE rundeck_project_nodes_total gauge
+  rundeck_project_nodes_total{instance_address="localhost:4440",project_name="Test"} 1.0
 
   ```
 </details>
