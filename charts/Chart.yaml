@@ -9,4 +9,4 @@ maintainers:
   name: Natália Granato
 name: rundeck-exporter
 type: application
-version: 0.1.8
+version: 0.2.0

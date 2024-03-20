@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.6.5] - 2024-03-011
+### Added
+- Issue [#85](https://github.com/phsmith/rundeck_exporter/issues/85), added new metric `rundeck_project_nodes_total`.
+
+## [2.6.4] - 2024-03-05
+### Added
+- Issue [#83](https://github.com/phsmith/rundeck_exporter/issues/83), added new `--no_checks_in_passive_mode` argument and `RUNDECK_EXPORTER_NO_CHECKS_IN_PASSIVE_MODE=<False|True>` env var introduced to keep the rundeck_exporter idle while the Rundeck host is in `passive` execution mode.
+
+## [2.6.3] - 2023-11-10
+### Added
+- Added Helm Chart by @nataliagranato in https://github.com/phsmith/rundeck_exporter/pull/76
+
+### Fixed
+- Issue [#77](https://github.com/phsmith/rundeck_exporter/issues/77), systemd service doesn't work according to docs.
+
+### Removed
+- Remove VERSION file and keep version in the app.
+
 ## [2.6.2] - 2023-09-01
 ### Fixed
 - Issue [#73](https://github.com/phsmith/rundeck_exporter/issues/73), fix VERSION file path.
@@ -197,7 +215,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.0] - 2020-08-12
 ### Added
-- Added param --rundeck.projects.executions.cache and env RUNDECK_PROJECTS_EXECUTIONS_CACHE
+- Added argument `--rundeck.projects.executions.cache` and  `RUNDECK_PROJECTS_EXECUTIONS_CACHE` env var
 - Added counter metrics rundeck_services_[services,controllers,api,web]_total
 
 ### Changed
@@ -206,8 +224,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Removed all gauge metrics rundeck_[services,controllers,api,web]...{type="..."}
 - Removed metrics rundeck_system_stats_[cpu,memory,uptime_duration]...
-- Removed param --rundeck.token. Need RUNDECK_TOKEN env now.
-- Removed param --rundeck.projects.executions.limit
+- Removed argument `--rundeck.token`. Need `RUNDECK_TOKEN` env now.
+- Removed argument `--rundeck.projects.executions.limit`
 - Removed rundeck_node label from all metrics
 
 ### Fixed
@@ -215,12 +233,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.2.0] - 2020-08-06
 ### Added
-- Added new params:
-  * --debug: Enable debug mode
-  * --rundeck.projects.executions: Get projects executions metrics
-  * --rundeck.projects.filter: Get executions only from listed projects (delimiter = space)
-  * --rundeck.projects.executions.limit: Limit project executions metrics query. Default: 20
-  * --rundeck.cached.requests.ttl: Rundeck cached requests (by now, only for rundeck.projects.executions) expiration time. Default: 120
+- Added new argument:
+  * `--debug`: Enable debug mode
+  * `--rundeck.projects.executions`: Get projects executions metrics
+  * `--rundeck.projects.filter`: Get executions only from listed projects (delimiter = space)
+  * `--rundeck.projects.executions.limit`: Limit project executions metrics query. Default: 20
+  * `--rundeck.cached.requests.ttl`: Rundeck cached requests (by now, only for rundeck.projects.executions) expiration time. Default: 120
 - Added code improvements
 - Added cachetools to pip install on Dockerfile
 - Added logging module to replace print calls
@@ -244,7 +262,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[unreleased]: https://github.com/phsmith/rundeck_exporter/compare/v2.6.2...HEAD
+[unreleased]: https://github.com/phsmith/rundeck_exporter/compare/v2.6.5...HEAD
+[2.6.5]: https://github.com/phsmith/rundeck_exporter/compare/v2.6.4...v2.6.5
+[2.6.4]: https://github.com/phsmith/rundeck_exporter/compare/v2.6.3...v2.6.4
+[2.6.3]: https://github.com/phsmith/rundeck_exporter/compare/v2.6.2...v2.6.3
 [2.6.2]: https://github.com/phsmith/rundeck_exporter/compare/v2.6.1...v2.6.2
 [2.6.1]: https://github.com/phsmith/rundeck_exporter/compare/v2.6.0...v2.6.1
 [2.6.0]: https://github.com/phsmith/rundeck_exporter/compare/v2.5.2...v2.6.0

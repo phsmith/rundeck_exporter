@@ -14,25 +14,25 @@ Rundeck Exporter was developed by Phillipe Smith and is part of the Rundeck comm
 
 ## Installation
 
-1.Clone the repository
+1. Clone the repository
 
 ```
-git clone https://github.com/nataliagranato/rundeck_exporter.git
+git clone https://github.com/phsmith/rundeck_exporter.git
 ```
 
-2.Access the charts directory
+2. Access the charts directory
 
 ```
 cd charts 
 ```
 
-3.Create namespace (if no):
+3. Create namespace (if no):
 
 ```
 kubectl create namespace my-namespace
 ```
 
-4.Install the Rundeck Exporter:
+4. Install the Rundeck Exporter:
 
 ```
 helm install rundeck-exporter -n your-namespace .
@@ -44,17 +44,17 @@ The Rundeck Exporter configuration can be customized by editing the values.yaml 
 
 Here are some common settings:
 
-'image.repository': The Rundeck Exporter image repository.
-'image.tag': The tag of the Rundeck Exporter image.
-'replicaCount': The number of replicas desired for Rundeck Exporter.
-'service.port': The port on which Rundeck Exporter exposes metrics.
-'env': Environment variables to configure Rundeck Exporter.
+- `image.repository`: The Rundeck Exporter image repository.
+- `image.tag`: The tag of the Rundeck Exporter image.
+- `replicaCount`: The number of replicas desired for Rundeck Exporter.
+- `service.port`: The port on which Rundeck Exporter exposes metrics.
+- `env`: Environment variables to configure Rundeck Exporter.
 
-See the values.yaml file for all available configuration options.
+See the `values.yaml` file for all available configuration options.
 
 ## Customization
 
-You can further customize the Rundeck Exporter deployment by editing the deployment.yaml file in the templates directory. Here you can add volumes, define resources, configure readiness and vitality probes, among other options.
+You can further customize the Rundeck Exporter deployment by editing the `deployment.yaml` file in the templates directory. Here you can add volumes, define resources, configure readiness and vitality probes, among other options.
 
 ## Removal
 
