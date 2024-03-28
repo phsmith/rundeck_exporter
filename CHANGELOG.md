@@ -7,7 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.6.5] - 2024-03-011
+## [2.7.0] - 2024-03-28
+### Added
+- Issue [#87](https://github.com/phsmith/rundeck_exporter/issues/87), the following new arguments have been added to try to reduce the CPU load:
+  - `--rundeck.projects.nodes.info` - If passed, display Rundeck projects nodes info metrics, currently only the `rundeck_project_nodes_total` metric is available.
+    - This check can cause a high CPU load depending on the number of projects.
+  - `--threadpool_max_workers` - The maximum number of workers in the threadpool to run rundeck_exporter asynchronous checks.
+    - Defaults to `(number of CPUs) + 4`, which may be too much on a server running other services.
+
+## [2.6.5] - 2024-03-11
 ### Added
 - Issue [#85](https://github.com/phsmith/rundeck_exporter/issues/85), added new metric `rundeck_project_nodes_total`.
 
@@ -262,7 +270,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[unreleased]: https://github.com/phsmith/rundeck_exporter/compare/v2.6.5...HEAD
+[unreleased]: https://github.com/phsmith/rundeck_exporter/compare/v2.7.0...HEAD
+[2.7.0]: https://github.com/phsmith/rundeck_exporter/compare/v2.6.5...v2.7.0
 [2.6.5]: https://github.com/phsmith/rundeck_exporter/compare/v2.6.4...v2.6.5
 [2.6.4]: https://github.com/phsmith/rundeck_exporter/compare/v2.6.3...v2.6.4
 [2.6.3]: https://github.com/phsmith/rundeck_exporter/compare/v2.6.2...v2.6.3

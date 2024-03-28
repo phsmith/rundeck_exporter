@@ -12,7 +12,7 @@ from ast import literal_eval
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from enum import Enum
-from os import getenv, path
+from os import getenv, path, cpu_count
 from time import sleep
 
 from cachetools import cached, TTLCache
@@ -27,7 +27,7 @@ from prometheus_client.core import (
 __author__ = 'Phillipe Smith'
 __author_email__ = 'phsmithcc@gmail.com'
 __app__ = 'rundeck_exporter'
-__version__ = '2.6.5'
+__version__ = '2.7.0'
 
 # Disable InsecureRequestWarning
 requests.urllib3.disable_warnings()
@@ -93,6 +93,12 @@ class RundeckMetricsCollector(object):
                              action='store_true',
                              default=getenv('RUNDECK_EXPORTER_NO_CHECKS_IN_PASSIVE_MODE', False)
                              )
+    args_parser.add_argument('--threadpool_max_workers',
+                             help='The maximum number of workers in the threadpool to run rundeck_exporter asynchronous checks. Defaults to (number of CPUs) + 4.',
+                             metavar='RUNDECK_EXPORTER_THREADPOOL_MAX_WORKERS',
+                             type=int,
+                             default=getenv('RUNDECK_EXPORTER_THREADPOOL_MAX_WORKERS', cpu_count() + 4)
+                             )
     args_parser.add_argument('--rundeck.url',
                              dest='rundeck_url',
                              help='Rundeck Base URL [ REQUIRED ].',
@@ -150,6 +156,12 @@ class RundeckMetricsCollector(object):
                             nargs='+',
                             required=False
                             )
+    args_parser.add_argument('--rundeck.projects.nodes.info',
+                            dest='rundeck_projects_nodes_info',
+                            help='Display Rundeck projects nodes info metrics, currently only the `rundeck_project_nodes_total` metric is available. May cause high CPU load depending on the number of projects.',
+                            action='store_true',
+                            default=getenv('RUNDECK_PROJECTS_NODES_INFO', False)
+                            )
     args_parser.add_argument('--rundeck.cached.requests.ttl',
                              dest='rundeck_cached_requests_ttl',
                              help='Rundeck cached requests expiration time. Default: 120',
@@ -158,13 +170,13 @@ class RundeckMetricsCollector(object):
                              )
     args_parser.add_argument('--rundeck.cpu.stats',
                              dest='rundeck_cpu_stats',
-                             help='Show Rundeck CPU usage stats',
+                             help='Show Rundeck CPU usage stats.',
                              action='store_true',
                              default=getenv('RUNDECK_CPU_STATS', False)
                              )
     args_parser.add_argument('--rundeck.memory.stats',
                              dest='rundeck_memory_stats',
-                             help='Show Rundeck memory usage stats',
+                             help='Show Rundeck memory usage stats.',
                              action='store_true',
                              default=getenv('RUNDECK_MEMORY_STATS', False)
                              )
@@ -479,7 +491,7 @@ class RundeckMetricsCollector(object):
                 else:
                     projects = self.request_data_from(endpoint)
 
-            with ThreadPoolExecutor(thread_name_prefix='project_executions') as project_executions_threadpool:
+            with ThreadPoolExecutor(thread_name_prefix='project_executions', max_workers=self.args.threadpool_max_workers) as project_executions_threadpool:
                 project_execution_records = project_executions_threadpool.map(self.get_project_executions, projects)
 
                 default_labels = self.default_labels + [
@@ -534,19 +546,20 @@ class RundeckMetricsCollector(object):
                 yield project_metrics
                 yield project_executions_total_metrics
 
-            with ThreadPoolExecutor(thread_name_prefix='project_nodes') as project_nodes_threadpool:
-                project_nodes_records = project_nodes_threadpool.map(self.get_project_nodes, projects)
-                project_nodes_total = GaugeMetricFamily(
-                    name='rundeck_project_nodes_total',
-                    documentation='Rundeck project nodes total',
-                    labels=self.default_labels + ['project_name']
-                )
+            if self.args.rundeck_projects_nodes_info:
+                with ThreadPoolExecutor(thread_name_prefix='project_nodes', max_workers=self.args.threadpool_max_workers) as project_nodes_threadpool:
+                    project_nodes_records = project_nodes_threadpool.map(self.get_project_nodes, projects)
+                    project_nodes_total = GaugeMetricFamily(
+                        name='rundeck_project_nodes_total',
+                        documentation='Rundeck project nodes total',
+                        labels=self.default_labels + ['project_name']
+                    )
 
-                for project_nodes in project_nodes_records:
-                    for project, nodes in project_nodes.items():
-                        project_nodes_total.add_metric(self.default_labels_values + [project], len(nodes))
+                    for project_nodes in project_nodes_records:
+                        for project, nodes in project_nodes.items():
+                            project_nodes_total.add_metric(self.default_labels_values + [project], len(nodes))
 
-                yield project_nodes_total
+                    yield project_nodes_total
 
     @staticmethod
     def exit_with_msg(msg: str, level: str):
