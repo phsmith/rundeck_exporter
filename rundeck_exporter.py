@@ -68,115 +68,122 @@ class RundeckMetricsCollector(object):
         formatter_class=RawDescriptionHelpFormatter
     )
     args_parser.add_argument('--debug',
-                             help='Enable debug mode.',
+                             help='Enable debug mode',
                              default=getenv('RUNDECK_EXPORTER_DEBUG', False),
                              action='store_true'
                              )
     args_parser.add_argument('-v', '--version',
-                             help='Shows rundeck_exporter current release version.',
+                             help='Shows rundeck_exporter current release version',
                              action='store_true'
                              )
     args_parser.add_argument('--host',
-                             help=f'Host binding address. Default: {default_host}.',
+                             help=f'Host binding address. Default: {default_host}',
                              metavar="RUNDECK_EXPORTER_HOST",
                              default=getenv('RUNDECK_EXPORTER_HOST', default_host)
                              )
     args_parser.add_argument('--port',
-                             help=f'Host binding port. Default: {default_port}.',
+                             help=f'Host binding port. Default: {default_port}',
                              metavar="RUNDECK_EXPORTER_PORT",
                              type=int,
                              default=getenv('RUNDECK_EXPORTER_PORT', default_port)
                              )
     args_parser.add_argument('--no_checks_in_passive_mode',
                              dest='no_checks_in_passive_mode',
-                             help='The rundeck_exporter will not perform any checks while the Rundeck host is in passive execution mode.',
+                             help='The rundeck_exporter will not perform any checks while the Rundeck host is in passive execution mode',
                              action='store_true',
                              default=getenv('RUNDECK_EXPORTER_NO_CHECKS_IN_PASSIVE_MODE', False)
                              )
     args_parser.add_argument('--threadpool_max_workers',
-                             help='The maximum number of workers in the threadpool to run rundeck_exporter asynchronous checks. Defaults to (number of CPUs) + 4.',
+                             help='The maximum number of workers in the threadpool to run rundeck_exporter asynchronous checks. Defaults to (number of CPUs) + 4',
                              metavar='RUNDECK_EXPORTER_THREADPOOL_MAX_WORKERS',
                              type=int,
                              default=getenv('RUNDECK_EXPORTER_THREADPOOL_MAX_WORKERS', cpu_count() + 4)
                              )
+    args_parser.add_argument('--rundeck.requests.timeout',
+                             dest='rundeck_requests_timeout',
+                             help='The maximum number of seconds that requests to the Rundeck API should timeout',
+                             metavar='RUNDECK_EXPORTER_REQUESTS_TIMEOUT',
+                             type=int,
+                             default=getenv('RUNDECK_EXPORTER_REQUESTS_TIMEOUT', 30)
+                             )
     args_parser.add_argument('--rundeck.url',
                              dest='rundeck_url',
-                             help='Rundeck Base URL [ REQUIRED ].',
+                             help='Rundeck Base URL [ REQUIRED ]',
                              default=getenv('RUNDECK_URL')
                              )
     args_parser.add_argument('--rundeck.skip_ssl',
                              dest='rundeck_skip_ssl',
-                             help='Rundeck Skip SSL Cert Validate.',
+                             help='Rundeck Skip SSL Cert Validate',
                              default=literal_eval(getenv('RUNDECK_SKIP_SSL', 'False').capitalize()),
                              action='store_true'
                              )
     args_parser.add_argument('--rundeck.api.version',
                              dest='rundeck_api_version',
-                             help='Default: 34.',
+                             help='Defaults to 34',
                              type=int,
                              default=getenv('RUNDECK_API_VERSION', 34)
                              )
     args_parser.add_argument('--rundeck.username',
                              dest='rundeck_username',
-                             help='Rundeck User with access to the system information.',
+                             help='Rundeck User with access to the system information',
                              default=getenv('RUNDECK_USERNAME'),
                              required=False
                              )
     args_parser.add_argument('--rundeck.projects.executions',
                              dest='rundeck_projects_executions',
-                             help='Get projects executions metrics.',
+                             help='Get projects executions metrics',
                              default=literal_eval(getenv('RUNDECK_PROJECTS_EXECUTIONS', 'False').capitalize()),
                              action='store_true'
                              )
     args_parser.add_argument('--rundeck.projects.executions.filter',
                              dest='rundeck_project_executions_filter',
                              help='''
-                             Get the latest project executions filtered by time period.
-                             Can be in: [s]: seconds, [n]: minutes, [h]: hour, [d]: day, [w]: week, [m]: month, [y]: year.
-                             Default: 5n.
+                             Get the latest project executions filtered by time period
+                             Can be in: [s]: seconds, [n]: minutes, [h]: hour, [d]: day, [w]: week, [m]: month, [y]: year
+                             Defaults to 5n
                              ''',
                              default=getenv('RUNDECK_PROJECTS_EXECUTIONS_FILTER', '5n')
                              )
     args_parser.add_argument('--rundeck.projects.executions.limit',
                              dest='rundeck_projects_executions_limit',
-                             help='Project executions max results per query. Default: 20.',
+                             help='Project executions max results per query. Defaults to 20',
                              type=int,
                              default=getenv('RUNDECK_PROJECTS_EXECUTIONS_LIMIT', 20)
                              )
     args_parser.add_argument('--rundeck.projects.executions.cache',
                              dest='rundeck_projects_executions_cache',
-                             help='Cache requests for project executions metrics query.',
+                             help='Cache requests for project executions metrics query',
                              default=literal_eval(getenv('RUNDECK_PROJECTS_EXECUTIONS_CACHE', 'False').capitalize()),
                              action='store_true'
                              )
     args_parser.add_argument('--rundeck.projects.filter',
                             dest='rundeck_projects_filter',
-                            help='Get executions only from listed projects (delimiter = space).',
+                            help='Get executions only from listed projects (delimiter = space)',
                             default=getenv('RUNDECK_PROJECTS_FILTER', []),
                             nargs='+',
                             required=False
                             )
     args_parser.add_argument('--rundeck.projects.nodes.info',
                             dest='rundeck_projects_nodes_info',
-                            help='Display Rundeck projects nodes info metrics, currently only the `rundeck_project_nodes_total` metric is available. May cause high CPU load depending on the number of projects.',
+                            help='Display Rundeck projects nodes info metrics, currently only the `rundeck_project_nodes_total` metric is available. May cause high CPU load depending on the number of projects',
                             action='store_true',
                             default=getenv('RUNDECK_PROJECTS_NODES_INFO', False)
                             )
     args_parser.add_argument('--rundeck.cached.requests.ttl',
                              dest='rundeck_cached_requests_ttl',
-                             help='Rundeck cached requests expiration time. Default: 120',
+                             help='Rundeck cached requests expiration time. Defaults to 120',
                              type=int,
                              default=getenv('RUNDECK_CACHED_REQUESTS_TTL', 120)
                              )
     args_parser.add_argument('--rundeck.cpu.stats',
                              dest='rundeck_cpu_stats',
-                             help='Show Rundeck CPU usage stats.',
+                             help='Show Rundeck CPU usage stats',
                              action='store_true',
                              default=getenv('RUNDECK_CPU_STATS', False)
                              )
     args_parser.add_argument('--rundeck.memory.stats',
                              dest='rundeck_memory_stats',
-                             help='Show Rundeck memory usage stats.',
+                             help='Show Rundeck memory usage stats',
                              action='store_true',
                              default=getenv('RUNDECK_MEMORY_STATS', False)
                              )
@@ -221,7 +228,7 @@ class RundeckMetricsCollector(object):
 
             if endpoint == '/metrics/metrics' and session.cookies.get_dict().get('JSESSIONID'):
                 request_url = f'{self.args.rundeck_url}{endpoint}'
-                response = session.get(request_url)
+                response = session.get(request_url, timeout=self.args.rundeck_requests_timeout)
                 response_json = json.loads(response.text)
             else:
                 request_url = f'{self.args.rundeck_url}/api/{self.args.rundeck_api_version}{endpoint}'
@@ -231,7 +238,8 @@ class RundeckMetricsCollector(object):
                         'Accept': 'application/json',
                         'X-Rundeck-Auth-Token': self.rundeck_token
                     },
-                    verify=not self.args.rundeck_skip_ssl
+                    verify=not self.args.rundeck_skip_ssl,
+                    timeout=self.args.rundeck_requests_timeout
                 )
                 response_json = response.json()
 
