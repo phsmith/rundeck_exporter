@@ -134,9 +134,9 @@ The rundeck_exporter supports the following paramenters:
 ```text
 $ ./rundeck_exporter.py --help
 
-usage: rundeck_exporter.py [-h] [--debug] [-v] [--host RUNDECK_EXPORTER_HOST] [--port RUNDECK_EXPORTER_PORT] [--no_checks_in_passive_mode] [--threadpool_max_workers RUNDECK_EXPORTER_THREADPOOL_MAX_WORKERS] [--rundeck.url RUNDECK_URL] [--rundeck.skip_ssl] [--rundeck.api.version RUNDECK_API_VERSION] [--rundeck.username RUNDECK_USERNAME]
-                           [--rundeck.projects.executions] [--rundeck.projects.executions.filter RUNDECK_PROJECT_EXECUTIONS_FILTER] [--rundeck.projects.executions.limit RUNDECK_PROJECTS_EXECUTIONS_LIMIT] [--rundeck.projects.executions.cache] [--rundeck.projects.filter RUNDECK_PROJECTS_FILTER [RUNDECK_PROJECTS_FILTER ...]] [--rundeck.projects.nodes.info]
-                           [--rundeck.cached.requests.ttl RUNDECK_CACHED_REQUESTS_TTL] [--rundeck.cpu.stats] [--rundeck.memory.stats]
+usage: rundeck_exporter.py [-h] [--debug] [-v] [--host RUNDECK_EXPORTER_HOST] [--port RUNDECK_EXPORTER_PORT] [--no_checks_in_passive_mode] [--threadpool_max_workers RUNDECK_EXPORTER_THREADPOOL_MAX_WORKERS] [--rundeck.requests.timeout RUNDECK_EXPORTER_REQUESTS_TIMEOUT] [--rundeck.url RUNDECK_URL] [--rundeck.skip_ssl] [--rundeck.api.version RUNDECK_API_VERSION]
+                           [--rundeck.username RUNDECK_USERNAME] [--rundeck.projects.executions] [--rundeck.projects.executions.filter RUNDECK_PROJECT_EXECUTIONS_FILTER] [--rundeck.projects.executions.limit RUNDECK_PROJECTS_EXECUTIONS_LIMIT] [--rundeck.projects.executions.cache] [--rundeck.projects.filter RUNDECK_PROJECTS_FILTER [RUNDECK_PROJECTS_FILTER ...]]
+                           [--rundeck.projects.nodes.info] [--rundeck.cached.requests.ttl RUNDECK_CACHED_REQUESTS_TTL] [--rundeck.cpu.stats] [--rundeck.memory.stats]
 
 Rundeck Metrics Exporter
 
@@ -145,67 +145,70 @@ required environment vars:
     RUNDECK_USERPASSWORD Rundeck User Password (RUNDECK_USERNAME or --rundeck.username are required too)
 
 options:
-  -h, --help            show this help message and exit.
-  --debug               Enable debug mode.
-  -v, --version         Shows rundeck_exporter current release version.
+  -h, --help            show this help message and exit
+  --debug               Enable debug mode
+  -v, --version         Shows rundeck_exporter current release version
   --host RUNDECK_EXPORTER_HOST
-                        Host binding address. Default: 127.0.0.1.
+                        Host binding address. Default: 127.0.0.1
   --port RUNDECK_EXPORTER_PORT
-                        Host binding port. Default: 9620.
+                        Host binding port. Default: 9620
   --no_checks_in_passive_mode
-                        The rundeck_exporter will not perform any checks while the Rundeck host is in passive execution mode.
+                        The rundeck_exporter will not perform any checks while the Rundeck host is in passive execution mode
   --threadpool_max_workers RUNDECK_EXPORTER_THREADPOOL_MAX_WORKERS
-                        The maximum number of workers in the threadpool to run rundeck_exporter asynchronous checks. Defaults to (number of CPUs) + 4.
+                        The maximum number of workers in the threadpool to run rundeck_exporter asynchronous checks. Defaults to (number of CPUs) + 4
+  --rundeck.requests.timeout RUNDECK_EXPORTER_REQUESTS_TIMEOUT
+                        The maximum number of seconds that requests to the Rundeck API should timeout
   --rundeck.url RUNDECK_URL
-                        Rundeck Base URL [ REQUIRED ].
-  --rundeck.skip_ssl    Rundeck Skip SSL Cert Validate.
+                        Rundeck Base URL [ REQUIRED ]
+  --rundeck.skip_ssl    Rundeck Skip SSL Cert Validate
   --rundeck.api.version RUNDECK_API_VERSION
-                        Default: 34.
+                        Defaults to 34
   --rundeck.username RUNDECK_USERNAME
-                        Rundeck User with access to the system information.
+                        Rundeck User with access to the system information
   --rundeck.projects.executions
-                        Get projects executions metrics.
+                        Get projects executions metrics
   --rundeck.projects.executions.filter RUNDECK_PROJECT_EXECUTIONS_FILTER
-                        Get the latest project executions filtered by time period. Can be in: [s]: seconds, [n]: minutes, [h]: hour, [d]: day, [w]: week, [m]: month, [y]: year. Default: 5n.
+                        Get the latest project executions filtered by time period Can be in: [s]: seconds, [n]: minutes, [h]: hour, [d]: day, [w]: week, [m]: month, [y]: year Defaults to 5n
   --rundeck.projects.executions.limit RUNDECK_PROJECTS_EXECUTIONS_LIMIT
-                        Project executions max results per query. Default: 20.
+                        Project executions max results per query. Defaults to 20
   --rundeck.projects.executions.cache
-                        Cache requests for project executions metrics query.
+                        Cache requests for project executions metrics query
   --rundeck.projects.filter RUNDECK_PROJECTS_FILTER [RUNDECK_PROJECTS_FILTER ...]
-                        Get executions only from listed projects (delimiter = space).
+                        Get executions only from listed projects (delimiter = space)
   --rundeck.projects.nodes.info
-                        Display Rundeck projects nodes info metrics, currently only the `rundeck_project_nodes_total` metric is available. May cause high CPU load depending on the number of projects.
+                        Display Rundeck projects nodes info metrics, currently only the `rundeck_project_nodes_total` metric is available. May cause high CPU load depending on the number of projects
   --rundeck.cached.requests.ttl RUNDECK_CACHED_REQUESTS_TTL
-                        Rundeck cached requests expiration time. Default: 120.
-  --rundeck.cpu.stats   Show Rundeck CPU usage stats.
+                        Rundeck cached requests expiration time. Defaults to 120
+  --rundeck.cpu.stats   Show Rundeck CPU usage stats
   --rundeck.memory.stats
-                        Show Rundeck memory usage stats.
+                        Show Rundeck memory usage stats
 ```
 
 Optionally, it's possible to pass the following environment variables to the rundeck_exporter:
 
 | Variable | Options |  Description |
 | ------ | ------ | ------ |
-| RUNDECK_EXPORTER_DEBUG | <ul><li>True</li><li>False (default)</li></ul> | Enable debug mode. |
-| RUNDECK_EXPORTER_HOST | Default: 127.0.0.1 | Binding address. |
-| RUNDECK_EXPORTER_PORT | Default: 9620 | Binding port. |
-| RUNDECK_URL (required) | | Rundeck base URL. |
-| RUNDECK_TOKEN (required) | | Rundeck access token. |
-| RUNDECK_USERNAME | | Rundeck User with access to the system information. |
-| RUNDECK_USERPASSWORD | | Rundeck User Password (RUNDECK_USERNAME or --rundeck.username are required too). |
-| RUNDECK_API_VERSION | Default: 31 | Rundeck API version. |
-| RUNDECK_SKIP_SSL | <ul><li>True</li><li>False (default)</li></ul> | Skip SSL certificate check. |
-| RUNDECK_PROJECTS_EXECUTIONS | <ul><li>True</li><li>False (default)</li></ul> | Get projects executions metrics. |
+| RUNDECK_EXPORTER_DEBUG | <ul><li>True</li><li>False (default)</li></ul> | Enable debug mode |
+| RUNDECK_EXPORTER_HOST | Default: 127.0.0.1 | Binding address |
+| RUNDECK_EXPORTER_PORT | Default: 9620 | Binding port |
+| RUNDECK_URL (required) | | Rundeck base URL |
+| RUNDECK_TOKEN (required) | | Rundeck access token |
+| RUNDECK_USERNAME | | Rundeck User with access to the system information |
+| RUNDECK_USERPASSWORD | | Rundeck User Password (RUNDECK_USERNAME or --rundeck.username are required too) |
+| RUNDECK_API_VERSION | Default: 31 | Rundeck API version |
+| RUNDECK_SKIP_SSL | <ul><li>True</li><li>False (default)</li></ul> | Skip SSL certificate check |
+| RUNDECK_PROJECTS_EXECUTIONS | <ul><li>True</li><li>False (default)</li></ul> | Get projects executions metrics |
 | RUNDECK_PROJECTS_FILTER | | Get executions only from listed projects e.g. "project-1 project-2 ..." |
-| RUNDECK_PROJECT_EXECUTIONS_FILTER | Default: 5n | Project executions filter by a period of time. Can be in: **[s]**: seconds, **[n]**: minutes, **[h]**: hour, **[d]**: day, **[w]**: week, **[m]**: month, **[y]**: year. |
+| RUNDECK_PROJECT_EXECUTIONS_FILTER | Default: 5n | Project executions filter by a period of time. Can be in: **[s]**: seconds, **[n]**: minutes, **[h]**: hour, **[d]**: day, **[w]**: week, **[m]**: month, **[y]**: year |
 | RUNDECK_PROJECTS_EXECUTIONS_LIMIT | Default: 20 | Projects executions max results per query |
-| RUNDECK_PROJECTS_EXECUTIONS_CACHE | <ul><li>True</li><li>False (default)</li></ul> | Cache requests for project executions metrics query. |
-| RUNDECK_PROJECTS_NODES_INFO | <ul><li>True</li><li>False (default)</li></ul> | Display Rundeck projects nodes info metrics, currently only the `rundeck_project_nodes_total` metric is available. May cause high CPU load depending on the number of projects. |
-| RUNDECK_CACHED_REQUESTS_TTL | Default: 120 | Rundeck cached requests expiration time. |
-| RUNDECK_CPU_STATS | <ul><li>True</li><li>False (default)</li></ul> | Show Rundeck CPU usage stats. |
-| RUNDECK_MEMORY_STATS | <ul><li>True</li><li>False (default)</li></ul> | Show Rundeck memory usage stats. |
-| RUNDECK_EXPORTER_NO_CHECKS_IN_PASSIVE_MODE | <ul><li>True</li><li>False (default)</li></ul> | The rundeck_exporter will not perform any checks while the Rundeck host is in passive execution mode. |
-| RUNDECK_EXPORTER_THREADPOOL_MAX_WORKERS |Default: (number of CPUs) + 4 | The maximum number of workers in the threadpool to run rundeck_exporter asynchronous checks. |
+| RUNDECK_PROJECTS_EXECUTIONS_CACHE | <ul><li>True</li><li>False (default)</li></ul> | Cache requests for project executions metrics query |
+| RUNDECK_PROJECTS_NODES_INFO | <ul><li>True</li><li>False (default)</li></ul> | Display Rundeck projects nodes info metrics, currently only the `rundeck_project_nodes_total` metric is available. May cause high CPU load depending on the number of projects |
+| RUNDECK_CACHED_REQUESTS_TTL | Default: 120 | Rundeck cached requests expiration time |
+| RUNDECK_CPU_STATS | <ul><li>True</li><li>False (default)</li></ul> | Show Rundeck CPU usage stats |
+| RUNDECK_MEMORY_STATS | <ul><li>True</li><li>False (default)</li></ul> | Show Rundeck memory usage stats |
+| RUNDECK_EXPORTER_NO_CHECKS_IN_PASSIVE_MODE | <ul><li>True</li><li>False (default)</li></ul> | The rundeck_exporter will not perform any checks while the Rundeck host is in passive execution mode |
+| RUNDECK_EXPORTER_THREADPOOL_MAX_WORKERS | Default: (number of CPUs) + 4 | The maximum number of workers in the threadpool to run rundeck_exporter asynchronous checks |
+| RUNDECK_EXPORTER_REQUESTS_TIMEOUT | Default: 30 | The maximum number of seconds that requests to the Rundeck API should timeout |
 
 ### Example
 
@@ -218,7 +221,8 @@ $ RUNDECK_TOKEN=xxxxxxxx ./rundeck_exporter.py \
     --rundeck.memory.stats \
     --rundeck.projects.filter="project-1 project-2 project-n" \
     --rundeck.projects.executions \
-    --rundeck.projects.executions.filter=5n
+    --rundeck.projects.executions.filter=5n \
+    --rundeck.requests.timeout=10
 ```
 
 <details>
