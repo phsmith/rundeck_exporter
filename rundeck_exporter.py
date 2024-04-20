@@ -264,23 +264,24 @@ class RundeckMetricsCollector(object):
         project_execution_records = list()
         project_executions_limit = self.args.rundeck_projects_executions_limit
         project_executions_filter = self.args.rundeck_project_executions_filter
-        endpoint = f'/project/{project_name}/executions?recentFilter={project_executions_filter}&max={project_executions_limit}'
-        endpoint_running_executions = f'/project/{project_name}/executions/running?max={project_executions_limit}'
+        project_executions_total = {'project': project_name, 'total_executions': 0}
+        endpoint_executions = f'/project/{project_name}/executions?recentFilter={project_executions_filter}&max={project_executions_limit}'
+        endpoint_executions_running = f'/project/{project_name}/executions/running?max={project_executions_limit}'
+        endpoint_executions_metrics = f'/project/{project_name}/executions/metrics?recentFilter=1d'
 
         try:
             if self.args.rundeck_projects_executions_cache:
-                project_executions_running_info = self.cached_request(endpoint_running_executions)
-                project_executions_info = self.cached_request(endpoint)
+                project_executions_running_info = self.cached_request(endpoint_executions_running)
+                project_executions_info = self.cached_request(endpoint_executions)
+                project_executions_total_info = self.cached_request(endpoint_executions_metrics)
             else:
-                project_executions_running_info = self.request(endpoint_running_executions)
-                project_executions_info = self.request(endpoint)
+                project_executions_running_info = self.request(endpoint_executions_running)
+                project_executions_info = self.request(endpoint_executions)
+                project_executions_total_info = self.request(endpoint_executions_metrics)
 
-            project_executions_total = {
-                'project': project_name,
-                'total_executions': project_executions_info['paging']['total']
-            }
-            project_executions = (project_executions_running_info.get('executions', [])
-                                  + project_executions_info.get('executions', []))
+            project_executions_running_info_list = project_executions_running_info.get('executions', [])
+            project_executions_total['total_executions'] = project_executions_total_info['total'] + len(project_executions_running_info_list)
+            project_executions = (project_executions_running_info_list + project_executions_info.get('executions', []))
 
             for project_execution in project_executions:
                 job_info = project_execution.get('job', {})
