@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `--rundeck.requests.timeout` - The maximum number of seconds that requests to the Rundeck API should timeout.
     - Defaults to 30.
 
-## Changed
+### Changed
 - Changed the functions `request_data_from` and `cached_request_data_from` to `request` and `cached_request` respectivelly.
 
 ## [2.6.5] - 2024-03-11
