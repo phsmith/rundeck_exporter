@@ -12,7 +12,7 @@ from ast import literal_eval
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from enum import Enum
-from os import getenv, path
+from os import getenv, path, cpu_count
 from time import sleep
 
 from cachetools import cached, TTLCache
@@ -27,7 +27,7 @@ from prometheus_client.core import (
 __author__ = 'Phillipe Smith'
 __author_email__ = 'phsmithcc@gmail.com'
 __app__ = 'rundeck_exporter'
-__version__ = '2.6.5'
+__version__ = '2.7.0'
 
 # Disable InsecureRequestWarning
 requests.urllib3.disable_warnings()
@@ -68,91 +68,110 @@ class RundeckMetricsCollector(object):
         formatter_class=RawDescriptionHelpFormatter
     )
     args_parser.add_argument('--debug',
-                             help='Enable debug mode.',
+                             help='Enable debug mode',
                              default=getenv('RUNDECK_EXPORTER_DEBUG', False),
                              action='store_true'
                              )
     args_parser.add_argument('-v', '--version',
-                             help='Shows rundeck_exporter current release version.',
+                             help='Shows rundeck_exporter current release version',
                              action='store_true'
                              )
     args_parser.add_argument('--host',
-                             help=f'Host binding address. Default: {default_host}.',
+                             help=f'Host binding address. Default: {default_host}',
                              metavar="RUNDECK_EXPORTER_HOST",
                              default=getenv('RUNDECK_EXPORTER_HOST', default_host)
                              )
     args_parser.add_argument('--port',
-                             help=f'Host binding port. Default: {default_port}.',
+                             help=f'Host binding port. Default: {default_port}',
                              metavar="RUNDECK_EXPORTER_PORT",
                              type=int,
                              default=getenv('RUNDECK_EXPORTER_PORT', default_port)
                              )
     args_parser.add_argument('--no_checks_in_passive_mode',
                              dest='no_checks_in_passive_mode',
-                             help='The rundeck_exporter will not perform any checks while the Rundeck host is in passive execution mode.',
+                             help='The rundeck_exporter will not perform any checks while the Rundeck host is in passive execution mode',
                              action='store_true',
                              default=getenv('RUNDECK_EXPORTER_NO_CHECKS_IN_PASSIVE_MODE', False)
                              )
+    args_parser.add_argument('--threadpool_max_workers',
+                             help='The maximum number of workers in the threadpool to run rundeck_exporter asynchronous checks. Defaults to (number of CPUs) + 4',
+                             metavar='RUNDECK_EXPORTER_THREADPOOL_MAX_WORKERS',
+                             type=int,
+                             default=getenv('RUNDECK_EXPORTER_THREADPOOL_MAX_WORKERS', cpu_count() + 4)
+                             )
+    args_parser.add_argument('--rundeck.requests.timeout',
+                             dest='rundeck_requests_timeout',
+                             help='The maximum number of seconds that requests to the Rundeck API should timeout',
+                             metavar='RUNDECK_EXPORTER_REQUESTS_TIMEOUT',
+                             type=int,
+                             default=getenv('RUNDECK_EXPORTER_REQUESTS_TIMEOUT', 30)
+                             )
     args_parser.add_argument('--rundeck.url',
                              dest='rundeck_url',
-                             help='Rundeck Base URL [ REQUIRED ].',
+                             help='Rundeck Base URL [ REQUIRED ]',
                              default=getenv('RUNDECK_URL')
                              )
     args_parser.add_argument('--rundeck.skip_ssl',
                              dest='rundeck_skip_ssl',
-                             help='Rundeck Skip SSL Cert Validate.',
+                             help='Rundeck Skip SSL Cert Validate',
                              default=literal_eval(getenv('RUNDECK_SKIP_SSL', 'False').capitalize()),
                              action='store_true'
                              )
     args_parser.add_argument('--rundeck.api.version',
                              dest='rundeck_api_version',
-                             help='Default: 34.',
+                             help='Defaults to 34',
                              type=int,
                              default=getenv('RUNDECK_API_VERSION', 34)
                              )
     args_parser.add_argument('--rundeck.username',
                              dest='rundeck_username',
-                             help='Rundeck User with access to the system information.',
+                             help='Rundeck User with access to the system information',
                              default=getenv('RUNDECK_USERNAME'),
                              required=False
                              )
     args_parser.add_argument('--rundeck.projects.executions',
                              dest='rundeck_projects_executions',
-                             help='Get projects executions metrics.',
+                             help='Get projects executions metrics',
                              default=literal_eval(getenv('RUNDECK_PROJECTS_EXECUTIONS', 'False').capitalize()),
                              action='store_true'
                              )
     args_parser.add_argument('--rundeck.projects.executions.filter',
                              dest='rundeck_project_executions_filter',
                              help='''
-                             Get the latest project executions filtered by time period.
-                             Can be in: [s]: seconds, [n]: minutes, [h]: hour, [d]: day, [w]: week, [m]: month, [y]: year.
-                             Default: 5n.
+                             Get the latest project executions filtered by time period
+                             Can be in: [s]: seconds, [n]: minutes, [h]: hour, [d]: day, [w]: week, [m]: month, [y]: year
+                             Defaults to 5n
                              ''',
                              default=getenv('RUNDECK_PROJECTS_EXECUTIONS_FILTER', '5n')
                              )
     args_parser.add_argument('--rundeck.projects.executions.limit',
                              dest='rundeck_projects_executions_limit',
-                             help='Project executions max results per query. Default: 20.',
+                             help='Project executions max results per query. Defaults to 20',
                              type=int,
                              default=getenv('RUNDECK_PROJECTS_EXECUTIONS_LIMIT', 20)
                              )
     args_parser.add_argument('--rundeck.projects.executions.cache',
                              dest='rundeck_projects_executions_cache',
-                             help='Cache requests for project executions metrics query.',
+                             help='Cache requests for project executions metrics query',
                              default=literal_eval(getenv('RUNDECK_PROJECTS_EXECUTIONS_CACHE', 'False').capitalize()),
                              action='store_true'
                              )
     args_parser.add_argument('--rundeck.projects.filter',
                             dest='rundeck_projects_filter',
-                            help='Get executions only from listed projects (delimiter = space).',
+                            help='Get executions only from listed projects (delimiter = space)',
                             default=getenv('RUNDECK_PROJECTS_FILTER', []),
                             nargs='+',
                             required=False
                             )
+    args_parser.add_argument('--rundeck.projects.nodes.info',
+                            dest='rundeck_projects_nodes_info',
+                            help='Display Rundeck projects nodes info metrics, currently only the `rundeck_project_nodes_total` metric is available. May cause high CPU load depending on the number of projects',
+                            action='store_true',
+                            default=getenv('RUNDECK_PROJECTS_NODES_INFO', False)
+                            )
     args_parser.add_argument('--rundeck.cached.requests.ttl',
                              dest='rundeck_cached_requests_ttl',
-                             help='Rundeck cached requests expiration time. Default: 120',
+                             help='Rundeck cached requests expiration time. Defaults to 120',
                              type=int,
                              default=getenv('RUNDECK_CACHED_REQUESTS_TTL', 120)
                              )
@@ -195,7 +214,7 @@ class RundeckMetricsCollector(object):
     """
     Method to manage requests on Rundeck API Endpoints
     """
-    def request_data_from(self, endpoint: str) -> dict:
+    def request(self, endpoint: str) -> dict:
         response = None
         session = requests.Session()
 
@@ -209,7 +228,7 @@ class RundeckMetricsCollector(object):
 
             if endpoint == '/metrics/metrics' and session.cookies.get_dict().get('JSESSIONID'):
                 request_url = f'{self.args.rundeck_url}{endpoint}'
-                response = session.get(request_url)
+                response = session.get(request_url, timeout=self.args.rundeck_requests_timeout)
                 response_json = json.loads(response.text)
             else:
                 request_url = f'{self.args.rundeck_url}/api/{self.args.rundeck_api_version}{endpoint}'
@@ -219,7 +238,8 @@ class RundeckMetricsCollector(object):
                         'Accept': 'application/json',
                         'X-Rundeck-Auth-Token': self.rundeck_token
                     },
-                    verify=not self.args.rundeck_skip_ssl
+                    verify=not self.args.rundeck_skip_ssl,
+                    timeout=self.args.rundeck_requests_timeout
                 )
                 response_json = response.json()
 
@@ -233,8 +253,8 @@ class RundeckMetricsCollector(object):
             self.exit_with_msg(msg=response.text if response else str(error), level='critical')
 
     @cached(cache=TTLCache(maxsize=1024, ttl=args.rundeck_cached_requests_ttl))
-    def cached_request_data_from(self, endpoint: str) -> dict:
-        return self.request_data_from(endpoint)
+    def cached_request(self, endpoint: str) -> dict:
+        return self.request(endpoint)
 
     """
     Method to get Rundeck projects executions info
@@ -249,11 +269,11 @@ class RundeckMetricsCollector(object):
 
         try:
             if self.args.rundeck_projects_executions_cache:
-                project_executions_running_info = self.cached_request_data_from(endpoint_running_executions)
-                project_executions_info = self.cached_request_data_from(endpoint)
+                project_executions_running_info = self.cached_request(endpoint_running_executions)
+                project_executions_info = self.cached_request(endpoint)
             else:
-                project_executions_running_info = self.request_data_from(endpoint_running_executions)
-                project_executions_info = self.request_data_from(endpoint)
+                project_executions_running_info = self.request(endpoint_running_executions)
+                project_executions_info = self.request(endpoint)
 
             project_executions_total = {
                 'project': project_name,
@@ -312,9 +332,10 @@ class RundeckMetricsCollector(object):
     Method to get Rundeck projects nodes info
     """
     def get_project_nodes(self, project: dict):
+        project_nodes = dict()
         project_name = project['name']
         endpoint = f'/project/{project_name}/resources'
-        project_nodes = self.request_data_from(endpoint)
+        project_nodes = self.cached_request(endpoint)
         project_nodes_info = {project['name']: list(project_nodes.values())}
 
         return project_nodes_info
@@ -421,7 +442,7 @@ class RundeckMetricsCollector(object):
         """
         Rundeck system info
         """
-        system_info = self.request_data_from('/system/info')
+        system_info = self.request('/system/info')
         api_version = int(system_info['system']['rundeck']['apiversion'])
         execution_mode = system_info['system'].get('executions', {}).get('executionMode')
         rundeck_system_info = InfoMetricFamily(
@@ -455,7 +476,7 @@ class RundeckMetricsCollector(object):
                             + ' Some metrics like rundeck_scheduler_quartz_* will not be available.'
                             + ' Use Username and Password options to get the metrics.')
         else:
-            metrics = self.request_data_from('/metrics/metrics')
+            metrics = self.request('/metrics/metrics')
 
             for counters in self.get_counters(metrics):
                 yield counters
@@ -475,11 +496,11 @@ class RundeckMetricsCollector(object):
                 projects = [{"name": x} for x in rundeck_projects_filter]
             else:
                 if self.args.rundeck_projects_executions_cache:
-                    projects = self.cached_request_data_from(endpoint)
+                    projects = self.cached_request(endpoint)
                 else:
-                    projects = self.request_data_from(endpoint)
+                    projects = self.request(endpoint)
 
-            with ThreadPoolExecutor(thread_name_prefix='project_executions') as project_executions_threadpool:
+            with ThreadPoolExecutor(thread_name_prefix='project_executions', max_workers=self.args.threadpool_max_workers) as project_executions_threadpool:
                 project_execution_records = project_executions_threadpool.map(self.get_project_executions, projects)
 
                 default_labels = self.default_labels + [
@@ -534,19 +555,20 @@ class RundeckMetricsCollector(object):
                 yield project_metrics
                 yield project_executions_total_metrics
 
-            with ThreadPoolExecutor(thread_name_prefix='project_nodes') as project_nodes_threadpool:
-                project_nodes_records = project_nodes_threadpool.map(self.get_project_nodes, projects)
-                project_nodes_total = GaugeMetricFamily(
-                    name='rundeck_project_nodes_total',
-                    documentation='Rundeck project nodes total',
-                    labels=self.default_labels + ['project_name']
-                )
+            if self.args.rundeck_projects_nodes_info:
+                with ThreadPoolExecutor(thread_name_prefix='project_nodes', max_workers=self.args.threadpool_max_workers) as project_nodes_threadpool:
+                    project_nodes_records = project_nodes_threadpool.map(self.get_project_nodes, projects)
+                    project_nodes_total = GaugeMetricFamily(
+                        name='rundeck_project_nodes_total',
+                        documentation='Rundeck project nodes total',
+                        labels=self.default_labels + ['project_name']
+                    )
 
-                for project_nodes in project_nodes_records:
-                    for project, nodes in project_nodes.items():
-                        project_nodes_total.add_metric(self.default_labels_values + [project], len(nodes))
+                    for project_nodes in project_nodes_records:
+                        for project, nodes in project_nodes.items():
+                            project_nodes_total.add_metric(self.default_labels_values + [project], len(nodes))
 
-                yield project_nodes_total
+                    yield project_nodes_total
 
     @staticmethod
     def exit_with_msg(msg: str, level: str):
