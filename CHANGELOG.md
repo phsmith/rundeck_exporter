@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Changed the functions `request_data_from` and `cached_request_data_from` to `request` and `cached_request`, respectively.
 
+### Fixed
+- Issue [#89](https://github.com/phsmith/rundeck_exporter/issues/89), correctly started the `project_executions_total` variable and also fixed the metric return.
+
 ## [2.6.5] - 2024-03-11
 ### Added
 - Issue [#85](https://github.com/phsmith/rundeck_exporter/issues/85), added new metric `rundeck_project_nodes_total`.
