@@ -214,7 +214,7 @@ class RundeckMetricsCollector(object):
     """
     Method to manage requests on Rundeck API Endpoints
     """
-    def request_data_from(self, endpoint: str) -> dict:
+    def request(self, endpoint: str) -> dict:
         response = None
         session = requests.Session()
 
@@ -253,8 +253,8 @@ class RundeckMetricsCollector(object):
             self.exit_with_msg(msg=response.text if response else str(error), level='critical')
 
     @cached(cache=TTLCache(maxsize=1024, ttl=args.rundeck_cached_requests_ttl))
-    def cached_request_data_from(self, endpoint: str) -> dict:
-        return self.request_data_from(endpoint)
+    def cached_request(self, endpoint: str) -> dict:
+        return self.request(endpoint)
 
     """
     Method to get Rundeck projects executions info
@@ -269,11 +269,11 @@ class RundeckMetricsCollector(object):
 
         try:
             if self.args.rundeck_projects_executions_cache:
-                project_executions_running_info = self.cached_request_data_from(endpoint_running_executions)
-                project_executions_info = self.cached_request_data_from(endpoint)
+                project_executions_running_info = self.cached_request(endpoint_running_executions)
+                project_executions_info = self.cached_request(endpoint)
             else:
-                project_executions_running_info = self.request_data_from(endpoint_running_executions)
-                project_executions_info = self.request_data_from(endpoint)
+                project_executions_running_info = self.request(endpoint_running_executions)
+                project_executions_info = self.request(endpoint)
 
             project_executions_total = {
                 'project': project_name,
@@ -332,9 +332,10 @@ class RundeckMetricsCollector(object):
     Method to get Rundeck projects nodes info
     """
     def get_project_nodes(self, project: dict):
+        project_nodes = dict()
         project_name = project['name']
         endpoint = f'/project/{project_name}/resources'
-        project_nodes = self.request_data_from(endpoint)
+        project_nodes = self.cached_request(endpoint)
         project_nodes_info = {project['name']: list(project_nodes.values())}
 
         return project_nodes_info
@@ -441,7 +442,7 @@ class RundeckMetricsCollector(object):
         """
         Rundeck system info
         """
-        system_info = self.request_data_from('/system/info')
+        system_info = self.request('/system/info')
         api_version = int(system_info['system']['rundeck']['apiversion'])
         execution_mode = system_info['system'].get('executions', {}).get('executionMode')
         rundeck_system_info = InfoMetricFamily(
@@ -475,7 +476,7 @@ class RundeckMetricsCollector(object):
                             + ' Some metrics like rundeck_scheduler_quartz_* will not be available.'
                             + ' Use Username and Password options to get the metrics.')
         else:
-            metrics = self.request_data_from('/metrics/metrics')
+            metrics = self.request('/metrics/metrics')
 
             for counters in self.get_counters(metrics):
                 yield counters
@@ -495,9 +496,9 @@ class RundeckMetricsCollector(object):
                 projects = [{"name": x} for x in rundeck_projects_filter]
             else:
                 if self.args.rundeck_projects_executions_cache:
-                    projects = self.cached_request_data_from(endpoint)
+                    projects = self.cached_request(endpoint)
                 else:
-                    projects = self.request_data_from(endpoint)
+                    projects = self.request(endpoint)
 
             with ThreadPoolExecutor(thread_name_prefix='project_executions', max_workers=self.args.threadpool_max_workers) as project_executions_threadpool:
                 project_execution_records = project_executions_threadpool.map(self.get_project_executions, projects)
