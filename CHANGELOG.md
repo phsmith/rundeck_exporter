@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Defaults to 30.
 
 ### Changed
-- Changed the functions `request_data_from` and `cached_request_data_from` to `request` and `cached_request` respectivelly.
+- Changed the functions `request_data_from` and `cached_request_data_from` to `request` and `cached_request`, respectively.
 
 ## [2.6.5] - 2024-03-11
 ### Added
