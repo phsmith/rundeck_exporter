@@ -14,9 +14,9 @@ LABEL maintainer="Phillipe Smith <phsmithcc@gmail.com>" \
       org.label-schema.version=$VERSION \
       org.label-schema.schema-version="1.0"
 
-RUN adduser --disabled-password --gecos '' nonroot
+RUN adduser --disabled-password --gecos '' rundeck
 
-USER nonroot
+USER rundeck
 
 COPY requirements.txt /app/
 
