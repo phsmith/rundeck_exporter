@@ -42,7 +42,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Strip "v" prefix from tag name
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo ${{ github.ref_name }} | sed 's/^v//')
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && export VERSION=$(echo ${{ github.ref_name }} | sed 's/^v//')
 
           # Push docker image:latest if no alfa or beta is set in the version tag.
           if [[ ! "$VERSION" =~ (alfa|beta) ]]; then
