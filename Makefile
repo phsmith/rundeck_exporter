@@ -21,6 +21,8 @@ docker-build:
     	--build-arg VERSION="$(IMAGE_VERSION)" \
     	--tag=$(IMAGE_NAME) .
 
+	docker tag $(IMAGE_NAME) $(DOCKER_IMAGE_TAG):latest
+	docker tag $(IMAGE_NAME) $(GHCR_IMAGE_TAG):latest
 	docker tag $(IMAGE_NAME) $(DOCKER_IMAGE_TAG):$(IMAGE_VERSION)
 	docker tag $(IMAGE_NAME) $(GHCR_IMAGE_TAG):$(IMAGE_VERSION)
 
