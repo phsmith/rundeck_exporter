@@ -1,101 +1,52 @@
 name: Docker
 
 on:
+  pull_request:
+    branches:
+      - main
   push:
     tags:
       - v*
 
 env:
-  # TODO: Change variable to your image's name.
-  IMAGE_NAME: rundeck-exporter
+  DOCKER_IMAGE_NAME: rundeck-exporter
 
 jobs:
-  # Run tests.
-  # See also https://docs.docker.com/docker-hub/builds/automated-testing/
-  test:
+  build-and-publish:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Run tests
-        run: |
-          if [ -f docker-compose.test.yml ]; then
-            docker-compose --file docker-compose.test.yml build
-            docker-compose --file docker-compose.test.yml run sut
-          else
-            docker build . --file Dockerfile
-          fi
+      - name: Build Docker image
+        run: make docker-build
 
-  # Push image to GitHub Packages.
-  # See also https://docs.docker.com/docker-hub/builds/
-  push:
-    # Ensure test job passes before pushing image.
-    needs: test
-
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push'
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: Run Trivy vulnerability scanner
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: aquasecurity/trivy-action@0.20.0
         with:
-          fetch-depth: 0
+          image-ref: $DOCKER_IMAGE_NAME
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
 
-      - name: Build image
-        run: docker build . --file Dockerfile --tag $IMAGE_NAME
-
-      - name: Log into registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
-
-      - name: Push image to gcr.io
+      - name: Publish Docker image
+        if: ${{ github.event_name != 'pull_request' }}
+        env:
+          DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME
-
-          # Change all uppercase to lowercase
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-
-          # Strip git ref prefix from version
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-
           # Strip "v" prefix from tag name
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo ${{ github.ref_name }} | sed 's/^v//')
 
           # Push docker image:latest if no alfa or beta is set in the version tag.
           if [[ ! "$VERSION" =~ (alfa|beta) ]]; then
-            docker tag $IMAGE_NAME $IMAGE_ID:latest
-            docker push $IMAGE_ID:latest
+            VERSION=latest make push-all
           fi
 
-          echo IMAGE_ID=$IMAGE_ID
-          echo VERSION=$VERSION
-
-          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
-
-      - name: Push image hub.docker.com
-        run: |
-          echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u ${{ github.actor }} --password-stdin
-
-          IMAGE_ID=${{ github.actor }}/$IMAGE_NAME
-
-          # Strip git ref prefix from version
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-
-          # Strip "v" prefix from tag name
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
-
-          # Push docker image:latest if no alfa or beta is set in the version tag.
-          if [[ ! "$VERSION" =~ (alfa|beta) ]]; then
-            docker tag $IMAGE_NAME $IMAGE_ID:latest
-            docker push $IMAGE_ID:latest
-          fi
-
-          echo IMAGE_ID=$IMAGE_ID
-          echo VERSION=$VERSION
-
-          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
+          make push-all
