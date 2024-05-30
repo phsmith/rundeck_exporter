@@ -28,7 +28,7 @@ jobs:
         if: ${{ github.event_name == 'pull_request' }}
         uses: aquasecurity/trivy-action@0.20.0
         with:
-          image-ref: $DOCKER_IMAGE_NAME
+          image-ref: '${{ env.DOCKER_IMAGE_NAME }}'
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
