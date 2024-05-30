@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.7.1] - 2024-05-30
+### Added
+
+- Fix security issue by avoiding running container as root in Dockerfile by @nataliagranato in https://github.com/phsmith/rundeck_exporter/pull/92
+- Improve docker build and publish actions workflow by @phsmith in https://github.com/phsmith/rundeck_exporter/pull/93
+
 ## [2.7.0] - 2024-04-20
 ### Added
 - Added the following new arguments:
@@ -278,7 +284,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[unreleased]: https://github.com/phsmith/rundeck_exporter/compare/v2.7.0...HEAD
+[unreleased]: https://github.com/phsmith/rundeck_exporter/compare/v2.7.1...HEAD
+[2.7.1]: https://github.com/phsmith/rundeck_exporter/compare/v2.7.0...v2.7.1
 [2.7.0]: https://github.com/phsmith/rundeck_exporter/compare/v2.6.5...v2.7.0
 [2.6.5]: https://github.com/phsmith/rundeck_exporter/compare/v2.6.4...v2.6.5
 [2.6.4]: https://github.com/phsmith/rundeck_exporter/compare/v2.6.3...v2.6.4
