@@ -532,7 +532,7 @@ docker run --rm -d -p 9620:9620 -e RUNDECK_TOKEN=$RUNDECK_TOKEN rundeck_exporter
 
 ```sh
 cd examples/docker-compose
-docker-compose up -d
+docker compose up -d
 ```
 
 Docker Compose services:
@@ -541,4 +541,4 @@ Docker Compose services:
 - Prometheus - http://localhost:9090 (already configured to scrape rundeck_exporter metrics)
 - Grafana - http://localhost:3000 (already configured with Prometheus Datasource and Rundeck Dashboard)
 
-After provisioning of the docker-compose services, access Rundeck from http://localhost:4440/user/profile and gerate a new API token. Place the token at **RUNDECK_TOKEN** environment variable in the **docker-compose.yml** and run `docker-compose up -d` again.
+After provisioning of the docker-compose services, access Rundeck from http://localhost:4440/user/profile and gerate a new API token. Place the token at **RUNDECK_TOKEN** environment variable in the **docker-compose.yml** and run `docker compose up -d` again.
