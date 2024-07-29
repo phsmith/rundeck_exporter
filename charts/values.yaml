@@ -3,20 +3,20 @@ replicaCount: 1
 image:
   repository: phsmith/rundeck-exporter
   pullPolicy: IfNotPresent
-  tag: 2.6.1
+  tag: 2.7.1
 
 env:
   RUNDECK_EXPORTER_DEBUG: true
   RUNDECK_EXPORTER_HOST: 0.0.0.0
   RUNDECK_EXPORTER_PORT: 9620
-  RUNDECK_TOKEN: "your-rundeck-token"
   RUNDECK_URL: "your-rundeck-url"
-  RUNDECK_USERNAME: "your-rundeck-username"
-  RUNDECK_USERPASSWORD: "your-rundeck-password"
+  RUNDECK_TOKEN: "your-rundeck-token"
+  # RUNDECK_USERNAME: "your-rundeck-username"
+  # RUNDECK_USERPASSWORD: "your-rundeck-password"
   RUNDECK_API_VERSION: 40
   RUNDECK_SKIP_SSL: true
   RUNDECK_PROJECTS_EXECUTIONS: true
-  RUNDECK_PROJECTS_EXECUTIONS_CACHE: true
+  RUNDECK_PROJECTS_EXECUTIONS_CACHE: false
   RUNDECK_CPU_STATS: true
   RUNDECK_MEMORY_STATS: true
 
@@ -76,7 +76,14 @@ probe:
   periodSeconds: 10
 
 serviceMonitor:
+  # Whether a serviceMonitor should be created or not
   enabled: true
+  # name: <defaults to rundeck-exporter-monitor>
+  # namespace: <defaults to helm release namespace>
+  interval: 30s
+
+  path: /
+  scrapeTimeout: 10s
 
 resources: {}
 

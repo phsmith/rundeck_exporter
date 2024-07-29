@@ -1,0 +1,27 @@
+{{- if .Values.serviceMonitor.enabled -}}
+# service-monitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  {{- if .Values.serviceMonitor.name -}}
+  name: {{ .Values.serviceMonitor.name }}
+  {{- else }}
+  name: rundeck-exporter-monitor
+  {{- end }}
+  {{- if .Values.serviceMonitor.namespace -}}
+  namespace: {{ .Values.serviceMonitor.namespace }}
+  {{- else }}
+  namespace: {{ .Release.Namespace }}
+  {{- end }}
+  labels:
+    {{- include "rundeck-exporter.selectorLabels" . | nindent 4 }}
+spec:
+  endpoints:
+    - interval: {{ .Values.serviceMonitor.interval }}
+      path: {{ .Values.serviceMonitor.path }}
+      port: metrics
+      scrapeTimeout: {{ .Values.serviceMonitor.scrapeTimeout  }}
+  selector:
+    matchLabels:
+      {{- include "rundeck-exporter.selectorLabels" . | nindent 8 }}
+{{- end }}

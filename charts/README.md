@@ -23,7 +23,7 @@ git clone https://github.com/phsmith/rundeck_exporter.git
 2. Access the charts directory
 
 ```
-cd charts 
+cd charts
 ```
 
 3. Create namespace (if no):
@@ -35,7 +35,7 @@ kubectl create namespace my-namespace
 4. Install the Rundeck Exporter:
 
 ```
-helm install rundeck-exporter -n your-namespace .
+helm install rundeck-exporter -n my-namespace .
 ```
 
 ## Configuration
@@ -51,6 +51,8 @@ Here are some common settings:
 - `env`: Environment variables to configure Rundeck Exporter.
 
 See the `values.yaml` file for all available configuration options.
+
+> **Note**: [prometheus-operator](https://github.com/prometheus-operator/kube-prometheus) is required if `serviceMonitor.enabled`.
 
 ## Customization
 
