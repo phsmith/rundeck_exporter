@@ -7,6 +7,8 @@ keywords:
 maintainers:
 - email: natalia.granato@jackexperts.com
   name: Natália Granato
+- email: phsmithcc@gmail.com
+  name: Phillipe Smith
 name: rundeck-exporter
 type: application
-version: 0.2.0
+version: 0.3.0
