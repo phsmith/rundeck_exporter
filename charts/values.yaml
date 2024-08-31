@@ -3,7 +3,7 @@ replicaCount: 1
 image:
   repository: phsmith/rundeck-exporter
   pullPolicy: IfNotPresent
-  tag: 2.7.1
+  tag: 2.8.0
 
 env:
   RUNDECK_EXPORTER_DEBUG: true
