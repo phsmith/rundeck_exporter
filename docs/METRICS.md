@@ -229,3 +229,23 @@ rundeck_project_execution_status{execution_id="2016583",job_id="39156aa3-978d-43
 rundeck_project_execution_status{execution_id="2016583",job_id="39156aa3-978d-43d3-a642-1fb217b5822f",job_name="rundeck_job",project_name="rundeck_project",status="aborted"} 0.0
 rundeck_project_execution_status{execution_id="2016583",job_id="39156aa3-978d-43d3-a642-1fb217b5822f",job_name="rundeck_job",project_name="rundeck_project",status="unknown"} 0.0
 ```
+
+## rundeck_execution_mode_active
+
+Rundeck active execution mode status.
+
+```
+# HELP rundeck_execution_mode_active Rundeck Active Execution Mode Status
+# TYPE rundeck_execution_mode_active gauge
+rundeck_execution_mode_active{instance_address="rundeck:4440"} 1.0
+```
+
+## rundeck_execution_mode_passive
+
+Rundeck passive execution mode status.
+
+```
+# HELP rundeck_execution_mode_passive Rundeck Passive Execution Mode Status
+# TYPE rundeck_execution_mode_passive gauge
+rundeck_execution_mode_passive{instance_address="rundeck:4440"} 0.0
+```

@@ -27,7 +27,7 @@ from prometheus_client.core import (
 __author__ = 'Phillipe Smith'
 __author_email__ = 'phsmithcc@gmail.com'
 __app__ = 'rundeck_exporter'
-__version__ = '2.7.1'
+__version__ = '2.8.0'
 
 # Disable InsecureRequestWarning
 requests.urllib3.disable_warnings()
@@ -223,6 +223,7 @@ class RundeckMetricsCollector(object):
                 session.post(
                     f'{self.args.rundeck_url}/j_security_check',
                     data={"j_username": self.args.rundeck_username, "j_password": self.rundeck_userpassword},
+                    allow_redirects=True,
                     verify=not self.args.rundeck_skip_ssl
                 )
 
@@ -443,6 +444,7 @@ class RundeckMetricsCollector(object):
         """
         Rundeck system info
         """
+        metrics = self.request('/metrics/metrics')
         system_info = self.request('/system/info')
         api_version = int(system_info['system']['rundeck']['apiversion'])
         execution_mode = system_info['system'].get('executions', {}).get('executionMode')
@@ -453,12 +455,33 @@ class RundeckMetricsCollector(object):
         )
         rundeck_system_info.add_metric(self.default_labels_values, {x: str(y) for x, y in system_info['system']['rundeck'].items()})
 
+        """
+        Rundeck server execution mode
+        """
         logging.debug(f'Rundeck execution mode: {execution_mode}.')
 
-        if self.args.no_checks_in_passive_mode and execution_mode == 'passive':
-            return
+        rundeck_execution_mode_active = GaugeMetricFamily(
+            'rundeck_execution_mode_active',
+            f'Rundeck Active Execution Mode Status',
+            labels=self.default_labels
+        )
+
+        rundeck_execution_mode_passive = GaugeMetricFamily(
+            'rundeck_execution_mode_passive',
+            f'Rundeck Passive Execution Mode Status',
+            labels=self.default_labels
+        )
+
+        if execution_mode == 'passive':
+            rundeck_execution_mode_active.add_metric(self.default_labels_values, 0)
+            rundeck_execution_mode_passive.add_metric(self.default_labels_values, 1)
+        else:
+            rundeck_execution_mode_active.add_metric(self.default_labels_values, 1)
+            rundeck_execution_mode_passive.add_metric(self.default_labels_values, 0)
 
         yield rundeck_system_info
+        yield rundeck_execution_mode_active
+        yield rundeck_execution_mode_passive
 
         """
         Rundeck system stats
@@ -477,8 +500,6 @@ class RundeckMetricsCollector(object):
                             + ' Some metrics like rundeck_scheduler_quartz_* will not be available.'
                             + ' Use Username and Password options to get the metrics.')
         else:
-            metrics = self.request('/metrics/metrics')
-
             for counters in self.get_counters(metrics):
                 yield counters
 

@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.8.0] - 2024-08-31
+### Added
+
+- Issue [#97](https://github.com/phsmith/rundeck_exporter/issues/97), new rundeck_execution_mode_<active/passive> metrics.
+
+### Changed
+
+- Update Docker Compose example files.
+
+## Fixed
+
+- Issue [#95](https://github.com/phsmith/rundeck_exporter/issues/95), improved and fixed the exporter helm chart.
+- Issue [#98](https://github.com/phsmith/rundeck_exporter/issues/98), fixed exception errors when the user does not have the required permissions.
+
 ## [2.7.1] - 2024-05-30
 ### Added
 
@@ -284,7 +298,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[unreleased]: https://github.com/phsmith/rundeck_exporter/compare/v2.7.1...HEAD
+[unreleased]: https://github.com/phsmith/rundeck_exporter/compare/v2.8.0...HEAD
+[2.8.0]: https://github.com/phsmith/rundeck_exporter/compare/v2.7.1...v2.8.0
 [2.7.1]: https://github.com/phsmith/rundeck_exporter/compare/v2.7.0...v2.7.1
 [2.7.0]: https://github.com/phsmith/rundeck_exporter/compare/v2.6.5...v2.7.0
 [2.6.5]: https://github.com/phsmith/rundeck_exporter/compare/v2.6.4...v2.6.5
