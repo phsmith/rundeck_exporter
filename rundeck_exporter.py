@@ -443,6 +443,7 @@ class RundeckMetricsCollector(object):
         """
         Rundeck system info
         """
+        metrics = self.request('/metrics/metrics')
         system_info = self.request('/system/info')
         api_version = int(system_info['system']['rundeck']['apiversion'])
         execution_mode = system_info['system'].get('executions', {}).get('executionMode')
@@ -477,8 +478,6 @@ class RundeckMetricsCollector(object):
                             + ' Some metrics like rundeck_scheduler_quartz_* will not be available.'
                             + ' Use Username and Password options to get the metrics.')
         else:
-            metrics = self.request('/metrics/metrics')
-
             for counters in self.get_counters(metrics):
                 yield counters
 
