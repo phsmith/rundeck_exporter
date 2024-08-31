@@ -9,8 +9,8 @@ env:
   RUNDECK_EXPORTER_DEBUG: true
   RUNDECK_EXPORTER_HOST: 0.0.0.0
   RUNDECK_EXPORTER_PORT: 9620
-  RUNDECK_URL: "your-rundeck-url"
-  RUNDECK_TOKEN: "your-rundeck-token"
+  RUNDECK_URL: "http://localhost:4440"
+  RUNDECK_TOKEN: "exporter_auth_token"
   # RUNDECK_USERNAME: "your-rundeck-username"
   # RUNDECK_USERPASSWORD: "your-rundeck-password"
   RUNDECK_API_VERSION: 40
@@ -80,9 +80,8 @@ serviceMonitor:
   enabled: true
   # name: <defaults to rundeck-exporter-monitor>
   # namespace: <defaults to helm release namespace>
-  interval: 30s
-
   path: /
+  interval: 30s
   scrapeTimeout: 10s
 
 resources: {}

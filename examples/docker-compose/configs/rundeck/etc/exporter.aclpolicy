@@ -1,0 +1,64 @@
+  by:
+    username: exporter
+  description: system:read
+  for:
+    resource:
+    - allow:
+      - read
+      equals:
+        kind: system
+  context:
+    application: rundeck
+---
+by:
+  username: exporter
+description: project:read
+for:
+  project:
+  - allow:
+    - read
+    match:
+      name: .*
+context:
+  application: rundeck
+---
+by:
+  username: exporter
+description: events:read
+for:
+  resource:
+  - allow:
+    - read
+    equals:
+      kind: event
+  job:
+  - allow:
+    - read
+    - view
+context:
+  project: .*
+---
+by:
+  username: exporter
+description: Allow [read] for node
+for:
+  node:
+  - allow:
+    - read
+    match:
+      nodename: .*
+context:
+  project: .*
+
+---
+by:
+  username: exporter
+description: Allow [read] for (All) node
+for:
+  resource:
+  - allow:
+    - read
+    equals:
+      kind: node
+context:
+  project: .*

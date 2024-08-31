@@ -1,15 +1,20 @@
 version: "3"
 services:
   rundeck:
-    image: rundeck/rundeck:4.6.1
+    image: rundeck/rundeck:4.8.0
     ports:
       - 4440:4440
     environment:
       RUNDECK_GRAILS_URL: http://localhost:4440
+      RUNDECK_SERVER_ADDRESS: 0.0.0.0
+      RUNDECK_TOKENS_FILE: /home/rundeck/etc/tokens.properties
+      RUNDECK_METRICS_ENABLED: true
     tty: true
     volumes:
       - ./data/rundeck:/home/rundeck/server/data
-      - ./configs/rundeck/remco/templates/rundeck-config.properties:/etc/remco/templates/rundeck-config.properties
+      - ./configs/rundeck/etc/exporter.aclpolicy:/home/rundeck/etc/exporter.aclpolicy
+      - ./configs/rundeck/etc/realm.properties:/home/rundeck/etc/realm.properties
+      - ./configs/rundeck/etc/tokens.properties:/home/rundeck/etc/tokens.properties
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:4440"]
       interval: 30s
@@ -20,11 +25,11 @@ services:
     ports:
       - 9620:9620
     environment:
-      RUNDECK_EXPORTER_DEBUG: "False"
+      RUNDECK_EXPORTER_DEBUG: "True"
       RUNDECK_EXPORTER_HOST: 0.0.0.0
       RUNDECK_EXPORTER_PORT: 9620
       RUNDECK_URL: "http://rundeck:4440"
-      RUNDECK_TOKEN: "PLACE_RUNDECK_API_TOKEN_HERE"
+      RUNDECK_TOKEN: "exporter_auth_token"
       RUNDECK_API_VERSION: 40
       RUNDECK_SKIP_SSL: "False"
       RUNDECK_PROJECTS_EXECUTIONS: "True"
@@ -33,6 +38,7 @@ services:
       # RUNDECK_CACHED_REQUESTS_TTL: 120
       RUNDECK_CPU_STATS: "True"
       RUNDECK_MEMORY_STATS: "True"
+      RUNDECK_PROJECTS_NODES_INFO: "True"
     depends_on:
       rundeck:
         condition: service_healthy

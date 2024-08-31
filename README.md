@@ -61,20 +61,20 @@ The ACL associated with the token/user must have the following policy rules as a
 Example ACL Policy allowing a user named "exporter" to get system metrics as well as execution metrics for any project:
 
 ```yaml
-by:
-  username: exporter
-description: system:read
-for:
-  resource:
-  - allow:
-    - read
-    equals:
-      kind: system
-context:
-  application: rundeck
+  by:
+    username: user
+  description: system:read
+  for:
+    resource:
+    - allow:
+      - read
+      equals:
+        kind: system
+  context:
+    application: rundeck
 ---
 by:
-  username: exporter
+  username: user
 description: project:read
 for:
   project:
@@ -86,7 +86,7 @@ context:
   application: rundeck
 ---
 by:
-  username: exporter
+  username: user
 description: events:read
 for:
   resource:
@@ -102,7 +102,7 @@ context:
   project: .*
 ---
 by:
-  username: exporter
+  username: user
 description: Allow [read] for node
 for:
   node:
@@ -115,7 +115,7 @@ context:
 
 ---
 by:
-  username: exporter
+  username: user
 description: Allow [read] for (All) node
 for:
   resource:
