@@ -27,7 +27,7 @@ from prometheus_client.core import (
 __author__ = 'Phillipe Smith'
 __author_email__ = 'phsmithcc@gmail.com'
 __app__ = 'rundeck_exporter'
-__version__ = '2.8.0'
+__version__ = '2.8.1'
 
 # Disable InsecureRequestWarning
 requests.urllib3.disable_warnings()
@@ -459,6 +459,9 @@ class RundeckMetricsCollector(object):
         Rundeck server execution mode
         """
         logging.debug(f'Rundeck execution mode: {execution_mode}.')
+
+        if self.args.no_checks_in_passive_mode and execution_mode == 'passive':
+            return
 
         rundeck_execution_mode_active = GaugeMetricFamily(
             'rundeck_execution_mode_active',
