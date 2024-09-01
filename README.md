@@ -23,7 +23,7 @@ This exporter uses the prometheus_client and requests Python module to expose Ru
  This code was tested on Rundeck API version 31+.
 
 > [!Warning]
-> - Since version 4.x.x. the `/api/V/metrics` endpoint is disabled, so you need to enable it in `rundeck-config.properties` to get the exporter to work. See [config-file-reference.html#metrics-capturing](https://docs.rundeck.com/docs/administration/configuration/config-file-reference.html#metrics-capturing)
+> - Since version 4.x.x, the `/api/<version>/metrics` endpoint is disabled, so you need to enable it in `rundeck-config.properties` or by setting the environment variable `RUNDECK_METRICS_ENABLED=true` for the exporter to work. See [config-file-reference.html#metrics-capturing](https://docs.rundeck.com/docs/administration/configuration/config-file-reference.html#metrics-capturing)
 > - If audit logs are enabled, consider changing the default `INFO` log level to prevent excessive log growth.
 
 ## Metrics
@@ -58,11 +58,11 @@ The ACL associated with the token/user must have the following policy rules as a
 * `project:read` (system context)
 * `events:read` (project context)
 
-Example ACL Policy allowing a user named "exporter" to get system metrics as well as execution metrics for any project:
+Example ACL Policy allowing a user named `exporter` to get system metrics as well as execution metrics for any project:
 
 ```yaml
   by:
-    username: user
+    username: exporter
   description: system:read
   for:
     resource:
@@ -74,7 +74,7 @@ Example ACL Policy allowing a user named "exporter" to get system metrics as wel
     application: rundeck
 ---
 by:
-  username: user
+  username: exporter
 description: project:read
 for:
   project:
@@ -86,7 +86,7 @@ context:
   application: rundeck
 ---
 by:
-  username: user
+  username: exporter
 description: events:read
 for:
   resource:
@@ -102,7 +102,7 @@ context:
   project: .*
 ---
 by:
-  username: user
+  username: exporter
 description: Allow [read] for node
 for:
   node:
@@ -115,7 +115,7 @@ context:
 
 ---
 by:
-  username: user
+  username: exporter
 description: Allow [read] for (All) node
 for:
   resource:
