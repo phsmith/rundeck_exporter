@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.8.2] - 2024-09-11
+### Fixed
+
+- Issue [#101](https://github.com/phsmith/rundeck_exporter/issues/101), fix broken validation of boolean environment variables.
+
 ## [2.8.1] - 2024-09-01
 ### Fixed
 
@@ -303,7 +308,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[unreleased]: https://github.com/phsmith/rundeck_exporter/compare/v2.8.1...HEAD
+[unreleased]: https://github.com/phsmith/rundeck_exporter/compare/v2.8.2...HEAD
+[2.8.1]: https://github.com/phsmith/rundeck_exporter/compare/v2.8.1...v2.8.2
 [2.8.1]: https://github.com/phsmith/rundeck_exporter/compare/v2.8.0...v2.8.1
 [2.8.0]: https://github.com/phsmith/rundeck_exporter/compare/v2.7.1...v2.8.0
 [2.7.1]: https://github.com/phsmith/rundeck_exporter/compare/v2.7.0...v2.7.1
