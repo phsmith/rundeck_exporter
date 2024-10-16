@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.8.3] - 2024-10-16
+### Fixed
+
+- Issue [#103](https://github.com/phsmith/rundeck_exporter/issues/103), fix boolean env vars broken in Python > 3.12.
+
 ## [2.8.2] - 2024-09-11
 ### Fixed
 
@@ -308,8 +313,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[unreleased]: https://github.com/phsmith/rundeck_exporter/compare/v2.8.2...HEAD
-[2.8.1]: https://github.com/phsmith/rundeck_exporter/compare/v2.8.1...v2.8.2
+[unreleased]: https://github.com/phsmith/rundeck_exporter/compare/v2.8.3...HEAD
+[2.8.3]: https://github.com/phsmith/rundeck_exporter/compare/v2.8.2...v2.8.3
+[2.8.2]: https://github.com/phsmith/rundeck_exporter/compare/v2.8.1...v2.8.2
 [2.8.1]: https://github.com/phsmith/rundeck_exporter/compare/v2.8.0...v2.8.1
 [2.8.0]: https://github.com/phsmith/rundeck_exporter/compare/v2.7.1...v2.8.0
 [2.7.1]: https://github.com/phsmith/rundeck_exporter/compare/v2.7.0...v2.7.1
