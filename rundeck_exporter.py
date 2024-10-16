@@ -27,7 +27,7 @@ from prometheus_client.core import (
 __author__ = 'Phillipe Smith'
 __author_email__ = 'phsmithcc@gmail.com'
 __app__ = 'rundeck_exporter'
-__version__ = '2.8.2'
+__version__ = '2.8.3'
 
 # Disable InsecureRequestWarning
 requests.urllib3.disable_warnings()
@@ -69,7 +69,7 @@ class RundeckMetricsCollector(object):
     )
     args_parser.add_argument('--debug',
                              help='Enable debug mode',
-                             default=literal_eval(getenv('RUNDECK_EXPORTER_DEBUG', 'False')),
+                             default=literal_eval(getenv('RUNDECK_EXPORTER_DEBUG', 'False').capitalize()),
                              action='store_true'
                              )
     args_parser.add_argument('-v', '--version',
@@ -91,7 +91,7 @@ class RundeckMetricsCollector(object):
                              dest='no_checks_in_passive_mode',
                              help='The rundeck_exporter will not perform any checks while the Rundeck host is in passive execution mode',
                              action='store_true',
-                             default=literal_eval(getenv('RUNDECK_EXPORTER_NO_CHECKS_IN_PASSIVE_MODE', 'False'))
+                             default=literal_eval(getenv('RUNDECK_EXPORTER_NO_CHECKS_IN_PASSIVE_MODE', 'False').capitalize())
                              )
     args_parser.add_argument('--threadpool_max_workers',
                              help='The maximum number of workers in the threadpool to run rundeck_exporter asynchronous checks. Defaults to (number of CPUs) + 4',
@@ -114,7 +114,7 @@ class RundeckMetricsCollector(object):
     args_parser.add_argument('--rundeck.skip_ssl',
                              dest='rundeck_skip_ssl',
                              help='Rundeck Skip SSL Cert Validate',
-                             default=literal_eval(getenv('RUNDECK_SKIP_SSL', 'False')),
+                             default=literal_eval(getenv('RUNDECK_SKIP_SSL', 'False').capitalize()),
                              action='store_true'
                              )
     args_parser.add_argument('--rundeck.api.version',
@@ -132,7 +132,7 @@ class RundeckMetricsCollector(object):
     args_parser.add_argument('--rundeck.projects.executions',
                              dest='rundeck_projects_executions',
                              help='Get projects executions metrics',
-                             default=literal_eval(getenv('RUNDECK_PROJECTS_EXECUTIONS', 'False')),
+                             default=literal_eval(getenv('RUNDECK_PROJECTS_EXECUTIONS', 'False').capitalize()),
                              action='store_true'
                              )
     args_parser.add_argument('--rundeck.projects.executions.filter',
@@ -153,7 +153,7 @@ class RundeckMetricsCollector(object):
     args_parser.add_argument('--rundeck.projects.executions.cache',
                              dest='rundeck_projects_executions_cache',
                              help='Cache requests for project executions metrics query',
-                             default=literal_eval(getenv('RUNDECK_PROJECTS_EXECUTIONS_CACHE', 'False')),
+                             default=literal_eval(getenv('RUNDECK_PROJECTS_EXECUTIONS_CACHE', 'False').capitalize()),
                              action='store_true'
                              )
     args_parser.add_argument('--rundeck.projects.filter',
@@ -167,7 +167,7 @@ class RundeckMetricsCollector(object):
                             dest='rundeck_projects_nodes_info',
                             help='Display Rundeck projects nodes info metrics, currently only the `rundeck_project_nodes_total` metric is available. May cause high CPU load depending on the number of projects',
                             action='store_true',
-                            default=literal_eval(getenv('RUNDECK_PROJECTS_NODES_INFO', 'False'))
+                            default=literal_eval(getenv('RUNDECK_PROJECTS_NODES_INFO', 'False').capitalize())
                             )
     args_parser.add_argument('--rundeck.cached.requests.ttl',
                              dest='rundeck_cached_requests_ttl',
@@ -179,13 +179,13 @@ class RundeckMetricsCollector(object):
                              dest='rundeck_cpu_stats',
                              help='Show Rundeck CPU usage stats',
                              action='store_true',
-                             default=literal_eval(getenv('RUNDECK_CPU_STATS', 'False'))
+                             default=literal_eval(getenv('RUNDECK_CPU_STATS', 'False').capitalize())
                              )
     args_parser.add_argument('--rundeck.memory.stats',
                              dest='rundeck_memory_stats',
                              help='Show Rundeck memory usage stats',
                              action='store_true',
-                             default=literal_eval(getenv('RUNDECK_MEMORY_STATS', 'False'))
+                             default=literal_eval(getenv('RUNDECK_MEMORY_STATS', 'False').capitalize())
                              )
 
     args = args_parser.parse_args()
