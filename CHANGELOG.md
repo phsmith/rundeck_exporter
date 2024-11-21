@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Bump chart version (`0.3.1`)
+
+### Fixed
+
+- Helm chart error when using `serviceMonitor.name` (formatting error)
+- Remove default `RUNDECK_TOKEN` env variable (default value overrules value from secret if set)
+
 ## [2.8.3] - 2024-10-16
 ### Fixed
 

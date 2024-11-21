@@ -10,7 +10,7 @@ env:
   RUNDECK_EXPORTER_HOST: 0.0.0.0
   RUNDECK_EXPORTER_PORT: 9620
   RUNDECK_URL: "http://localhost:4440"
-  RUNDECK_TOKEN: "exporter_auth_token"
+  # RUNDECK_TOKEN: "exporter_auth_token"
   # RUNDECK_USERNAME: "your-rundeck-username"
   # RUNDECK_USERPASSWORD: "your-rundeck-password"
   RUNDECK_API_VERSION: 40
