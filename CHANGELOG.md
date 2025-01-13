@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.8.4] - 2025-01-13
 ### Changed
 
 - Bump chart version (`0.3.1`)
@@ -15,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Helm chart error when using `serviceMonitor.name` (formatting error)
 - Remove default `RUNDECK_TOKEN` env variable (default value overrules value from secret if set)
+- Issue [#108](https://github.com/phsmith/rundeck_exporter/issues/108), fix Prometheus duplicate metrics error report when `rundeck.projects.executions.cache` option is enabled.
 
 ## [2.8.3] - 2024-10-16
 ### Fixed
@@ -322,7 +324,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[unreleased]: https://github.com/phsmith/rundeck_exporter/compare/v2.8.3...HEAD
+[unreleased]: https://github.com/phsmith/rundeck_exporter/compare/v2.8.4...HEAD
+[2.8.4]: https://github.com/phsmith/rundeck_exporter/compare/v2.8.3...v2.8.4
 [2.8.3]: https://github.com/phsmith/rundeck_exporter/compare/v2.8.2...v2.8.3
 [2.8.2]: https://github.com/phsmith/rundeck_exporter/compare/v2.8.1...v2.8.2
 [2.8.1]: https://github.com/phsmith/rundeck_exporter/compare/v2.8.0...v2.8.1
