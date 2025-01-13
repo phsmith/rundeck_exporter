@@ -27,7 +27,7 @@ from prometheus_client.core import (
 __author__ = 'Phillipe Smith'
 __author_email__ = 'phsmithcc@gmail.com'
 __app__ = 'rundeck_exporter'
-__version__ = '2.8.3'
+__version__ = '2.8.4'
 
 # Disable InsecureRequestWarning
 requests.urllib3.disable_warnings()
@@ -527,6 +527,7 @@ class RundeckMetricsCollector(object):
 
             with ThreadPoolExecutor(thread_name_prefix='project_executions', max_workers=self.args.threadpool_max_workers) as project_executions_threadpool:
                 project_execution_records = project_executions_threadpool.map(self.get_project_executions, projects)
+                timestamp = datetime.now().timestamp()
 
                 default_labels = self.default_labels + [
                     'project_name',
@@ -565,15 +566,16 @@ class RundeckMetricsCollector(object):
                 for project_execution_record_group, project_executions_total in project_execution_records:
                     project_executions_total_metrics.add_metric(
                         self.default_labels_values + [project_executions_total['project']],
-                        project_executions_total['total_executions']
+                        project_executions_total['total_executions'],
+                        timestamp=timestamp
                     )
                     for project_execution_record in project_execution_record_group:
                         if project_execution_record.execution_type == RundeckProjectExecution.START:
-                            project_start_metrics.add_metric(project_execution_record.tags, project_execution_record.value)
+                            project_start_metrics.add_metric(project_execution_record.tags, project_execution_record.value, timestamp=timestamp)
                         elif project_execution_record.execution_type == RundeckProjectExecution.DURATION:
-                            project_duration_metrics.add_metric(project_execution_record.tags, project_execution_record.value)
+                            project_duration_metrics.add_metric(project_execution_record.tags, project_execution_record.value, timestamp=timestamp)
                         elif project_execution_record.execution_type == RundeckProjectExecution.STATUS:
-                            project_metrics.add_metric(project_execution_record.tags, project_execution_record.value)
+                            project_metrics.add_metric(project_execution_record.tags, project_execution_record.value, timestamp=timestamp)
 
                 yield project_start_metrics
                 yield project_duration_metrics
