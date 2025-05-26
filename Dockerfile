@@ -14,14 +14,14 @@ LABEL maintainer="Phillipe Smith <phsmithcc@gmail.com>" \
       org.label-schema.version=$VERSION \
       org.label-schema.schema-version="1.0"
 
-RUN adduser --disabled-password --gecos '' rundeck
-
-USER rundeck
-
 COPY requirements.txt /app/
 
 RUN pip install --no-cache-dir --disable-pip-version-check -r /app/requirements.txt
 
 COPY rundeck_exporter.py /app/
+
+RUN adduser --disabled-password --gecos '' rundeck
+
+USER rundeck
 
 ENTRYPOINT ["/app/rundeck_exporter.py"]
