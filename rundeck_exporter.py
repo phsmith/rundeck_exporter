@@ -12,6 +12,7 @@ from ast import literal_eval
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from enum import Enum
+from functools import partial
 from os import getenv, cpu_count
 from time import sleep
 
@@ -163,6 +164,19 @@ class RundeckMetricsCollector(object):
                             nargs='+',
                             required=False
                             )
+    args_parser.add_argument('--rundeck.projects.executions.job-option-labels',
+                             dest='rundeck_projects_executions_job_option_labels',
+                             help='A space-separated list of specific job option keys to be exposed as dedicated Prometheus labels with opt_ prefix (e.g., cluster_name). If empty and --rundeck.projects.executions.export-job-options is enabled, all job options will be exported.',
+                             default=getenv('RUNDECK_PROJECTS_EXECUTIONS_JOB_OPTION_LABELS', '').split(),
+                             nargs='*',
+                             required=False
+                             )
+    args_parser.add_argument('--rundeck.projects.executions.export-job-options',
+                             dest='rundeck_projects_executions_export_job_options',
+                             help='Export job options as Prometheus labels with opt_ prefix. Disabled by default to avoid high cardinality metrics.',
+                             default=literal_eval(getenv('RUNDECK_PROJECTS_EXECUTIONS_EXPORT_JOB_OPTIONS', 'False').capitalize()),
+                             action='store_true'
+                             )
     args_parser.add_argument('--rundeck.projects.nodes.info',
                             dest='rundeck_projects_nodes_info',
                             help='Display Rundeck projects nodes info metrics, currently only the `rundeck_project_nodes_total` metric is available. May cause high CPU load depending on the number of projects',
@@ -258,9 +272,41 @@ class RundeckMetricsCollector(object):
         return self.request(endpoint)
 
     """
+    Method to collect all unique job option keys across projects
+    """
+    def get_all_job_option_keys(self, projects: list):
+        all_option_keys = set()
+        
+        for project in projects:
+            try:
+                project_name = project['name']
+                endpoint_executions = f'/project/{project_name}/executions?recentFilter={self.args.rundeck_project_executions_filter}&max={self.args.rundeck_projects_executions_limit}'
+                endpoint_executions_running = f'/project/{project_name}/executions/running?max={self.args.rundeck_projects_executions_limit}'
+                
+                if self.args.rundeck_projects_executions_cache:
+                    project_executions_running_info = self.cached_request(endpoint_executions_running)
+                    project_executions_info = self.cached_request(endpoint_executions)
+                else:
+                    project_executions_running_info = self.request(endpoint_executions_running)
+                    project_executions_info = self.request(endpoint_executions)
+                
+                project_executions_running_info_list = project_executions_running_info.get('executions', [])
+                project_executions = (project_executions_running_info_list + project_executions_info.get('executions', []))
+                
+                for project_execution in project_executions:
+                    job_info = project_execution.get('job', {})
+                    job_options = job_info.get('options', {})
+                    all_option_keys.update(job_options.keys())
+                    
+            except Exception as error:
+                logging.debug(f'Error collecting option keys for project {project.get("name", "unknown")}: {error}')
+        
+        return sorted(list(all_option_keys))
+
+    """
     Method to get Rundeck projects executions info
     """
-    def get_project_executions(self, project: dict):
+    def get_project_executions(self, project: dict, options_as_labels_keys=None):
         project_name = project['name']
         project_execution_records = list()
         project_executions_limit = self.args.rundeck_projects_executions_limit
@@ -268,7 +314,14 @@ class RundeckMetricsCollector(object):
         project_executions_total = {'project': project_name, 'total_executions': 0}
         endpoint_executions = f'/project/{project_name}/executions?recentFilter={project_executions_filter}&max={project_executions_limit}'
         endpoint_executions_running = f'/project/{project_name}/executions/running?max={project_executions_limit}'
-        endpoint_executions_metrics = f'/project/{project_name}/executions/metrics?recentFilter=1d'
+        endpoint_executions_metrics = f'/project/{project_name}/executions/metrics?recentFilter={project_executions_filter}'
+
+        if options_as_labels_keys is not None:
+            pass
+        elif self.args.rundeck_projects_executions_export_job_options:
+            options_as_labels_keys = self.args.rundeck_projects_executions_job_option_labels
+        else:
+            options_as_labels_keys = []
 
         try:
             if self.args.rundeck_projects_executions_cache:
@@ -292,6 +345,14 @@ class RundeckMetricsCollector(object):
                 execution_id = str(project_execution.get('id', 'None'))
                 execution_type = project_execution.get('executionType')
                 user = project_execution.get('user')
+                job_options = job_info.get('options', {})
+                job_options_str = ",".join([f"{k}={v}" for k, v in job_options.items()]) if job_options else ""
+                
+                dynamic_option_label_values = []
+                if self.args.rundeck_projects_executions_export_job_options and options_as_labels_keys:
+                    for opt_key in options_as_labels_keys:
+                        dynamic_option_label_values.append(job_options.get(opt_key, ''))
+
                 default_metrics = self.default_labels_values + [
                     project_name,
                     job_id,
@@ -299,8 +360,8 @@ class RundeckMetricsCollector(object):
                     job_group,
                     execution_id,
                     execution_type,
-                    user
-                ]
+                    user,
+                ] + dynamic_option_label_values + [job_options_str]
 
                 # Job start/end times
                 timestamp_now = datetime.now().timestamp() * 1000
@@ -525,8 +586,21 @@ class RundeckMetricsCollector(object):
                 else:
                     projects = self.request(endpoint)
 
+            job_option_keys = []
+            if self.args.rundeck_projects_executions_export_job_options:
+                if self.args.rundeck_projects_executions_job_option_labels:
+                    job_option_keys = self.args.rundeck_projects_executions_job_option_labels
+                else:
+                    job_option_keys = self.get_all_job_option_keys(projects)
+
+            job_option_labels = [
+                f'opt_{re.sub(r"[^a-zA-Z0-9_]", "_", key)}'
+                for key in job_option_keys
+            ]
+
             with ThreadPoolExecutor(thread_name_prefix='project_executions', max_workers=self.args.threadpool_max_workers) as project_executions_threadpool:
-                project_execution_records = project_executions_threadpool.map(self.get_project_executions, projects)
+                get_project_executions_with_options = partial(self.get_project_executions, options_as_labels_keys=job_option_keys)
+                project_execution_records = project_executions_threadpool.map(get_project_executions_with_options, projects)
                 timestamp = datetime.now().timestamp()
 
                 default_labels = self.default_labels + [
@@ -536,8 +610,8 @@ class RundeckMetricsCollector(object):
                     'job_group',
                     'execution_id',
                     'execution_type',
-                    'user'
-                ]
+                    'user',
+                ] + job_option_labels
 
                 project_start_metrics = GaugeMetricFamily(
                     'rundeck_project_start_timestamp',
