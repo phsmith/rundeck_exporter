@@ -409,13 +409,20 @@ class RundeckMetricsCollector(object):
                     counter_name = 'rundeck_' + counter_name
 
                 if metric == 'counters' and 'status' not in counter_name:
-                    counter_value = counter_value['count']
-                    rundeck_counters.add_metric(self.default_labels_values, counter_value)
-
-                    yield rundeck_counters
+                    if isinstance(counter_value, dict) and 'count' in counter_value:
+                        counter_value = counter_value['count']
+                        rundeck_counters.add_metric(self.default_labels_values, counter_value)
+                        yield rundeck_counters
+                    else:
+                        # Skip if it's not a proper counter structure
+                        continue
 
                 elif metric == 'gauges':
-                    counter_value = counter_value['value']
+                    if isinstance(counter_value, dict) and 'value' in counter_value:
+                        counter_value = counter_value['value']
+                    else:
+                        # Skip if it's not a proper gauge structure
+                        continue
 
                     if 'services' in counter_name:
                         services_trackers = rundeck_gauges
@@ -430,12 +437,14 @@ class RundeckMetricsCollector(object):
                     yield services_trackers
 
                 elif metric == 'meters' or metric == 'timers':
-                    for counter, value in counter_value.items():
-                        if counter == 'count' and not isinstance(value, str):
-
-                            rundeck_meters_timers.add_metric(self.default_labels_values, value)
-
-                            yield rundeck_meters_timers
+                    if isinstance(counter_value, dict):
+                        for counter, value in counter_value.items():
+                            if counter == 'count' and not isinstance(value, str) and isinstance(value, (int, float)):
+                                rundeck_meters_timers.add_metric(self.default_labels_values, value)
+                                yield rundeck_meters_timers
+                    else:
+                        # Skip if it's not a proper meters/timers structure
+                        continue
 
     """
     Method to collect Rundeck metrics
