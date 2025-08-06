@@ -16,7 +16,8 @@ LABEL maintainer="Phillipe Smith <phsmithcc@gmail.com>" \
 
 COPY requirements.txt /app/
 
-RUN pip install --no-cache-dir --disable-pip-version-check -r /app/requirements.txt
+RUN apk update && apk upgrade sqlite-libs && \
+    pip install --no-cache-dir --disable-pip-version-check -r /app/requirements.txt
 
 COPY rundeck_exporter.py /app/
 
