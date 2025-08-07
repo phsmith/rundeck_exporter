@@ -27,7 +27,7 @@ from prometheus_client.core import (
 __author__ = 'Phillipe Smith'
 __author_email__ = 'phsmithcc@gmail.com'
 __app__ = 'rundeck_exporter'
-__version__ = '2.8.4'
+__version__ = '2.8.5'
 
 # Disable InsecureRequestWarning
 requests.urllib3.disable_warnings()

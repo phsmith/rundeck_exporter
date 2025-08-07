@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.8.5] - 2025-08-07
+### Fixed
+
+- Fix Dockerfile by @gilankpam in [#111](https://github.com/phsmith/rundeck_exporter/pull/111)
+- Fix sporadic python errors by @jrelax in [#113](https://github.com/phsmith/rundeck_exporter/pull/113)
+
 ## [2.8.4] - 2025-01-13
 ### Changed
 
@@ -324,7 +330,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[unreleased]: https://github.com/phsmith/rundeck_exporter/compare/v2.8.4...HEAD
+[unreleased]: https://github.com/phsmith/rundeck_exporter/compare/v2.8.5...HEAD
+[2.8.5]: https://github.com/phsmith/rundeck_exporter/compare/v2.8.4...v2.8.5
 [2.8.4]: https://github.com/phsmith/rundeck_exporter/compare/v2.8.3...v2.8.4
 [2.8.3]: https://github.com/phsmith/rundeck_exporter/compare/v2.8.2...v2.8.3
 [2.8.2]: https://github.com/phsmith/rundeck_exporter/compare/v2.8.1...v2.8.2
