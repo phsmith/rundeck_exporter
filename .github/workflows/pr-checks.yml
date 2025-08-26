@@ -1,0 +1,74 @@
+name: PR - Checks
+
+on: pull_request
+
+env:
+  IMAGE_NAME: ci-rundeck-exporter
+
+jobs:
+  pr-checks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          activate-environment: true
+
+      - name: Install dependencies
+        run: uv sync --locked --all-extras --dev
+
+      - name: Run lint
+        run: uv run ruff check src tests
+
+      - name: Build Docker Image
+        run: |
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && export IMAGE_VERSION=$(echo ${{ github.ref_name }} | sed 's/^v//')
+          make docker-build
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.20.0
+        with:
+          image-ref: '${{ env.IMAGE_NAME }}'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Setup Rundeck
+        uses: hoverkraft-tech/compose-action@v2.0.1
+        with:
+          compose-file: "./examples/docker-compose/docker-compose-ci.yml"
+          compose-version: "latest"
+          down-flags: "--volumes"
+          up-flags: "--wait"
+
+      - name: Download rundeck-cli
+        run: curl -L -o rd-cli.jar https://github.com/rundeck/rundeck-cli/releases/download/v2.0.9/rundeck-cli-2.0.9-all.jar
+
+      - name: Setup Rundeck test project
+        run: |
+          echo -e "\n> Copying rundeck-cli and test project definition to rundeck container..."
+          docker compose -p ci cp rd-cli.jar rundeck:/tmp/
+          docker compose -p ci cp examples/docker-compose/configs/rundeck/projects/test1.rdproject.jar rundeck:/tmp/
+
+          echo -e "\n> Creating Rundeck test1 project.."
+          docker compose -p ci exec -e RD_URL=http://localhost:4440 -e RD_TOKEN=exporter_admin_auth_token rundeck /bin/bash -c "
+            cd /tmp \
+            && java -jar rd-cli.jar projects create -p test1 || true \
+            && java -jar rd-cli.jar projects archives import -p test1 -f test1.rdproject.jar
+          "
+
+      - name: Test rundeck-exporter metrics
+        run: |
+          echo -e "> Waiting 30s before start checking metrics...\n"
+          sleep 30
+
+          echo -e "> Running pytest..."
+          uv run pytest -v
