@@ -1,12 +1,23 @@
 name: ci
 services:
   rundeck:
-    extends:
-      file: docker-compose.yml
-      service: rundeck
+    image: rundeck/rundeck:4.8.0
+    ports:
+      - 4440:4440
+    environment:
+      RUNDECK_GRAILS_URL: http://localhost:4440
+      RUNDECK_SERVER_ADDRESS: 0.0.0.0
+      RUNDECK_TOKENS_FILE: /home/rundeck/etc/tokens.properties
+      RUNDECK_METRICS_ENABLED: true
+    tty: true
     volumes:
       - ./configs/rundeck/etc/exporter.aclpolicy:/home/rundeck/etc/exporter.aclpolicy
       - ./configs/rundeck/etc/realm.properties:/home/rundeck/etc/realm.properties
       - ./configs/rundeck/etc/tokens.properties:/home/rundeck/etc/tokens.properties
-    logging:
-      driver: none
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:4440 || exit 1"]
+      interval: 10s
+      start_interval: 10s
+      start_period: 0s
+      timeout: 10s
+      retries: 5
