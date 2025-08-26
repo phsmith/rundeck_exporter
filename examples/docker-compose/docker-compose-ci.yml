@@ -1,0 +1,12 @@
+name: ci
+services:
+  rundeck:
+    extends:
+      file: docker-compose.yml
+      service: rundeck
+    volumes:
+      - ./configs/rundeck/etc/exporter.aclpolicy:/home/rundeck/etc/exporter.aclpolicy
+      - ./configs/rundeck/etc/realm.properties:/home/rundeck/etc/realm.properties
+      - ./configs/rundeck/etc/tokens.properties:/home/rundeck/etc/tokens.properties
+    logging:
+      driver: none
