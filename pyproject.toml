@@ -1,0 +1,67 @@
+[project]
+name = "rundeck_exporter"
+version = "2.8.5"
+description = "Rundeck metrics exporter for Prometheus"
+authors = [
+    { name = "Phillipe Smith", email = "phsmithcc@gmail.com" }
+]
+readme = "README.md"
+requires-python = ">=3.11,<4.0"
+dependencies = [
+    "cachetools==5.5.0",
+    "prometheus-client==0.21.1",
+    "requests==2.32.4",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+
+[project.scripts]
+rundeck_exporter = "rundeck_exporter.cli:main"
+
+[project.urls]
+Repository = "https://github.com/phsmith/rundeck_exporter"
+Issues = "https://github.com/phsmith/rundeck_exporter/issues"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.1",
+    "pytest-env>=1.1.5",
+    "ruff>=0.12.10",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+python_files = ["*.py"]
+python_functions = ["test_*"]
+testpaths = [
+    "tests",
+]
+env = [
+    "RUNDECK_EXPORTER_DEBUG=False",
+    "RUNDECK_EXPORTER_HOST=0.0.0.0",
+    "RUNDECK_EXPORTER_PORT=9620",
+    "RUNDECK_URL=http://localhost:4440",
+    "RUNDECK_API_VERSION=41",
+    "RUNDECK_TOKEN=exporter_admin_auth_token",
+    "RUNDECK_SKIP_SSL=True",
+    "RUNDECK_PROJECTS_EXECUTIONS=True",
+    "RUNDECK_CPU_STATS=True",
+    "RUNDECK_MEMORY_STATS=True",
+    "RUNDECK_PROJECTS_NODES_INFO=True",
+]
+
+[tool.ruff]
+line-length = 120
