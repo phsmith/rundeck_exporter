@@ -45,7 +45,6 @@ jobs:
         uses: hoverkraft-tech/compose-action@v2.0.1
         with:
           compose-file: "./examples/docker-compose/docker-compose-ci.yml"
-          compose-version: "latest"
           down-flags: "--volumes"
           up-flags: "--wait"
 
