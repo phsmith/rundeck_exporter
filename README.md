@@ -1,4 +1,4 @@
-## Rundeck_Exporter
+# Rundeck metrics exporter for Prometheus
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/phsmith/rundeck-exporter?logo=docker&)](https://hub.docker.com/r/phsmith/rundeck-exporter)
 [![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/phsmith/rundeck_exporter?color=%23e3e3e3)](https://github.com/phsmith/rundeck_exporter/releases)
@@ -13,18 +13,20 @@ Rundeck Metrics Exporter for Prometheus.
 
 This exporter uses the prometheus_client and requests Python module to expose Rundeck metrics found in:
 
- * [RUNDECK_URL/*api_version*/system/info](https://docs.rundeck.com/docs/api/rundeck-api.html#system-info)
- * [RUNDECK_URL/*api_version*/metrics/metrics](https://docs.rundeck.com/docs/api/rundeck-api.html#list-metrics)
- * [RUNDECK_URL/*api_version*/project/*project_name*/executions](https://docs.rundeck.com/docs/api/rundeck-api.html#execution-query)
- * [RUNDECK_URL/*api_version*/project/*project_name*/executions/running](https://docs.rundeck.com/docs/api/rundeck-api.html#listing-running-executions)
+* [RUNDECK_URL/*api_version*/system/info](https://docs.rundeck.com/docs/api/rundeck-api.html#system-info)
+* [RUNDECK_URL/*api_version*/metrics/metrics](https://docs.rundeck.com/docs/api/rundeck-api.html#list-metrics)
+* [RUNDECK_URL/*api_version*/project/*project_name*/executions](https://docs.rundeck.com/docs/api/rundeck-api.html#execution-query)
+* [RUNDECK_URL/*api_version*/project/*project_name*/executions/running](https://docs.rundeck.com/docs/api/rundeck-api.html#listing-running-executions)
 
  Where *version* represents the Rundeck API version, like: 31,32,33,34,etc.
 
  This code was tested on Rundeck API version 31+.
 
 > [!Warning]
-> - Since version 4.x.x, the `/api/<version>/metrics` endpoint is disabled, so you need to enable it in `rundeck-config.properties` or by setting the environment variable `RUNDECK_METRICS_ENABLED=true` for the exporter to work. See [config-file-reference.html#metrics-capturing](https://docs.rundeck.com/docs/administration/configuration/config-file-reference.html#metrics-capturing)
-> - If audit logs are enabled, consider changing the default `INFO` log level to prevent excessive log growth.
+>
+> Since version 4.x.x, the `/api/<version>/metrics` endpoint is disabled, so you need to enable it in `rundeck-config.properties` or by setting the environment variable `RUNDECK_METRICS_ENABLED=true` for the exporter to work. See [config-file-reference.html#metrics-capturing](https://docs.rundeck.com/docs/administration/configuration/config-file-reference.html#metrics-capturing)
+>
+> If audit logs are enabled, consider changing the default `INFO` log level to prevent excessive log growth.
 
 ## Metrics
 
@@ -34,16 +36,21 @@ More detailed information about the metrics can be found in [Documentations](doc
 
 ## Dependencies
 
+> Although the `requirements.txt` file is still available, the project uses [UV](https://docs.astral.sh/uv/) for Python package and management, which is highly recommended.
+
+* Python 3.10+
 * A Rundeck token with permissions to make API requests
-* The following python modules:
+* The following steps for installing the dependencies:
 
   ```sh
-  pip install prometheus-client requests cachetools
+  uv sync
   ```
 
   Or:
 
   ```sh
+  python -m venv .venv
+  source .venv/bin/activate
   pip install -r requirements.txt
   ```
 
@@ -54,6 +61,7 @@ Rundeck token or username and password are required.
 The token (`RUNDECK_TOKEN`) or password (`RUNDECK_USERPASSWORD`) must be passed as environment variables to work.
 
 The ACL associated with the token/user must have the following policy rules as a minimum:
+
 * `system:read` (system context)
 * `project:read` (system context)
 * `events:read` (project context)
@@ -132,9 +140,9 @@ context:
 The rundeck_exporter supports the following paramenters:
 
 ```text
-$ ./rundeck_exporter.py --help
+$ rundeck_exporter --help
 
-usage: rundeck_exporter.py [-h] [--debug] [-v] [--host RUNDECK_EXPORTER_HOST] [--port RUNDECK_EXPORTER_PORT] [--no_checks_in_passive_mode] [--threadpool_max_workers RUNDECK_EXPORTER_THREADPOOL_MAX_WORKERS] [--rundeck.requests.timeout RUNDECK_EXPORTER_REQUESTS_TIMEOUT] [--rundeck.url RUNDECK_URL] [--rundeck.skip_ssl] [--rundeck.api.version RUNDECK_API_VERSION]
+usage: rundeck_exporter [-h] [--debug] [-v] [--host RUNDECK_EXPORTER_HOST] [--port RUNDECK_EXPORTER_PORT] [--no_checks_in_passive_mode] [--threadpool_max_workers RUNDECK_EXPORTER_THREADPOOL_MAX_WORKERS] [--rundeck.requests.timeout RUNDECK_EXPORTER_REQUESTS_TIMEOUT] [--rundeck.url RUNDECK_URL] [--rundeck.skip_ssl] [--rundeck.api.version RUNDECK_API_VERSION]
                            [--rundeck.username RUNDECK_USERNAME] [--rundeck.projects.executions] [--rundeck.projects.executions.filter RUNDECK_PROJECT_EXECUTIONS_FILTER] [--rundeck.projects.executions.limit RUNDECK_PROJECTS_EXECUTIONS_LIMIT] [--rundeck.projects.executions.cache] [--rundeck.projects.filter RUNDECK_PROJECTS_FILTER [RUNDECK_PROJECTS_FILTER ...]]
                            [--rundeck.projects.nodes.info] [--rundeck.cached.requests.ttl RUNDECK_CACHED_REQUESTS_TTL] [--rundeck.cpu.stats] [--rundeck.memory.stats]
 
@@ -195,7 +203,7 @@ Optionally, it's possible to pass the following environment variables to the run
 | RUNDECK_TOKEN (required) | | Rundeck access token |
 | RUNDECK_USERNAME | | Rundeck User with access to the system information |
 | RUNDECK_USERPASSWORD | | Rundeck User Password (RUNDECK_USERNAME or --rundeck.username are required too) |
-| RUNDECK_API_VERSION | Default: 31 | Rundeck API version |
+| RUNDECK_API_VERSION | Default: 41 | Rundeck API version |
 | RUNDECK_SKIP_SSL | <ul><li>True</li><li>False (default)</li></ul> | Skip SSL certificate check |
 | RUNDECK_PROJECTS_EXECUTIONS | <ul><li>True</li><li>False (default)</li></ul> | Get projects executions metrics |
 | RUNDECK_PROJECTS_FILTER | | Get executions only from listed projects e.g. "project-1 project-2 ..." |
@@ -213,7 +221,7 @@ Optionally, it's possible to pass the following environment variables to the run
 ### Example
 
 ```sh
-$ RUNDECK_TOKEN=xxxxxxxx ./rundeck_exporter.py \
+$ RUNDECK_TOKEN=xxxxxxxx uv run rundeck_exporter \
     --host=0.0.0.0 \
     --rundeck.url=http://localhost:4440 \
     --rundeck.skip_ssl \
@@ -230,7 +238,7 @@ $ RUNDECK_TOKEN=xxxxxxxx ./rundeck_exporter.py \
     Output example:
   </summary>
 
-  ```
+  ```sh
   $ curl -s http://127.0.0.1:9620
 
   # TYPE python_gc_objects_collected_total counter
@@ -515,19 +523,20 @@ $ RUNDECK_TOKEN=xxxxxxxx ./rundeck_exporter.py \
   rundeck_project_nodes_total{instance_address="localhost:4440",project_name="Test"} 1.0
 
   ```
+
 </details>
-<br/>
 
 #### Running with Docker
 
 ```sh
-docker build -t rundeck_exporter .
+docker build -t rundeck-exporter .
 
-docker run --rm -d -p 9620:9620 -e RUNDECK_TOKEN=$RUNDECK_TOKEN rundeck_exporter \
+docker run --rm -d -p 9620:9620 -e RUNDECK_TOKEN=$RUNDECK_TOKEN rundeck-exporter \
 --host 0.0.0.0 \
 --rundeck.url https://rundeck.test.com \
 --rundeck.skip_ssl
 ```
+
 #### Running with Docker-Compose
 
 ```sh
@@ -536,9 +545,10 @@ docker compose up -d
 ```
 
 Docker Compose services:
-- Rundeck - http://localhost:4440
-- Rundeck Exporter - http://localhost:9620
-- Prometheus - http://localhost:9090 (already configured to scrape rundeck_exporter metrics)
-- Grafana - http://localhost:3000 (already configured with Prometheus Datasource and Rundeck Dashboard)
 
-After provisioning of the docker-compose services, access Rundeck from http://localhost:4440/user/profile and gerate a new API token. Place the token at **RUNDECK_TOKEN** environment variable in the **docker-compose.yml** and run `docker compose up -d` again.
+* Rundeck - <http://localhost:4440>
+* Rundeck Exporter - <http://localhost:9620>
+* Prometheus - <http://localhost:9090> (already configured to scrape rundeck_exporter metrics)
+* Grafana - <http://localhost:3000> (already configured with Prometheus Datasource and Rundeck Dashboard)
+
+After provisioning of the docker-compose services, access Rundeck from <http://localhost:4440/user/profile> and gerate a new API token. Place the token at **RUNDECK_TOKEN** environment variable in the **docker-compose.yml** and run `docker compose up -d` again.
