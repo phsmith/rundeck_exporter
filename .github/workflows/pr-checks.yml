@@ -1,6 +1,11 @@
 name: PR - Checks
 
-on: pull_request
+on:
+  pull_request:
+    paths-ignore:
+      - '*.md'
+      - 'LICENSE'
+
 
 env:
   IMAGE_NAME: ci-rundeck-exporter
