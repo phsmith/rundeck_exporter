@@ -7,7 +7,7 @@ from cachetools import cached, TTLCache
 from rundeck_exporter.args import rundeck_exporter_args
 from rundeck_exporter.constants import RUNDECK_TOKEN, RUNDECK_USERPASSWORD
 
-args = rundeck_exporter_args.empty_namespace
+args = rundeck_exporter_args.namespace
 
 logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO)
 

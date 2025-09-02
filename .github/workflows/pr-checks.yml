@@ -75,4 +75,4 @@ jobs:
           sleep 30
 
           echo -e "> Running pytest..."
-          uv run pytest -v
+          uv run pytest

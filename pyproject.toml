@@ -44,6 +44,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.pytest.ini_options]
+addopts = "-v"
 python_files = ["*.py"]
 python_functions = ["test_*"]
 testpaths = [
