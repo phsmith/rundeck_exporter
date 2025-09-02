@@ -1,6 +1,5 @@
 import re
 
-from argparse import Namespace
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from enum import Enum
@@ -34,12 +33,8 @@ class RundeckProjectExecutionRecord:
 class RundeckMetricsCollector:
     """Class for collect Rundeck metrics"""
 
-    def __init__(self, args: Namespace = None):
-        self.args = args
-
-        if self.args is None:
-            self.args = rundeck_exporter_args.namespace
-
+    def __init__(self):
+        self.args = rundeck_exporter_args.namespace
         self.instance_address = re.findall(r"https?://([\w\d:._-]+)", self.args.rundeck_url)[0]
         self.default_labels = ["instance_address"]
         self.default_labels_values = [self.instance_address]

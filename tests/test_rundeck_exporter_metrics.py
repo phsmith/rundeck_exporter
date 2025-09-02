@@ -1,12 +1,11 @@
 import pytest
 from prometheus_client.core import REGISTRY
-from rundeck_exporter.args import rundeck_exporter_args
 from rundeck_exporter.metrics_collector import RundeckMetricsCollector
 
 
 @pytest.fixture(scope="module")
 def metrics():
-    rundeck_metrics = RundeckMetricsCollector(args=rundeck_exporter_args.empty_namespace)
+    rundeck_metrics = RundeckMetricsCollector()
     REGISTRY.register(rundeck_metrics)
     return REGISTRY
 
