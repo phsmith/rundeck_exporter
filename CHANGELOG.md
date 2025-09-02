@@ -445,7 +445,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v3.0.0](https://github.com/phsmith/rundeck_exporter/compare/v2.8.5...v3.0.0) - 2025-08-27
 
-### What's Changed
+## What's Changed
 
 - Added pr-checks, relase and update-changelog gh actions
 - Added docker-compose-ci.yml
@@ -462,3 +462,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed rundeck_exporter.py. The code was refactored in the `src/rundeck_exporter` module.
 
 **Full Changelog**: https://github.com/phsmith/rundeck_exporter/compare/v2.8.5...v3.0.0
+
+## [v3.0.1](https://github.com/phsmith/rundeck_exporter/compare/v3.0.0...v3.0.1) - 2025-08-27
+
+## What's Changed
+* Update pr-checks workflow trigger by @phsmith in https://github.com/phsmith/rundeck_exporter/pull/115
+
+**Full Changelog**: https://github.com/phsmith/rundeck_exporter/compare/v3.0.0...v3.0.1
+
+## [v3.0.2](https://github.com/phsmith/rundeck_exporter/compare/v3.0.1...v3.0.2) - 2025-09-02
+
+## What's Changed
+* Fix rundeck_exporter_args not properly parsing args by @phsmith in https://github.com/phsmith/rundeck_exporter/pull/117
+
+
+**Full Changelog**: https://github.com/phsmith/rundeck_exporter/compare/v3.0.1...v3.0.2
