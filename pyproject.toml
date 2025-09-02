@@ -1,6 +1,6 @@
 [project]
 name = "rundeck_exporter"
-version = "3.0.1"
+version = "3.0.2"
 description = "Rundeck metrics exporter for Prometheus"
 authors = [
     { name = "Phillipe Smith", email = "phsmithcc@gmail.com" }
