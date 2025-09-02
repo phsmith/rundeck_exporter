@@ -10,7 +10,7 @@ services:
       RUNDECK_METRICS_ENABLED: true
     tty: true
     volumes:
-      - ./data/rundeck:/home/rundeck/server/data
+      - rundeck:/home/rundeck/server/data
       - ./configs/rundeck/etc/exporter.aclpolicy:/home/rundeck/etc/exporter.aclpolicy
       - ./configs/rundeck/etc/realm.properties:/home/rundeck/etc/realm.properties
       - ./configs/rundeck/etc/tokens.properties:/home/rundeck/etc/tokens.properties
@@ -53,8 +53,8 @@ services:
     ports:
       - 9090:9090
     volumes:
+      - prometheus:/prometheus
       - ./configs/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./data/prometheus:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
@@ -64,7 +64,7 @@ services:
   grafana:
     image: grafana/grafana:latest
     volumes:
-      - ./data/grafana:/var/lib/grafana
+      - grafana:/var/lib/grafana
       - ./configs/grafana/provisioning:/etc/grafana/provisioning
     ports:
       - 3000:3000
@@ -72,3 +72,8 @@ services:
       - prometheus
     links:
       - prometheus
+
+volumes:
+  rundeck:
+  prometheus:
+  grafana:
