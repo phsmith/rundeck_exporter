@@ -1,7 +1,7 @@
 AUTHOR = phsmith
 PROJECT = $(notdir $(PWD))
-IMAGE_NAME = rundeck-exporter
-IMAGE_VERSION = $(or ${VERSION}, latest)
+IMAGE_NAME ?= rundeck-exporter
+IMAGE_VERSION ?= latest
 DOCKER_IMAGE_TAG = $(AUTHOR)/$(IMAGE_NAME)
 GHCR_IMAGE_TAG = ghcr.io/$(AUTHOR)/$(PROJECT)/$(IMAGE_NAME)
 
@@ -19,6 +19,7 @@ docker-build:
     	--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
     	--build-arg VCS_REF=`git rev-parse --short HEAD` \
     	--build-arg VERSION="$(IMAGE_VERSION)" \
+		--target app \
     	--tag=$(IMAGE_NAME) .
 
 	docker tag $(IMAGE_NAME) $(DOCKER_IMAGE_TAG):latest

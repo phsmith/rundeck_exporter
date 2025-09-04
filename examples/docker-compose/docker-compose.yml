@@ -1,4 +1,3 @@
-version: "3"
 services:
   rundeck:
     image: rundeck/rundeck:4.8.0
@@ -11,30 +10,35 @@ services:
       RUNDECK_METRICS_ENABLED: true
     tty: true
     volumes:
-      - ./data/rundeck:/home/rundeck/server/data
+      - rundeck:/home/rundeck/server/data
       - ./configs/rundeck/etc/exporter.aclpolicy:/home/rundeck/etc/exporter.aclpolicy
       - ./configs/rundeck/etc/realm.properties:/home/rundeck/etc/realm.properties
       - ./configs/rundeck/etc/tokens.properties:/home/rundeck/etc/tokens.properties
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4440"]
-      interval: 30s
+      test: ["CMD-SHELL", "curl -f http://localhost:4440 || exit 1"]
+      interval: 10s
+      start_interval: 10s
+      start_period: 0s
       timeout: 10s
       retries: 5
   rundeck_exporter:
     image: phsmith/rundeck-exporter:latest
+    # build:
+    #   context: ../../
+    #   dockerfile: Dockerfile
     ports:
       - 9620:9620
     environment:
-      RUNDECK_EXPORTER_DEBUG: "True"
+      RUNDECK_EXPORTER_DEBUG: "False"
       RUNDECK_EXPORTER_HOST: 0.0.0.0
       RUNDECK_EXPORTER_PORT: 9620
       RUNDECK_URL: "http://rundeck:4440"
       RUNDECK_TOKEN: "exporter_auth_token"
-      RUNDECK_API_VERSION: 40
-      RUNDECK_SKIP_SSL: "False"
+      RUNDECK_API_VERSION: 41
+      RUNDECK_SKIP_SSL: "True"
       RUNDECK_PROJECTS_EXECUTIONS: "True"
-      # RUNDECK_PROJECTS_FILTER: "" #space separed
       # RUNDECK_PROJECTS_EXECUTIONS_CACHE: "True"
+      # RUNDECK_PROJECTS_FILTER: "" #space separed
       # RUNDECK_CACHED_REQUESTS_TTL: 120
       RUNDECK_CPU_STATS: "True"
       RUNDECK_MEMORY_STATS: "True"
@@ -49,17 +53,18 @@ services:
     ports:
       - 9090:9090
     volumes:
+      - prometheus:/prometheus
       - ./configs/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./data/prometheus:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
+      # - "--log.level=debug"
     links:
       - rundeck_exporter
   grafana:
     image: grafana/grafana:latest
     volumes:
-      - ./data/grafana:/var/lib/grafana
+      - grafana:/var/lib/grafana
       - ./configs/grafana/provisioning:/etc/grafana/provisioning
     ports:
       - 3000:3000
@@ -67,3 +72,8 @@ services:
       - prometheus
     links:
       - prometheus
+
+volumes:
+  rundeck:
+  prometheus:
+  grafana:

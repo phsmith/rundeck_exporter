@@ -1,0 +1,43 @@
+name: Update Changelog
+
+on:
+  release:
+    types:
+      - published
+      - released
+
+env:
+  GIT_TAG: ${{ github.event.release.tag_name }}
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.target_commitish }}
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Update Changelog
+        uses: stefanzweifel/changelog-updater-action@v1
+        with:
+          latest-version: ${{ env.GIT_TAG }}
+          release-notes: ${{ github.event.release.body }}
+
+      - name: Commit updated CHANGELOG
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "<>"
+          git checkout main
+          git tag -d $GIT_TAG || true
+          git push -d origin $GIT_TAG
+          git add CHANGELOG.md
+          git commit -m "Update CHANGELOG [skip ci]"
+          git tag $GIT_TAG
+          git push
+          git push --tags
