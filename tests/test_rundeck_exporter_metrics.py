@@ -1,3 +1,5 @@
+import re
+
 import pytest
 from prometheus_client.core import REGISTRY
 
@@ -117,9 +119,16 @@ def test_metric_rundeck_project_times(metric_samples):
             "job_group",
             "job_id",
             "job_name",
+            "job_options",
             "project_name",
             "user",
         ]
+
+        # Check if the job_options value follows the key=value (comma optional) pattern
+        if metric_samples[0].labels["job_name"] == "Success after 10s - 1":
+            assert re.search(r"(.*=.*,?)+", metric_samples[0].labels["job_options"], re.MULTILINE)
+        else:
+            assert metric_samples[0].labels["job_options"] == ""
 
 
 @pytest.mark.parametrize("metric_samples", ["rundeck_project_execution_status"], indirect=True)
@@ -142,6 +151,7 @@ def test_metric_rundeck_project_execution_status(metric_samples):
                 "job_group",
                 "job_id",
                 "job_name",
+                "job_options",
                 "project_name",
                 "status",
                 "user",
