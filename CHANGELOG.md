@@ -475,5 +475,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## What's Changed
 * Fix rundeck_exporter_args not properly parsing args by @phsmith in https://github.com/phsmith/rundeck_exporter/pull/117
 
-
 **Full Changelog**: https://github.com/phsmith/rundeck_exporter/compare/v3.0.1...v3.0.2
+
+## [v3.0.3](https://github.com/phsmith/rundeck_exporter/compare/v3.0.2...v3.0.3) - 2025-11-07
+
+## What's Changed
+* Fix: rundeck_exporter exits if it is unable to reach the Rundeck host by @phsmith in https://github.com/phsmith/rundeck_exporter/pull/120
+
+
+**Full Changelog**: https://github.com/phsmith/rundeck_exporter/compare/v3.0.2...v3.0.3
