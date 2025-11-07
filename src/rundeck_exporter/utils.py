@@ -1,8 +1,8 @@
 import json
-import requests
 import logging
 
-from cachetools import cached, TTLCache
+import requests
+from cachetools import TTLCache, cached
 
 from rundeck_exporter.args import rundeck_exporter_args
 from rundeck_exporter.constants import RUNDECK_TOKEN, RUNDECK_USERPASSWORD
@@ -60,9 +60,9 @@ def request(endpoint: str) -> dict:
 
         return response_json
     except json.JSONDecodeError as error:
-        exit_with_msg(msg=f"Invalid JSON Response from {request_url}.\n\n{error}", level="critical")
+        logging.critical(f"Invalid JSON Response from {request_url}. {error}")
     except Exception as error:
-        exit_with_msg(msg=response.text if response else str(error), level="critical")
+        logging.critical(response.text if response else str(error))
 
 
 @cached(cache=TTLCache(maxsize=1024, ttl=args.rundeck_cached_requests_ttl))
