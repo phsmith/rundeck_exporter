@@ -8,6 +8,9 @@ RUN apk add --no-cache uv
 COPY pyproject.toml uv.lock README.md /app/
 COPY src tests /app/
 
+ENV UV_COMPILE_BYTECODE=1 \
+    UV_PYTHON_DOWNLOADS=0
+
 RUN uv sync --locked --all-extras --dev \
     && uv build
 

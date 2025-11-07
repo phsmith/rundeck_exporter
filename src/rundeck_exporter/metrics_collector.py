@@ -1,12 +1,11 @@
 import re
-
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from enum import Enum
 from time import sleep
 
 from prometheus_client import start_http_server
-from prometheus_client.core import GaugeMetricFamily, CounterMetricFamily, InfoMetricFamily, REGISTRY
+from prometheus_client.core import REGISTRY, CounterMetricFamily, GaugeMetricFamily, InfoMetricFamily
 
 from rundeck_exporter.args import rundeck_exporter_args
 from rundeck_exporter.constants import RUNDECK_USERPASSWORD
@@ -237,6 +236,10 @@ class RundeckMetricsCollector:
         # Rundeck system info
         metrics = request("/metrics/metrics")
         system_info = request("/system/info")
+
+        if not metrics or not system_info:
+            return
+
         api_version = int(system_info["system"]["rundeck"]["apiversion"])
         execution_mode = system_info["system"].get("executions", {}).get("executionMode")
         rundeck_system_info = InfoMetricFamily(
