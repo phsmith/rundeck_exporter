@@ -8,7 +8,7 @@ on:
 env:
   IMAGE_NAME: rundeck-exporter
   GIT_TAG: "${{ github.ref_name }}"
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GH_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
 
 jobs:
   bump-version:
