@@ -23,8 +23,8 @@ class RundeckProjectExecution(Enum):
 class RundeckProjectExecutionRecord:
     """Class for keeping track of Rundeck projects execution info"""
 
-    def __init__(self, tags: list, value: float, execution_type: RundeckProjectExecution):
-        self.tags = tags
+    def __init__(self, labels_value: dict, value: float, execution_type: RundeckProjectExecution):
+        self.labels_value = labels_value
         self.value = value
         self.execution_type = execution_type
 
@@ -37,6 +37,16 @@ class RundeckMetricsCollector:
         self.instance_address = re.findall(r"https?://([\w\d:._-]+)", self.args.rundeck_url)[0]
         self.default_labels = ["instance_address"]
         self.default_labels_values = [self.instance_address]
+        self.default_project_executions_labels = self.default_labels + [
+            "project_name",
+            "job_id",
+            "job_name",
+            "job_group",
+            "job_options",
+            "execution_id",
+            "execution_type",
+            "user",
+        ]
 
     def get_project_executions(self, project: dict):
         """
@@ -73,14 +83,18 @@ class RundeckMetricsCollector:
                 job_id = job_info.get("id", "None")
                 job_name = job_info.get("name", "None")
                 job_group = job_info.get("group", "None")
+                job_options_info = job_info.get("options", {})
+                job_options = ",".join([f"{k}={v}" for k, v in job_options_info.items()])
                 execution_id = str(project_execution.get("id", "None"))
                 execution_type = project_execution.get("executionType")
                 user = project_execution.get("user")
-                default_metrics = self.default_labels_values + [
+
+                project_executions_labels_value = self.default_labels_values + [
                     project_name,
                     job_id,
                     job_name,
                     job_group,
+                    job_options,
                     execution_id,
                     execution_type,
                     user,
@@ -93,11 +107,13 @@ class RundeckMetricsCollector:
                 job_execution_duration = (job_end_time - job_start_time) / 1000
 
                 project_execution_records.append(
-                    RundeckProjectExecutionRecord(default_metrics, job_start_time, RundeckProjectExecution.START)
+                    RundeckProjectExecutionRecord(
+                        project_executions_labels_value, job_start_time, RundeckProjectExecution.START
+                    )
                 )
                 project_execution_records.append(
                     RundeckProjectExecutionRecord(
-                        default_metrics, job_execution_duration, RundeckProjectExecution.DURATION
+                        project_executions_labels_value, job_execution_duration, RundeckProjectExecution.DURATION
                     )
                 )
 
@@ -108,9 +124,10 @@ class RundeckMetricsCollector:
                         value = 1
 
                     project_execution_records.append(
-                        RundeckProjectExecutionRecord(default_metrics + [status], value, RundeckProjectExecution.STATUS)
+                        RundeckProjectExecutionRecord(
+                            project_executions_labels_value + [status], value, RundeckProjectExecution.STATUS
+                        )
                     )
-
         except Exception as error:  # nosec
             logging.error(error)
 
@@ -316,32 +333,22 @@ class RundeckMetricsCollector:
                 project_execution_records = project_executions_threadpool.map(self.get_project_executions, projects)
                 timestamp = datetime.now().timestamp()
 
-                default_labels = self.default_labels + [
-                    "project_name",
-                    "job_id",
-                    "job_name",
-                    "job_group",
-                    "execution_id",
-                    "execution_type",
-                    "user",
-                ]
-
                 project_start_metrics = GaugeMetricFamily(
                     "rundeck_project_start_timestamp",
                     "Rundeck Project ProjectName Start Timestamp",
-                    labels=default_labels,
+                    labels=self.default_project_executions_labels,
                 )
 
                 project_duration_metrics = GaugeMetricFamily(
                     "rundeck_project_execution_duration_seconds",
                     "Rundeck Project ProjectName Execution Duration",
-                    labels=default_labels,
+                    labels=self.default_project_executions_labels,
                 )
 
                 project_metrics = GaugeMetricFamily(
                     "rundeck_project_execution_status",
                     "Rundeck Project ProjectName Execution Status",
-                    labels=default_labels + ["status"],
+                    labels=self.default_project_executions_labels + ["status"],
                 )
 
                 project_executions_total_metrics = CounterMetricFamily(
@@ -359,15 +366,21 @@ class RundeckMetricsCollector:
                     for project_execution_record in project_execution_record_group:
                         if project_execution_record.execution_type == RundeckProjectExecution.START:
                             project_start_metrics.add_metric(
-                                project_execution_record.tags, project_execution_record.value, timestamp=timestamp
+                                project_execution_record.labels_value,
+                                project_execution_record.value,
+                                timestamp=timestamp,
                             )
                         elif project_execution_record.execution_type == RundeckProjectExecution.DURATION:
                             project_duration_metrics.add_metric(
-                                project_execution_record.tags, project_execution_record.value, timestamp=timestamp
+                                project_execution_record.labels_value,
+                                project_execution_record.value,
+                                timestamp=timestamp,
                             )
                         elif project_execution_record.execution_type == RundeckProjectExecution.STATUS:
                             project_metrics.add_metric(
-                                project_execution_record.tags, project_execution_record.value, timestamp=timestamp
+                                project_execution_record.labels_value,
+                                project_execution_record.value,
+                                timestamp=timestamp,
                             )
 
                 yield project_start_metrics
