@@ -123,7 +123,7 @@ uv run pytest tests/test_rundeck_exporter_metrics.py::test_metric_rundeck_system
 
 ## Code style
 
-The project uses [ruff](https://docs.astral.sh/ruff/) for linting and [mypy](https://mypy.readthedocs.io/) for static type checking. Maximum line length is **120 characters**.
+The project uses [ruff](https://docs.astral.sh/ruff/) for linting and [pyright](https://github.com/microsoft/pyright) for static type checking. Maximum line length is **120 characters**.
 
 ```bash
 # Lint
@@ -133,7 +133,7 @@ uv run ruff check src tests
 uv run ruff check --fix src tests
 
 # Type check
-uv run mypy src/
+uv run pyright src/
 ```
 
 Both checks run automatically on every PR. A PR that fails either will not be merged.
@@ -154,7 +154,7 @@ Both checks run automatically on every PR. A PR that fails either will not be me
 
    ```bash
    uv run ruff check src tests
-   uv run mypy src/
+   uv run pyright src/
    uv run pytest
    ```
 

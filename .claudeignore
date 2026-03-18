@@ -23,7 +23,7 @@ build/
 
 .tox/
 .pytest_cache/
-.mypy_cache/
+pyrightconfig.json
 htmlcov/
 .coverage
 
