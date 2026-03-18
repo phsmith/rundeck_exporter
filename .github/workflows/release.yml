@@ -63,7 +63,8 @@ jobs:
     needs: bump-version
 
     permissions:
-      contents: read
+      contents: write
+      packages: write
 
     env:
       DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
