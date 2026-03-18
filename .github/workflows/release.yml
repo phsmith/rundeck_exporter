@@ -81,6 +81,8 @@ jobs:
         run: make docker-build
 
       - name: Publish Docker image
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Push docker image:latest if no alfa or beta is set in the version tag.
           if [[ ! "$IMAGE_VERSION" =~ (alfa|beta) ]]; then
