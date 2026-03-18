@@ -3,12 +3,13 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from enum import Enum
 from time import sleep
+from urllib.parse import urlparse
 
 from prometheus_client import start_http_server
 from prometheus_client.core import REGISTRY, CounterMetricFamily, GaugeMetricFamily, InfoMetricFamily
 
 from rundeck_exporter.args import rundeck_exporter_args
-from rundeck_exporter.constants import RUNDECK_USERPASSWORD
+from rundeck_exporter.constants import RUNDECK_EXECUTION_STATUSES, RUNDECK_USERPASSWORD
 from rundeck_exporter.utils import cached_request, exit_with_msg, logging, request
 
 
@@ -34,11 +35,18 @@ class RundeckMetricsCollector:
 
     def __init__(self):
         self.args = rundeck_exporter_args.namespace
-        self.instance_address = re.findall(r"https?://([\w\d:._-]+)", self.args.rundeck_url)[0]
+        parsed = urlparse(self.args.rundeck_url)
+        instance_address = parsed.netloc
+        if not instance_address:
+            exit_with_msg(
+                msg=f"Could not determine host from rundeck_url: {self.args.rundeck_url!r}",
+                level="critical",
+            )
+        self.instance_address = instance_address
         self.default_labels = ["instance_address"]
         self.default_labels_values = [self.instance_address]
 
-    def get_project_executions(self, project: dict):
+    def get_project_executions(self, project: dict) -> tuple[list, dict]:
         """
         Method to get Rundeck projects executions info
         """
@@ -101,7 +109,7 @@ class RundeckMetricsCollector:
                     )
                 )
 
-                for status in ["succeeded", "running", "failed", "aborted", "unknown"]:
+                for status in RUNDECK_EXECUTION_STATUSES:
                     value = 0
 
                     if project_execution.get("status", "unknown") == status:
@@ -116,12 +124,11 @@ class RundeckMetricsCollector:
 
         return project_execution_records, project_executions_total
 
-    def get_project_nodes(self, project: dict):
+    def get_project_nodes(self, project: dict) -> dict:
         """
         Method to get Rundeck projects nodes info
         """
 
-        project_nodes = dict()
         project_name = project["name"]
         endpoint = f"/project/{project_name}/resources"
         project_nodes = cached_request(endpoint)
@@ -240,7 +247,6 @@ class RundeckMetricsCollector:
         if not metrics or not system_info:
             return
 
-        api_version = int(system_info["system"]["rundeck"]["apiversion"])
         execution_mode = system_info["system"].get("executions", {}).get("executionMode")
         rundeck_system_info = InfoMetricFamily(
             name="rundeck_system", documentation="Rundeck system info", labels=self.default_labels
@@ -279,7 +285,7 @@ class RundeckMetricsCollector:
             yield system_stats
 
         # Rundeck counters
-        if api_version >= self.args.rundeck_api_version < 25 and not (
+        if self.args.rundeck_api_version < 25 and not (
             self.args.rundeck_username and RUNDECK_USERPASSWORD
         ):
             logging.warning(
@@ -392,7 +398,7 @@ class RundeckMetricsCollector:
 
                     yield project_nodes_total
 
-    def run(self):
+    def run(self) -> None:
         try:
             REGISTRY.register(self)
 

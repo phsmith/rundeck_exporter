@@ -2,6 +2,7 @@ import json
 import logging
 
 import requests
+import urllib3
 from cachetools import TTLCache, cached
 
 from rundeck_exporter.args import rundeck_exporter_args
@@ -11,43 +12,50 @@ args = rundeck_exporter_args.namespace
 
 logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO)
 
-# Disable InsecureRequestWarning
-requests.urllib3.disable_warnings()
+# Suppress only insecure-request warnings when SSL verification is disabled
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+# Module-level session reused across all requests for connection pooling
+_session = requests.Session()
 
 
-def exit_with_msg(msg: str, level: str):
+def exit_with_msg(msg: str, level: str) -> None:
     """
     Logging wrapper method for logging and exiting
     """
 
     getattr(logging, level)(msg)
-    exit(getattr(logging, level.upper()))
+    exit(1)
 
 
-def request(endpoint: str) -> dict:
+def request(endpoint: str) -> dict | None:
     """
     Method for managing requests on Rundeck API endpoints
     """
 
     response = None
-    session = requests.Session()
 
     try:
         if args.rundeck_username and RUNDECK_USERPASSWORD:
-            session.post(
-                f"{args.rundeck_url}/j_security_check",
-                data={"j_username": args.rundeck_username, "j_password": RUNDECK_USERPASSWORD},
-                allow_redirects=True,
-                verify=not args.rundeck_skip_ssl,
-            )
+            # Authenticate lazily: only POST credentials when the session has no active cookie
+            if not _session.cookies.get_dict().get("JSESSIONID"):
+                _session.post(
+                    f"{args.rundeck_url}/j_security_check",
+                    data={"j_username": args.rundeck_username, "j_password": RUNDECK_USERPASSWORD},
+                    allow_redirects=True,
+                    verify=not args.rundeck_skip_ssl,
+                )
 
-        if endpoint == "/metrics/metrics" and session.cookies.get_dict().get("JSESSIONID"):
+        # Route /metrics/metrics based on configured auth method, not cookie presence.
+        # With a shared session, Rundeck may set a JSESSIONID even during token-based
+        # requests, so checking cookies is not a reliable proxy for "session auth is active".
+        if endpoint == "/metrics/metrics" and args.rundeck_username and RUNDECK_USERPASSWORD:
             request_url = f"{args.rundeck_url}{endpoint}"
-            response = session.get(request_url, timeout=args.rundeck_requests_timeout)
+            response = _session.get(request_url, verify=not args.rundeck_skip_ssl, timeout=args.rundeck_requests_timeout)
             response_json = json.loads(response.text)
         else:
             request_url = f"{args.rundeck_url}/api/{args.rundeck_api_version}{endpoint}"
-            response = session.get(
+            response = _session.get(
                 request_url,
                 headers={"Accept": "application/json", "X-Rundeck-Auth-Token": RUNDECK_TOKEN},
                 verify=not args.rundeck_skip_ssl,
@@ -66,5 +74,5 @@ def request(endpoint: str) -> dict:
 
 
 @cached(cache=TTLCache(maxsize=1024, ttl=args.rundeck_cached_requests_ttl))
-def cached_request(endpoint: str) -> dict:
+def cached_request(endpoint: str) -> dict | None:
     return request(endpoint)

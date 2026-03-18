@@ -7,14 +7,14 @@ from rundeck_exporter.metrics_collector import RundeckMetricsCollector
 from rundeck_exporter.utils import exit_with_msg, logging
 
 
-def main():
+def main() -> None:
     try:
         args = rundeck_exporter_args.namespace
 
         if args.debug:
             logging.getLogger().setLevel("DEBUG")
 
-        if not args.rundeck_url or not (RUNDECK_TOKEN or args.rundeck_username and RUNDECK_USERPASSWORD):
+        if not args.rundeck_url or not (RUNDECK_TOKEN or (args.rundeck_username and RUNDECK_USERPASSWORD)):
             exit_with_msg(
                 msg="Rundeck URL and Token or User/Password are required.",
                 level="critical",
@@ -24,8 +24,6 @@ def main():
         metrics.run()
     except KeyboardInterrupt:
         logging.info("Rundeck exporter execution finished.")
-    except Exception as error:
-        raise (error)
 
 
 if __name__ == "__main__":

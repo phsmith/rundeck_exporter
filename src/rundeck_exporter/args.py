@@ -68,7 +68,7 @@ class RundeckExporterArgs:
         help="The maximum number of workers in the threadpool to run rundeck_exporter asynchronous checks. Defaults to (number of CPUs) + 4",
         metavar="RUNDECK_EXPORTER_THREADPOOL_MAX_WORKERS",
         type=int,
-        default=getenv("RUNDECK_EXPORTER_THREADPOOL_MAX_WORKERS", cpu_count() + 4),
+        default=getenv("RUNDECK_EXPORTER_THREADPOOL_MAX_WORKERS", (cpu_count() or 1) + 4),
     )
 
     parser.add_argument(
@@ -77,7 +77,7 @@ class RundeckExporterArgs:
         help="The maximum number of seconds that requests to the Rundeck API should timeout",
         metavar="RUNDECK_EXPORTER_REQUESTS_TIMEOUT",
         type=int,
-        default=getenv("RUNDECK_EXPORTER_REQUESTS_TIMEOUT", 30),
+        default=int(getenv("RUNDECK_EXPORTER_REQUESTS_TIMEOUT", "30")),
     )
 
     parser.add_argument(
@@ -101,7 +101,7 @@ class RundeckExporterArgs:
         dest="rundeck_api_version",
         help="Defaults to 34",
         type=int,
-        default=getenv("RUNDECK_API_VERSION", 34),
+        default=int(getenv("RUNDECK_API_VERSION", "34")),
     )
 
     parser.add_argument(
@@ -136,7 +136,7 @@ class RundeckExporterArgs:
         dest="rundeck_projects_executions_limit",
         help="Project executions max results per query. Defaults to 20",
         type=int,
-        default=getenv("RUNDECK_PROJECTS_EXECUTIONS_LIMIT", 20),
+        default=int(getenv("RUNDECK_PROJECTS_EXECUTIONS_LIMIT", "20")),
     )
 
     parser.add_argument(
@@ -169,7 +169,7 @@ class RundeckExporterArgs:
         dest="rundeck_cached_requests_ttl",
         help="Rundeck cached requests expiration time. Defaults to 120",
         type=int,
-        default=getenv("RUNDECK_CACHED_REQUESTS_TTL", 120),
+        default=int(getenv("RUNDECK_CACHED_REQUESTS_TTL", "120")),
     )
 
     parser.add_argument(

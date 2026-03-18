@@ -5,6 +5,11 @@ IMAGE_VERSION ?= latest
 DOCKER_IMAGE_TAG = $(AUTHOR)/$(IMAGE_NAME)
 GHCR_IMAGE_TAG = ghcr.io/$(AUTHOR)/$(PROJECT)/$(IMAGE_NAME)
 
+RD_CLI_VERSION = 2.0.9
+RD_CLI_JAR = rundeck-cli-$(RD_CLI_VERSION)-all.jar
+RD_CLI_URL = https://github.com/rundeck/rundeck-cli/releases/download/v$(RD_CLI_VERSION)/$(RD_CLI_JAR)
+CI_COMPOSE = examples/docker-compose/docker-compose-ci.yml
+
 default: docker-build
 
 docker-build:
@@ -58,3 +63,36 @@ docker-compose-up:
 
 docker-compose-down:
 	docker compose -f examples/docker-compose/docker-compose.yml down
+
+docker-compose-logs:
+	docker compose -f examples/docker-compose/docker-compose.yml logs $(ARGS)
+
+test-setup:
+	docker compose -f $(CI_COMPOSE) up -d --wait
+	curl -L -o /tmp/rd-cli.jar $(RD_CLI_URL)
+	docker compose -f $(CI_COMPOSE) cp /tmp/rd-cli.jar rundeck:/tmp/
+	docker compose -f $(CI_COMPOSE) cp examples/docker-compose/configs/rundeck/projects/test1.rdproject.jar rundeck:/tmp/
+	docker compose -f $(CI_COMPOSE) exec \
+		-e RD_URL=http://localhost:4440 \
+		-e RD_TOKEN=exporter_admin_auth_token \
+		rundeck /bin/bash -c "cd /tmp \
+			&& java -jar rd-cli.jar projects create -p test1 || true \
+			&& java -jar rd-cli.jar projects archives import -p test1 -f test1.rdproject.jar"
+	@echo "> Waiting for Rundeck API to be ready..."
+	@for i in $$(seq 1 30); do \
+		if curl -sf http://localhost:4440/api/41/system/info \
+			-H "X-Rundeck-Auth-Token: exporter_admin_auth_token" > /dev/null 2>&1; then \
+			echo "Rundeck API is ready."; break; \
+		fi; \
+		echo "Attempt $$i/30 - not ready, retrying in 5s..."; \
+		sleep 5; \
+	done
+
+test-setup-logs:
+	docker compose -f $(CI_COMPOSE) logs $(ARGS)
+
+test:
+	uv run pytest
+
+test-teardown:
+	docker compose -f $(CI_COMPOSE) down --volumes
