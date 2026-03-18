@@ -93,9 +93,10 @@ jobs:
       - name: Publish to pypi.org
         run: |
           pip install --quiet twine
-          docker run -dt --name $IMAGE_NAME --rm --entrypoint /bin/ash ${IMAGE_NAME}:latest
-          docker cp ${IMAGE_NAME}:/tmp/dist ./
-          docker stop -t 0 $IMAGE_NAME
+          docker build --target build -t ${IMAGE_NAME}:build .
+          docker run -dt --name $IMAGE_NAME --rm --entrypoint /bin/ash ${IMAGE_NAME}:build
+          docker cp ${IMAGE_NAME}:/app/dist ./
+          docker stop -t 0 ${IMAGE_NAME}
           twine upload --skip-existing dist/*
         env:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
