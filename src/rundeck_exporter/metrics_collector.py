@@ -7,6 +7,7 @@ from urllib.parse import urlparse
 
 from prometheus_client import start_http_server
 from prometheus_client.core import REGISTRY, CounterMetricFamily, GaugeMetricFamily, InfoMetricFamily
+from prometheus_client.registry import Collector
 
 from rundeck_exporter.args import rundeck_exporter_args
 from rundeck_exporter.constants import RUNDECK_EXECUTION_STATUSES, RUNDECK_USERPASSWORD
@@ -30,7 +31,7 @@ class RundeckProjectExecutionRecord:
         self.execution_type = execution_type
 
 
-class RundeckMetricsCollector:
+class RundeckMetricsCollector(Collector):
     """Class for collect Rundeck metrics"""
 
     def __init__(self):
@@ -52,7 +53,7 @@ class RundeckMetricsCollector:
         """
 
         project_name = project["name"]
-        project_execution_records = list()
+        project_execution_records: list[RundeckProjectExecutionRecord] = list()
         project_executions_limit = self.args.rundeck_projects_executions_limit
         project_executions_filter = self.args.rundeck_project_executions_filter
         project_executions_total = {"project": project_name, "total_executions": 0}
@@ -69,6 +70,9 @@ class RundeckMetricsCollector:
                 project_executions_running_info = request(endpoint_executions_running)
                 project_executions_info = request(endpoint_executions)
                 project_executions_total_info = request(endpoint_executions_metrics)
+
+            if not project_executions_running_info or not project_executions_info or not project_executions_total_info:
+                return project_execution_records, project_executions_total
 
             project_executions_running_info_list = project_executions_running_info.get("executions", [])
             project_executions_total["total_executions"] = project_executions_total_info["total"] + len(
@@ -132,6 +136,8 @@ class RundeckMetricsCollector:
         project_name = project["name"]
         endpoint = f"/project/{project_name}/resources"
         project_nodes = cached_request(endpoint)
+        if project_nodes is None:
+            return {}
         project_nodes_info = {project["name"]: list(project_nodes.values())}
 
         return project_nodes_info
@@ -285,9 +291,7 @@ class RundeckMetricsCollector:
             yield system_stats
 
         # Rundeck counters
-        if self.args.rundeck_api_version < 25 and not (
-            self.args.rundeck_username and RUNDECK_USERPASSWORD
-        ):
+        if self.args.rundeck_api_version < 25 and not (self.args.rundeck_username and RUNDECK_USERPASSWORD):
             logging.warning(
                 f'Unsupported API version "{self.args.rundeck_api_version}"'
                 + f" for API request: /api/{self.args.rundeck_api_version}/metrics/metrics."
@@ -315,6 +319,9 @@ class RundeckMetricsCollector:
                     projects = cached_request(endpoint)
                 else:
                     projects = request(endpoint)
+
+                if not projects:
+                    return
 
             with ThreadPoolExecutor(
                 thread_name_prefix="project_executions", max_workers=self.args.threadpool_max_workers

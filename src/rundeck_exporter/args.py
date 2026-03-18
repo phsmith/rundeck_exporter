@@ -37,7 +37,7 @@ class RundeckExporterArgs:
         "--version",
         help="Shows rundeck_exporter current release version",
         action="version",
-        version=f"%(prog)s v{version(__package__)}",
+        version=f"%(prog)s v{version(__package__ or 'rundeck_exporter')}",
     )
 
     parser.add_argument(
@@ -52,7 +52,7 @@ class RundeckExporterArgs:
         help=f"Host binding port. Default: {RUNDECK_DEFAULT_PORT}",
         metavar="RUNDECK_EXPORTER_PORT",
         type=int,
-        default=getenv("RUNDECK_EXPORTER_PORT", RUNDECK_DEFAULT_PORT),
+        default=int(getenv("RUNDECK_EXPORTER_PORT", str(RUNDECK_DEFAULT_PORT))),
     )
 
     parser.add_argument(
@@ -68,7 +68,7 @@ class RundeckExporterArgs:
         help="The maximum number of workers in the threadpool to run rundeck_exporter asynchronous checks. Defaults to (number of CPUs) + 4",
         metavar="RUNDECK_EXPORTER_THREADPOOL_MAX_WORKERS",
         type=int,
-        default=getenv("RUNDECK_EXPORTER_THREADPOOL_MAX_WORKERS", (cpu_count() or 1) + 4),
+        default=int(getenv("RUNDECK_EXPORTER_THREADPOOL_MAX_WORKERS", str((cpu_count() or 1) + 4))),
     )
 
     parser.add_argument(
