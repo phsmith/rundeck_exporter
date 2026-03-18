@@ -38,20 +38,12 @@ More detailed information about the metrics can be found in [Documentations](doc
 
 > Although the `requirements.txt` file is still available, the project uses [UV](https://docs.astral.sh/uv/) for Python package and management, which is highly recommended.
 
-* Python 3.10+
+* Python 3.11+
 * A Rundeck token with permissions to make API requests
 * The following steps for installing the dependencies:
 
   ```sh
   uv sync
-  ```
-
-  Or:
-
-  ```sh
-  python -m venv .venv
-  source .venv/bin/activate
-  pip install -r requirements.txt
   ```
 
 ## API Authentication
@@ -535,9 +527,15 @@ rundeck_exporter -v
 
 #### Running with Docker
 
-```sh
-docker build -t rundeck-exporter .
+Build the image using the Makefile:
 
+```sh
+make docker-build
+```
+
+Then run the container:
+
+```sh
 docker run --rm -d -p 9620:9620 -e RUNDECK_TOKEN=$RUNDECK_TOKEN rundeck-exporter \
 --host 0.0.0.0 \
 --rundeck.url https://rundeck.test.com \
@@ -547,8 +545,13 @@ docker run --rm -d -p 9620:9620 -e RUNDECK_TOKEN=$RUNDECK_TOKEN rundeck-exporter
 #### Running with Docker-Compose
 
 ```sh
-cd examples/docker-compose
-docker compose up -d
+make docker-compose-up
+```
+
+To follow the logs of a specific service:
+
+```sh
+make docker-compose-logs ARGS="-f rundeck_exporter"
 ```
 
 Docker Compose services:
@@ -558,4 +561,4 @@ Docker Compose services:
 * Prometheus - <http://localhost:9090> (already configured to scrape rundeck_exporter metrics)
 * Grafana - <http://localhost:3000> (already configured with Prometheus Datasource and Rundeck Dashboard)
 
-After provisioning of the docker-compose services, access Rundeck from <http://localhost:4440/user/profile> and gerate a new API token. Place the token at **RUNDECK_TOKEN** environment variable in the **docker-compose.yml** and run `docker compose up -d` again.
+After provisioning of the docker-compose services, access Rundeck from <http://localhost:4440/user/profile> and generate a new API token. Place the token at **RUNDECK_TOKEN** environment variable in the **docker-compose.yml** and run `make docker-compose-up` again.

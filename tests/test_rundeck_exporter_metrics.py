@@ -1,5 +1,6 @@
 import pytest
 from prometheus_client.core import REGISTRY
+
 from rundeck_exporter.metrics_collector import RundeckMetricsCollector
 
 
@@ -19,7 +20,7 @@ def metric_samples(request, metrics):
             if sample.name.startswith(request.param):
                 samples.append(sample)
 
-    assert len(sample) > 0
+    assert len(samples) > 0
     return samples
 
 

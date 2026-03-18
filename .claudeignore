@@ -1,0 +1,42 @@
+# .claudeignore
+
+## Bytecode and cache
+
+__pycache__/
+*.pyc
+*.pyo
+
+## Virtual environments
+
+.venv/
+venv/
+env/
+
+## Build output
+
+dist/
+build/
+*.egg-info/
+*.so
+
+## Testing
+
+.tox/
+.pytest_cache/
+.mypy_cache/
+htmlcov/
+.coverage
+
+## Type stubs
+
+.pytype/
+
+## Environment files
+
+.env*
+
+## Lock files
+
+poetry.lock
+Pipfile.lock
+uv.lock

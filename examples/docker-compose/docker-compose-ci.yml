@@ -1,7 +1,7 @@
 name: ci
 services:
   rundeck:
-    image: rundeck/rundeck:4.8.0
+    image: rundeck/rundeck:5.15.0
     ports:
       - 4440:4440
     environment:

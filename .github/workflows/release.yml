@@ -5,6 +5,10 @@ on:
     tags:
       - v*
 
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
 env:
   IMAGE_NAME: rundeck-exporter
   GIT_TAG: "${{ github.ref_name }}"
@@ -12,7 +16,7 @@ env:
 
 jobs:
   bump-version:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     permissions:
       contents: write
@@ -41,7 +45,7 @@ jobs:
       - name: Commit updated pyproject.toml
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "<>"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout main
           git tag -d $GIT_TAG || true
           git push -d origin $GIT_TAG
@@ -55,8 +59,11 @@ jobs:
       version: ${{ steps.bump-version.outputs.version }}
 
   build-and-publish:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: bump-version
+
+    permissions:
+      contents: read
 
     env:
       DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
@@ -92,8 +99,11 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
 
   create-release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: build-and-publish
+
+    permissions:
+      contents: write
 
     steps:
       - name: Create Github release
