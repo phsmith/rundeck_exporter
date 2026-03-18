@@ -46,6 +46,8 @@ More detailed information about the metrics can be found in [Documentations](doc
   uv sync
   ```
 
+  Type stubs for third-party libraries are included as dev dependencies (`types-requests`, `types-cachetools`).
+
 ## API Authentication
 
 Rundeck token or username and password are required.

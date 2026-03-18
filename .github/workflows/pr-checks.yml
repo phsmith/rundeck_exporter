@@ -37,6 +37,9 @@ jobs:
       - name: Run lint
         run: uv run ruff check src tests
 
+      - name: Run type check
+        run: uv run mypy src/
+
       - name: Build Docker Image
         run: make docker-build
 
