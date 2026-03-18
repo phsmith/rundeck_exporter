@@ -50,7 +50,7 @@ jobs:
           git tag -d $GIT_TAG || true
           git push -d origin $GIT_TAG
           git add pyproject.toml uv.lock
-          git commit -m "Bump version to $VERSION [skip ci]"
+          git commit -m "Bump version to $VERSION [skip ci]" || true
           git tag $GIT_TAG
           git push
           git push --tags
