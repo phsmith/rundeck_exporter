@@ -20,7 +20,7 @@ def metric_samples(request, metrics):
             if sample.name.startswith(request.param):
                 samples.append(sample)
 
-    assert len(samples) > 0
+    assert samples, f"No '{request.param}' metrics collected — is Rundeck running on localhost:4440?"
     return samples
 
 

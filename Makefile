@@ -87,6 +87,8 @@ test-setup:
 		echo "Attempt $$i/30 - not ready, retrying in 5s..."; \
 		sleep 5; \
 	done
+	@echo "> Waiting for scheduled job executions to complete..."
+	@sleep 30
 
 test-setup-logs:
 	docker compose -f $(CI_COMPOSE) logs $(ARGS)
