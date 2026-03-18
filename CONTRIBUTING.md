@@ -73,11 +73,11 @@ The `examples/docker-compose/` directory contains a full stack with Rundeck, Pro
 
 ```bash
 # Start the full stack (Rundeck + Prometheus + Grafana)
-make docker-compose-up
+make local-env-setup
 
 # Tail the exporter logs
-make docker-compose-logs
-make docker-compose-logs ARGS="-f rundeck_exporter"
+make local-env-logs
+make local-env-logs ARGS="-f rundeck_exporter"
 ```
 
 Services exposed:
@@ -104,13 +104,13 @@ Integration tests require a running Rundeck instance with a pre-loaded test proj
 
 ```bash
 # Start Rundeck, download rundeck-cli, and create the test project
-make test-setup
+make test-env-setup
 
 # Run the test suite
 make test
 
 # Tear down when done
-make test-teardown
+make test-env-teardown
 ```
 
 ### Run a single test

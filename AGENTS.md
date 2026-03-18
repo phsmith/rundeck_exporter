@@ -21,7 +21,7 @@ uv run ruff check src tests
 make docker-build
 
 # Start example environment
-make docker-compose-up
+make local-env-setup
 ```
 
 Tests require a live Rundeck instance. In CI, this is started via `examples/docker-compose/docker-compose-ci.yml`. Test environment variables are configured in `pyproject.toml` under `[tool.pytest.ini_options]` (pointing to `http://localhost:4440` with token `exporter_admin_auth_token`).

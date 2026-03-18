@@ -54,11 +54,11 @@ jobs:
           severity: 'CRITICAL,HIGH'
 
       - name: Setup Rundeck test environment
-        run: make test-setup
+        run: make test-env-setup
 
       - name: Test rundeck-exporter metrics
         run: make test
 
       - name: Teardown Rundeck test environment
         if: always()
-        run: make test-teardown
+        run: make test-env-teardown
