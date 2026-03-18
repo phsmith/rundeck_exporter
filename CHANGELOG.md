@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/phsmith/rundeck_exporter/compare/v3.0.0...HEAD)
+## [Unreleased](https://github.com/phsmith/rundeck_exporter/compare/v3.1.0...HEAD)
 
 ## [1.0.0](https://github.com/phsmith/rundeck_exporter/releases/tag/v1.0.0) - 2019-07-23
 
@@ -34,16 +34,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added new argument:
+  
   - `--debug`: Enable debug mode
   - `--rundeck.projects.executions`: Get projects executions metrics
   - `--rundeck.projects.filter`: Get executions only from listed projects (delimiter = space)
   - `--rundeck.projects.executions.limit`: Limit project executions metrics query. Default: 20
   - `--rundeck.cached.requests.ttl`: Rundeck cached requests (by now, only for rundeck.projects.executions) expiration time. Default: 120
-
+  
 - Added code improvements
+  
 - Added cachetools to pip install on Dockerfile
+  
 - Added logging module to replace print calls
+  
 - Added better error handling
+  
 
 ### Changed
 
@@ -368,13 +373,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added the following new arguments:
   - `--rundeck.projects.nodes.info` - If passed, display Rundeck projects nodes info metrics, currently only the `rundeck_project_nodes_total` metric is available.
+    
     - Requests for this check are cached as it can cause high CPU load depending on the number of projects.
-
+    
   - `--threadpool_max_workers` - The maximum number of workers in the threadpool to run rundeck_exporter asynchronous checks.
+    
     - Defaults to `(number of CPUs) + 4`, which may be too much on a server running other services.
-
+    
   - `--rundeck.requests.timeout` - The maximum number of seconds that requests to the Rundeck API should timeout.
+    
     - Defaults to 30.
+    
+  
 
 ### Changed
 
@@ -443,6 +453,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix Dockerfile by @gilankpam in [#111](https://github.com/phsmith/rundeck_exporter/pull/111)
 - Fix sporadic python errors by @jrelax in [#113](https://github.com/phsmith/rundeck_exporter/pull/113)
 
+## [v3.1.0](https://github.com/phsmith/rundeck_exporter/compare/v3.0.0...v3.1.0) - 2026-03-18
+
+### What's Changed
+
+* Fix update-changelog actions workflow by @phsmith in https://github.com/phsmith/rundeck_exporter/pull/121
+* chore: code improvements, bug fixes, and project enhancements by @phsmith in https://github.com/phsmith/rundeck_exporter/pull/123
+* feat: add option to export job options as execution metric labels by @tanmay-bhat in https://github.com/phsmith/rundeck_exporter/pull/112
+* fix(ci): add write permissions for contents and packages in release by @phsmith in https://github.com/phsmith/rundeck_exporter/pull/124
+
+### New Contributors
+
+* @tanmay-bhat made their first contribution in https://github.com/phsmith/rundeck_exporter/pull/112
+
+**Full Changelog**: https://github.com/phsmith/rundeck_exporter/compare/v3.0.3...v3.1.0
+
 ## [v3.0.0](https://github.com/phsmith/rundeck_exporter/compare/v2.8.5...v3.0.0) - 2025-08-27
 
 ## What's Changed
@@ -457,6 +482,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `constants.py`: module that stores the app constants.
   - `metrics_collector.py`: module that handles all the Rundeck metrics collection.
   - `utils.py`: module containing utilities and middlewares used by the  modules.
+  
 - Updated docker-compose examples and configs
 - Updated README.md
 - Removed rundeck_exporter.py. The code was refactored in the `src/rundeck_exporter` module.
@@ -466,6 +492,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [v3.0.1](https://github.com/phsmith/rundeck_exporter/compare/v3.0.0...v3.0.1) - 2025-08-27
 
 ## What's Changed
+
 * Update pr-checks workflow trigger by @phsmith in https://github.com/phsmith/rundeck_exporter/pull/115
 
 **Full Changelog**: https://github.com/phsmith/rundeck_exporter/compare/v3.0.0...v3.0.1
@@ -473,6 +500,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [v3.0.2](https://github.com/phsmith/rundeck_exporter/compare/v3.0.1...v3.0.2) - 2025-09-02
 
 ## What's Changed
+
 * Fix rundeck_exporter_args not properly parsing args by @phsmith in https://github.com/phsmith/rundeck_exporter/pull/117
 
 **Full Changelog**: https://github.com/phsmith/rundeck_exporter/compare/v3.0.1...v3.0.2
@@ -480,7 +508,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [v3.0.3](https://github.com/phsmith/rundeck_exporter/compare/v3.0.2...v3.0.3) - 2025-11-07
 
 ## What's Changed
-* Fix: rundeck_exporter exits if it is unable to reach the Rundeck host by @phsmith in https://github.com/phsmith/rundeck_exporter/pull/120
 
+* Fix: rundeck_exporter exits if it is unable to reach the Rundeck host by @phsmith in https://github.com/phsmith/rundeck_exporter/pull/120
 
 **Full Changelog**: https://github.com/phsmith/rundeck_exporter/compare/v3.0.2...v3.0.3
