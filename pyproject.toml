@@ -34,7 +34,7 @@ Issues = "https://github.com/phsmith/rundeck_exporter/issues"
 
 [dependency-groups]
 dev = [
-    "mypy>=1.19.1",
+    "pyright>=1.1.408",
     "pytest>=8.4.1",
     "pytest-env>=1.1.5",
     "ruff>=0.12.10",
