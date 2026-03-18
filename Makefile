@@ -58,16 +58,16 @@ git-push:
 debug:
 	docker run --rm -it --name=$(IMAGE_NAME) --entrypoint=/bin/sh $(IMAGE_NAME)
 
-docker-compose-up:
+local-env-setup:
 	docker compose -f examples/docker-compose/docker-compose.yml up --build -d
 
-docker-compose-down:
+local-env-teardown:
 	docker compose -f examples/docker-compose/docker-compose.yml down
 
-docker-compose-logs:
+local-env-logs:
 	docker compose -f examples/docker-compose/docker-compose.yml logs $(ARGS)
 
-test-setup:
+test-env-setup:
 	docker compose -f $(CI_COMPOSE) up -d --wait
 	curl -L -o /tmp/rd-cli.jar $(RD_CLI_URL)
 	docker compose -f $(CI_COMPOSE) cp /tmp/rd-cli.jar rundeck:/tmp/
@@ -90,11 +90,11 @@ test-setup:
 	@echo "> Waiting for scheduled job executions to complete..."
 	@sleep 30
 
-test-setup-logs:
+test-env-logs:
 	docker compose -f $(CI_COMPOSE) logs $(ARGS)
 
 test:
 	uv run pytest
 
-test-teardown:
+test-env-teardown:
 	docker compose -f $(CI_COMPOSE) down --volumes
