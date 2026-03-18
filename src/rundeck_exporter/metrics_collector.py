@@ -25,7 +25,7 @@ class RundeckProjectExecution(Enum):
 class RundeckProjectExecutionRecord:
     """Class for keeping track of Rundeck projects execution info"""
 
-    def __init__(self, labels_value: dict, value: float, execution_type: RundeckProjectExecution):
+    def __init__(self, labels_value: list, value: float, execution_type: RundeckProjectExecution):
         self.labels_value = labels_value
         self.value = value
         self.execution_type = execution_type
