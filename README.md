@@ -191,13 +191,13 @@ Optionally, it's possible to pass the following environment variables to the run
 | Variable | Options |  Description |
 | ------ | ------ | ------ |
 | RUNDECK_EXPORTER_DEBUG | <ul><li>True</li><li>False (default)</li></ul> | Enable debug mode |
-| RUNDECK_EXPORTER_HOST | Default: 127.0.0.1 | Binding address |
+| RUNDECK_EXPORTER_HOST | Default: 127.0.0.1 | Binding address (use 0.0.0.0 for Docker/Kubernetes) |
 | RUNDECK_EXPORTER_PORT | Default: 9620 | Binding port |
 | RUNDECK_URL (required) | | Rundeck base URL |
 | RUNDECK_TOKEN (required) | | Rundeck access token |
 | RUNDECK_USERNAME | | Rundeck User with access to the system information |
 | RUNDECK_USERPASSWORD | | Rundeck User Password (RUNDECK_USERNAME or --rundeck.username are required too) |
-| RUNDECK_API_VERSION | Default: 41 | Rundeck API version |
+| RUNDECK_API_VERSION | Default: 34 | Rundeck API version |
 | RUNDECK_SKIP_SSL | <ul><li>True</li><li>False (default)</li></ul> | Skip SSL certificate check |
 | RUNDECK_PROJECTS_EXECUTIONS | <ul><li>True</li><li>False (default)</li></ul> | Get projects executions metrics |
 | RUNDECK_PROJECTS_FILTER | | Get executions only from listed projects e.g. "project-1 project-2 ..." |
@@ -529,15 +529,19 @@ rundeck_exporter -v
 
 #### Running with Docker
 
-Build the image using the Makefile:
+Using the published image from Docker Hub:
+
+```sh
+docker run --rm -d -p 9620:9620 -e RUNDECK_TOKEN=$RUNDECK_TOKEN phsmith/rundeck-exporter \
+--host 0.0.0.0 \
+--rundeck.url https://rundeck.test.com \
+--rundeck.skip_ssl
+```
+
+Or build the image locally using the Makefile:
 
 ```sh
 make docker-build
-```
-
-Then run the container:
-
-```sh
 docker run --rm -d -p 9620:9620 -e RUNDECK_TOKEN=$RUNDECK_TOKEN rundeck-exporter \
 --host 0.0.0.0 \
 --rundeck.url https://rundeck.test.com \
@@ -564,3 +568,21 @@ Docker Compose services:
 * Grafana - <http://localhost:3000> (already configured with Prometheus Datasource and Rundeck Dashboard)
 
 After provisioning of the docker-compose services, access Rundeck from <http://localhost:4440/user/profile> and generate a new API token. Place the token at **RUNDECK_TOKEN** environment variable in the **docker-compose.yml** and run `make local-env-setup` again.
+
+#### Running on Kubernetes with Helm
+
+A Helm chart is available in the [`charts/`](charts/) directory. See [charts/README.md](charts/README.md) for full configuration options.
+
+```sh
+# Install
+helm install rundeck-exporter --create-namespace --namespace monitoring \
+  --set env.RUNDECK_URL=http://rundeck:4440 \
+  --set env.RUNDECK_TOKEN=$RUNDECK_TOKEN \
+  ./charts
+
+# Or using a values file
+helm install rundeck-exporter --create-namespace --namespace monitoring \
+  -f ./charts/values.yaml ./charts
+```
+
+> **Note**: If `serviceMonitor.enabled=true` (default), the [prometheus-operator](https://github.com/prometheus-operator/kube-prometheus) CRDs must be installed. To disable: `--set serviceMonitor.enabled=false`.
