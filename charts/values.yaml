@@ -3,10 +3,10 @@ replicaCount: 1
 image:
   repository: phsmith/rundeck-exporter
   pullPolicy: IfNotPresent
-  tag: 2.8.0
+  tag: 3.1.0
 
 env:
-  RUNDECK_EXPORTER_DEBUG: true
+  RUNDECK_EXPORTER_DEBUG: false
   RUNDECK_EXPORTER_HOST: 0.0.0.0
   RUNDECK_EXPORTER_PORT: 9620
   RUNDECK_URL: "http://localhost:4440"
@@ -14,7 +14,7 @@ env:
   # RUNDECK_USERNAME: "your-rundeck-username"
   # RUNDECK_USERPASSWORD: "your-rundeck-password"
   RUNDECK_API_VERSION: 40
-  RUNDECK_SKIP_SSL: true
+  RUNDECK_SKIP_SSL: false
   RUNDECK_PROJECTS_EXECUTIONS: true
   RUNDECK_PROJECTS_EXECUTIONS_CACHE: false
   RUNDECK_CPU_STATS: true
@@ -39,17 +39,17 @@ serviceAccount:
 podAnnotations: {}
 
 podSecurityContext:
-  {}
-  # fsGroup: 2000
+  runAsNonRoot: true
+  runAsUser: 1000
 
 securityContext:
-  {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
 
 service:
   type: ClusterIP
@@ -80,11 +80,17 @@ serviceMonitor:
   enabled: true
   # name: <defaults to rundeck-exporter-monitor>
   # namespace: <defaults to helm release namespace>
-  path: /
+  path: /metrics
   interval: 30s
   scrapeTimeout: 10s
 
-resources: {}
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
 
 autoscaling:
   enabled: false

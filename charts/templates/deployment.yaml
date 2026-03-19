@@ -11,20 +11,35 @@ spec:
       {{- include "rundeck-exporter.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- if .Values.serviceMonitor.enabled }}
       annotations:
+        {{- if .Values.serviceMonitor.enabled }}
         prometheus.io/scrape: "true"
         prometheus.io/path: "/metrics"
         prometheus.io/port: "{{ .Values.service.port }}"
-      {{- end }}
+        {{- end }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       labels:
         {{- include "rundeck-exporter.selectorLabels" . | nindent 8 }}
     spec:
+      serviceAccountName: {{ include "rundeck-exporter.serviceAccountName" . }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           ports:
-            - containerPort: {{ .Values.service.port }}
+            - name: metrics
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
           {{- if .Values.envSecret }}
           envFrom:
           - secretRef:
@@ -37,7 +52,7 @@ spec:
               value: "{{ $value }}"
             {{- end }}
           {{- end }}
-          {{- if not .Values.probe.disabled }}
+          {{- if .Values.probe.enabled }}
           readinessProbe:
             httpGet:
               path: /health
@@ -51,8 +66,10 @@ spec:
             initialDelaySeconds: {{ .Values.probe.initialDelaySeconds }}
             periodSeconds: {{ .Values.probe.periodSeconds }}
           {{- end }}
-          {{- include "rundeck-exporter.volumeMounts" . | nindent 6 }}
-      {{- include "rundeck-exporter.volumes" . | nindent 6 }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

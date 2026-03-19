@@ -15,52 +15,22 @@ env:
   GH_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }}
 
 jobs:
-  bump-version:
+  get-version:
     runs-on: ubuntu-24.04
 
-    permissions:
-      contents: write
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ssh-key: ${{ secrets.DEPLOY_KEY }}
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v6
-        with:
-          activate-environment: true
-
-      - id: bump-version
-        name: Bump version
+      - id: get-version
+        name: Get version from tag
         run: |
-          # Strip "v" prefix from tag name
           VERSION=${GIT_TAG##v}
-          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          uv version $VERSION
-
-      - name: Commit updated pyproject.toml
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout main
-          git tag -d $GIT_TAG || true
-          git push -d origin $GIT_TAG
-          git add pyproject.toml uv.lock
-          git commit -m "Bump version to $VERSION [skip ci]" || true
-          git tag $GIT_TAG
-          git push
-          git push --tags
 
     outputs:
-      version: ${{ steps.bump-version.outputs.version }}
+      version: ${{ steps.get-version.outputs.version }}
 
   build-and-publish:
     runs-on: ubuntu-24.04
-    needs: bump-version
+    needs: get-version
 
     permissions:
       contents: write
@@ -68,7 +38,7 @@ jobs:
 
     env:
       DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
-      IMAGE_VERSION: ${{ needs.bump-version.outputs.version }}
+      IMAGE_VERSION: ${{ needs.get-version.outputs.version }}
 
     steps:
       - name: Checkout repository
@@ -76,6 +46,14 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ env.GIT_TAG }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          activate-environment: true
+
+      - name: Bump version
+        run: uv version $IMAGE_VERSION
 
       - name: Build Docker image
         run: make docker-build
@@ -102,9 +80,47 @@ jobs:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
 
+  commit-and-tag:
+    runs-on: ubuntu-24.04
+    needs: [get-version, build-and-publish]
+
+    permissions:
+      contents: write
+
+    env:
+      VERSION: ${{ needs.get-version.outputs.version }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          activate-environment: true
+
+      - name: Bump version in all files
+        run: |
+          uv version $VERSION
+          yq -i ".appVersion = \"$VERSION\"" charts/Chart.yaml
+          yq -i ".version = \"$VERSION\"" charts/Chart.yaml
+          yq -i ".image.tag = \"$VERSION\"" charts/values.yaml
+
+      - name: Commit version bump to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout main
+          git add pyproject.toml uv.lock charts/Chart.yaml charts/values.yaml
+          git commit -m "Bump version to $VERSION [skip ci]" || true
+          git push
+
   create-release:
     runs-on: ubuntu-24.04
-    needs: build-and-publish
+    needs: commit-and-tag
 
     permissions:
       contents: write

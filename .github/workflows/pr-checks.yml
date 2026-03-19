@@ -5,6 +5,7 @@ on:
     paths-ignore:
       - '*.md'
       - 'LICENSE'
+      - 'charts/**'
 
 concurrency:
   group: pr-checks-${{ github.head_ref }}
