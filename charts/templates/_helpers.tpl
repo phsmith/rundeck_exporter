@@ -61,12 +61,8 @@ Create the name of the service account to use
 {{- end }}
 {{- end }}
 
-# helpers.tpl
-
 {{- define "rundeck-exporter.volumeMounts" -}}
-# Define volumeMounts for your app here, if needed
 {{- end -}}
 
 {{- define "rundeck-exporter.volumes" -}}
-# Define volumes for your app here, if needed
 {{- end -}}

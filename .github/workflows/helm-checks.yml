@@ -1,0 +1,31 @@
+name: Helm - Checks
+
+on:
+  pull_request:
+    paths:
+      - 'charts/**'
+      - '!charts/README.md'
+
+concurrency:
+  group: helm-checks-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  helm-checks:
+    runs-on: ubuntu-24.04
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+
+      - name: Lint chart
+        run: helm lint ./charts
+
+      - name: Render templates
+        run: helm template rundeck-exporter ./charts

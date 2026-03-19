@@ -42,6 +42,14 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           uv version $VERSION
 
+          # Update Helm chart version and appVersion to match the release
+          CHART_FILE=charts/Chart.yaml
+          yq -i ".appVersion = \"$VERSION\"" "$CHART_FILE"
+          yq -i ".version = \"$VERSION\"" "$CHART_FILE"
+
+          # Update default image tag in values.yaml
+          yq -i ".image.tag = \"$VERSION\"" charts/values.yaml
+
       - name: Commit updated pyproject.toml
         run: |
           git config user.name "github-actions[bot]"
@@ -49,7 +57,7 @@ jobs:
           git checkout main
           git tag -d $GIT_TAG || true
           git push -d origin $GIT_TAG
-          git add pyproject.toml uv.lock
+          git add pyproject.toml uv.lock charts/Chart.yaml charts/values.yaml
           git commit -m "Bump version to $VERSION [skip ci]" || true
           git tag $GIT_TAG
           git push
