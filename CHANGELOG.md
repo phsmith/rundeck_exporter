@@ -5,7 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/phsmith/rundeck_exporter/compare/v3.1.0...HEAD)
+## [Unreleased](https://github.com/phsmith/rundeck_exporter/compare/v3.1.1...HEAD)
+
+## [v3.1.1](https://github.com/phsmith/rundeck_exporter/compare/v3.1.0...v3.1.1) - 2026-03-20
+
+### What's Changed
+
+* chore(helm): improve chart quality, CI validation, and release automation by @phsmith in https://github.com/phsmith/rundeck_exporter/pull/125
+* fix(utils): replace requests with httpx for thread-safe HTTP clients by @phsmith in https://github.com/phsmith/rundeck_exporter/pull/127
+
+**Full Changelog**: https://github.com/phsmith/rundeck_exporter/compare/v3.1.0...v3.1.1
 
 ## [v3.1.0](https://github.com/phsmith/rundeck_exporter/compare/v3.0.3...v3.1.0) - 2026-03-18
 
@@ -51,19 +60,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## What's Changed
 
 - Added pr-checks, relase and update-changelog gh actions
+  
 - Added docker-compose-ci.yml
+  
 - Added `UV` as the default package and project manager
+  
 - Added test/test_rundeck_exporter_metrics.py
+  
 - Added src/rundeck_exporter module
+  
   - `args.py`: module responsible for the CLI arguments definition
   - `cli.py`: module that initializes the rundeck_exporter command line interface.
   - `constants.py`: module that stores the app constants.
   - `metrics_collector.py`: module that handles all the Rundeck metrics collection.
   - `utils.py`: module containing utilities and middlewares used by the  modules.
-
+  
 - Updated docker-compose examples and configs
+  
 - Updated README.md
+  
 - Removed rundeck_exporter.py. The code was refactored in the `src/rundeck_exporter` module.
+  
 
 **Full Changelog**: https://github.com/phsmith/rundeck_exporter/compare/v2.8.5...v3.0.0
 
@@ -133,10 +150,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added the following new arguments:
   - `--rundeck.projects.nodes.info` - If passed, display Rundeck projects nodes info metrics, currently only the `rundeck_project_nodes_total` metric is available.
     - Requests for this check are cached as it can cause high CPU load depending on the number of projects.
+    
   - `--threadpool_max_workers` - The maximum number of workers in the threadpool to run rundeck_exporter asynchronous checks.
     - Defaults to `(number of CPUs) + 4`, which may be too much on a server running other services.
+    
   - `--rundeck.requests.timeout` - The maximum number of seconds that requests to the Rundeck API should timeout.
     - Defaults to 30.
+    
+  
 
 ### Changed
 
@@ -459,6 +480,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `--rundeck.projects.filter`: Get executions only from listed projects (delimiter = space)
   - `--rundeck.projects.executions.limit`: Limit project executions metrics query. Default: 20
   - `--rundeck.cached.requests.ttl`: Rundeck cached requests (by now, only for rundeck.projects.executions) expiration time. Default: 120
+  
 - Added code improvements
 - Added cachetools to pip install on Dockerfile
 - Added logging module to replace print calls
@@ -489,4 +511,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Initial release
-
