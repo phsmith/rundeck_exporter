@@ -1,17 +1,17 @@
 apiVersion: v2
-appVersion: 3.1.0
+appVersion: 3.1.1
 description: Rundeck Metrics Exporter for Prometheus.
 home: https://github.com/phsmith/rundeck_exporter
 icon: https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKePwGb88xL3gFzccHHlCyYI7jWU-phaAaQRPRXfHB6ofpwBgLdVbNtabF-YRyccl85Rk&usqp=CAU
 keywords:
-- rundeck-exporter
+  - rundeck-exporter
 maintainers:
-- email: natalia.granato@jackexperts.com
-  name: Natália Granato
-- email: phsmithcc@gmail.com
-  name: Phillipe Smith
+  - email: natalia.granato@jackexperts.com
+    name: Natália Granato
+  - email: phsmithcc@gmail.com
+    name: Phillipe Smith
 name: rundeck-exporter
 sources:
-- https://github.com/phsmith/rundeck_exporter
+  - https://github.com/phsmith/rundeck_exporter
 type: application
-version: 3.1.0
+version: 3.1.1
