@@ -9,8 +9,8 @@ readme = "README.md"
 requires-python = ">=3.11,<4.0"
 dependencies = [
     "cachetools==5.5.0",
+    "httpx>=0.28.0",
     "prometheus-client==0.21.1",
-    "requests==2.32.4",
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -39,7 +39,6 @@ dev = [
     "pytest-env>=1.1.5",
     "ruff>=0.12.10",
     "types-cachetools>=6.2.0.20260317",
-    "types-requests>=2.32.4.20260107",
 ]
 
 [build-system]
