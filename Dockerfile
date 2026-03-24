@@ -2,9 +2,7 @@ FROM python:3.13-alpine AS build
 
 WORKDIR /app
 
-# hadolint ignore=DL3018
-RUN apk add --no-cache uv
-
+COPY --from=ghcr.io/astral-sh/uv:0.11.0 /uv /uvx /bin/
 COPY pyproject.toml uv.lock README.md /app/
 COPY src /app/
 

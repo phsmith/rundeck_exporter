@@ -1,6 +1,6 @@
 services:
   rundeck:
-    image: rundeck/rundeck:5.15.0
+    image: rundeck/rundeck:5.19.0
     ports:
       - 4440:4440
     environment:

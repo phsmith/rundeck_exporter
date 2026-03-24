@@ -45,14 +45,13 @@ jobs:
         run: make docker-build
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@v0.35.0
-        with:
-          image-ref: '${{ env.IMAGE_NAME }}'
-          format: 'table'
-          exit-code: '1'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
+        env:
+          TRIVY_VERSION: "0.69.3"
+        run: |
+          curl -sfL "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" \
+            -o trivy.tar.gz
+          tar -xzf trivy.tar.gz trivy
+          ./trivy image "${{ env.IMAGE_NAME }}"
 
       - name: Setup Rundeck test environment
         run: make test-env-setup

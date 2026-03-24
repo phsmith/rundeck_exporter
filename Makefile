@@ -25,7 +25,7 @@ docker-build:
     	--build-arg VCS_REF=`git rev-parse --short HEAD` \
     	--build-arg VERSION="$(IMAGE_VERSION)" \
 		--target app \
-    	--tag=$(IMAGE_NAME) .
+    	--tag=$(IMAGE_NAME) $(BUILD_ARGS) .
 
 	docker tag $(IMAGE_NAME) $(DOCKER_IMAGE_TAG):latest
 	docker tag $(IMAGE_NAME) $(GHCR_IMAGE_TAG):latest

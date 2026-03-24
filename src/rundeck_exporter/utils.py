@@ -7,10 +7,8 @@ from typing import NoReturn
 import httpx
 from cachetools import TTLCache, cached
 
-from rundeck_exporter.args import rundeck_exporter_args
+from rundeck_exporter.args import rundeck_exporter_args as args
 from rundeck_exporter.constants import RUNDECK_TOKEN, RUNDECK_USERPASSWORD
-
-args = rundeck_exporter_args.namespace
 
 logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO)
 
@@ -31,7 +29,7 @@ def exit_with_msg(msg: str, level: str) -> NoReturn:
     sys.exit(1)
 
 
-def request(endpoint: str) -> dict | None:
+def request(endpoint: str) -> dict | list | None:
     """
     Method for managing requests on Rundeck API endpoints
     """
@@ -76,6 +74,6 @@ def request(endpoint: str) -> dict | None:
     return None
 
 
-@cached(cache=TTLCache(maxsize=1024, ttl=args.rundeck_cached_requests_ttl))
-def cached_request(endpoint: str) -> dict | None:
+@cached(cache=TTLCache(maxsize=1024, ttl=args.rundeck_cached_requests_ttl), lock=threading.Lock())
+def cached_request(endpoint: str) -> dict | list | None:
     return request(endpoint)
