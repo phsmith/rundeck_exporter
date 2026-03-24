@@ -46,7 +46,7 @@ jobs:
 
       - name: Run Trivy vulnerability scanner
         env:
-          TRIVY_VERSION: "0.60.0"
+          TRIVY_VERSION: "0.69.3"
         run: |
           curl -sfL "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" \
             -o trivy.tar.gz
