@@ -1,16 +1,17 @@
 import textwrap
 
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
-from ast import literal_eval
 from importlib.metadata import version
 from os import getenv, cpu_count
 
 from rundeck_exporter.constants import RUNDECK_DEFAULT_HOST, RUNDECK_DEFAULT_PORT
 
 
-class RundeckExporterArgs:
-    """Rundeck exporter command line arguments class."""
+def _bool_env(key: str, default: bool = False) -> bool:
+    return getenv(key, str(default)).lower() in ("true", "1", "yes")
 
+
+def _build_parser() -> ArgumentParser:
     parser = ArgumentParser(
         prog="rundeck_exporter",
         description=textwrap.dedent(
@@ -28,7 +29,7 @@ class RundeckExporterArgs:
     parser.add_argument(
         "--debug",
         help="Enable debug mode",
-        default=literal_eval(getenv("RUNDECK_EXPORTER_DEBUG", "False").capitalize()),
+        default=_bool_env("RUNDECK_EXPORTER_DEBUG"),
         action="store_true",
     )
 
@@ -60,7 +61,7 @@ class RundeckExporterArgs:
         dest="no_checks_in_passive_mode",
         help="The rundeck_exporter will not perform any checks while the Rundeck host is in passive execution mode",
         action="store_true",
-        default=literal_eval(getenv("RUNDECK_EXPORTER_NO_CHECKS_IN_PASSIVE_MODE", "False").capitalize()),
+        default=_bool_env("RUNDECK_EXPORTER_NO_CHECKS_IN_PASSIVE_MODE"),
     )
 
     parser.add_argument(
@@ -92,7 +93,7 @@ class RundeckExporterArgs:
         "--rundeck.skip_ssl",
         dest="rundeck_skip_ssl",
         help="Rundeck Skip SSL Cert Validate",
-        default=literal_eval(getenv("RUNDECK_SKIP_SSL", "False").capitalize()),
+        default=_bool_env("RUNDECK_SKIP_SSL"),
         action="store_true",
     )
 
@@ -116,7 +117,7 @@ class RundeckExporterArgs:
         "--rundeck.projects.executions",
         dest="rundeck_projects_executions",
         help="Get projects executions metrics",
-        default=literal_eval(getenv("RUNDECK_PROJECTS_EXECUTIONS", "False").capitalize()),
+        default=_bool_env("RUNDECK_PROJECTS_EXECUTIONS"),
         action="store_true",
     )
 
@@ -143,7 +144,7 @@ class RundeckExporterArgs:
         "--rundeck.projects.executions.cache",
         dest="rundeck_projects_executions_cache",
         help="Cache requests for project executions metrics query",
-        default=literal_eval(getenv("RUNDECK_PROJECTS_EXECUTIONS_CACHE", "False").capitalize()),
+        default=_bool_env("RUNDECK_PROJECTS_EXECUTIONS_CACHE"),
         action="store_true",
     )
 
@@ -151,7 +152,7 @@ class RundeckExporterArgs:
         "--rundeck.projects.filter",
         dest="rundeck_projects_filter",
         help="Get executions only from listed projects (delimiter = space)",
-        default=getenv("RUNDECK_PROJECTS_FILTER", []),
+        default=getenv("RUNDECK_PROJECTS_FILTER", "").split() or [],
         nargs="+",
         required=False,
     )
@@ -161,7 +162,7 @@ class RundeckExporterArgs:
         dest="rundeck_projects_nodes_info",
         help="Display Rundeck projects nodes info metrics, currently only the `rundeck_project_nodes_total` metric is available. May cause high CPU load depending on the number of projects",
         action="store_true",
-        default=literal_eval(getenv("RUNDECK_PROJECTS_NODES_INFO", "False").capitalize()),
+        default=_bool_env("RUNDECK_PROJECTS_NODES_INFO"),
     )
 
     parser.add_argument(
@@ -177,7 +178,7 @@ class RundeckExporterArgs:
         dest="rundeck_cpu_stats",
         help="Show Rundeck CPU usage stats",
         action="store_true",
-        default=literal_eval(getenv("RUNDECK_CPU_STATS", "False").capitalize()),
+        default=_bool_env("RUNDECK_CPU_STATS"),
     )
 
     parser.add_argument(
@@ -185,16 +186,10 @@ class RundeckExporterArgs:
         dest="rundeck_memory_stats",
         help="Show Rundeck memory usage stats",
         action="store_true",
-        default=literal_eval(getenv("RUNDECK_MEMORY_STATS", "False").capitalize()),
+        default=_bool_env("RUNDECK_MEMORY_STATS"),
     )
 
-    @property
-    def namespace(self):
-        return self.parser.parse_args()
-
-    @property
-    def empty_namespace(self):
-        return self.parser.parse_args([])
+    return parser
 
 
-rundeck_exporter_args = RundeckExporterArgs()
+rundeck_exporter_args = _build_parser().parse_args()

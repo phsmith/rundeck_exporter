@@ -35,7 +35,7 @@ class RundeckMetricsCollector(Collector):
     """Class for collect Rundeck metrics"""
 
     def __init__(self):
-        self.args = rundeck_exporter_args.namespace
+        self.args = rundeck_exporter_args
         parsed = urlparse(self.args.rundeck_url)
         instance_address = parsed.netloc
         if not instance_address:
@@ -81,7 +81,14 @@ class RundeckMetricsCollector(Collector):
                 project_executions_info = request(endpoint_executions)
                 project_executions_total_info = request(endpoint_executions_metrics)
 
-            if not project_executions_running_info or not project_executions_info or not project_executions_total_info:
+            if (
+                not project_executions_running_info
+                or not project_executions_info
+                or not project_executions_total_info
+                or not isinstance(project_executions_running_info, dict)
+                or not isinstance(project_executions_info, dict)
+                or not isinstance(project_executions_total_info, dict)
+            ):
                 return project_execution_records, project_executions_total
 
             project_executions_running_info_list = project_executions_running_info.get("executions", [])
@@ -92,14 +99,13 @@ class RundeckMetricsCollector(Collector):
 
             for project_execution in project_executions:
                 job_info = project_execution.get("job", {})
-                job_id = job_info.get("id", "None")
-                job_name = job_info.get("name", "None")
-                job_group = job_info.get("group", "None")
-                job_options_info = job_info.get("options", {})
-                job_options = ",".join([f"{k}={v}" for k, v in job_options_info.items()])
-                execution_id = str(project_execution.get("id", "None"))
-                execution_type = project_execution.get("executionType")
-                user = project_execution.get("user")
+                job_id = job_info.get("id") or ""
+                job_name = job_info.get("name") or ""
+                job_group = job_info.get("group") or ""
+                job_options = ",".join(f"{k}={v}" for k, v in job_info.get("options", {}).items())
+                execution_id = str(project_execution.get("id") or "")
+                execution_type = project_execution.get("executionType") or ""
+                user = project_execution.get("user") or ""
 
                 project_executions_labels_value = self.default_labels_values + [
                     project_name,
@@ -153,7 +159,7 @@ class RundeckMetricsCollector(Collector):
         project_name = project["name"]
         endpoint = f"/project/{project_name}/resources"
         project_nodes = cached_request(endpoint)
-        if project_nodes is None:
+        if not project_nodes or not isinstance(project_nodes, dict):
             return {}
         project_nodes_info = {project["name"]: list(project_nodes.values())}
 
@@ -267,7 +273,7 @@ class RundeckMetricsCollector(Collector):
         metrics = request("/metrics/metrics")
         system_info = request("/system/info")
 
-        if not metrics or not system_info:
+        if not metrics or not system_info or not isinstance(metrics, dict) or not isinstance(system_info, dict):
             return
 
         execution_mode = system_info["system"].get("executions", {}).get("executionMode")
@@ -327,9 +333,6 @@ class RundeckMetricsCollector(Collector):
             endpoint = "/projects"
 
             if rundeck_projects_filter:
-                if isinstance(rundeck_projects_filter, str):
-                    rundeck_projects_filter = rundeck_projects_filter.split()
-
                 projects = [{"name": x} for x in rundeck_projects_filter]
             else:
                 if self.args.rundeck_projects_executions_cache:

@@ -9,7 +9,7 @@ from rundeck_exporter.utils import exit_with_msg, logging
 
 def main() -> None:
     try:
-        args = rundeck_exporter_args.namespace
+        args = rundeck_exporter_args
 
         if args.debug:
             logging.getLogger().setLevel("DEBUG")
