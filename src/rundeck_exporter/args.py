@@ -149,6 +149,16 @@ def _build_parser() -> ArgumentParser:
     )
 
     parser.add_argument(
+        "--rundeck.projects.executions.include.job.options",
+        dest="rundeck_projects_executions_include_job_options",
+        help="Include job option keys as a label on execution metrics. "
+        "Off by default to avoid high label cardinality when option values are dynamic. "
+        "Only option keys (not values) are emitted.",
+        default=_bool_env("RUNDECK_PROJECTS_EXECUTIONS_INCLUDE_JOB_OPTIONS"),
+        action="store_true",
+    )
+
+    parser.add_argument(
         "--rundeck.projects.filter",
         dest="rundeck_projects_filter",
         help="Get executions only from listed projects (delimiter = space)",

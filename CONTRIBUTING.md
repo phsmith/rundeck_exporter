@@ -53,7 +53,8 @@ src/rundeck_exporter/
 └── utils.py             # HTTP helpers: request(), cached_request(), exit_with_msg()
 
 tests/
-└── test_rundeck_exporter_metrics.py  # Integration tests (require live Rundeck)
+├── unit/                # Unit tests (no Rundeck required)
+└── integration/         # Integration tests (require live Rundeck)
 
 examples/
 ├── docker-compose/      # Full local stack: Rundeck + exporter + Prometheus + Grafana
@@ -116,7 +117,7 @@ make test-env-teardown
 ### Run a single test
 
 ```bash
-uv run pytest tests/test_rundeck_exporter_metrics.py::test_metric_rundeck_system_info -v
+uv run pytest tests/integration/test_rundeck_exporter_metrics.py::test_metric_rundeck_system_info -v
 ```
 
 ---
@@ -189,7 +190,7 @@ Releases are fully automated via GitHub Actions. Only maintainers need the steps
 
 3. The `update-changelog.yml` workflow then triggers on the published release and commits an updated `CHANGELOG.md` to `main`.
 
-Pre-release tags (`alfa`, `beta` in the version string) skip the `:latest` Docker tag push.
+Pre-release tags (`alpha`, `beta`, `rc` in the version string) skip the `:latest` Docker tag push.
 
 ### Required secrets
 

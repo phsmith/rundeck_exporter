@@ -8,9 +8,9 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.11,<4.0"
 dependencies = [
-    "cachetools==5.5.0",
+    "cachetools>=5.5.0,<6",
     "httpx>=0.28.0",
-    "prometheus-client==0.21.1",
+    "prometheus-client>=0.21.1",
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -38,7 +38,7 @@ dev = [
     "pytest>=8.4.1",
     "pytest-env>=1.1.5",
     "ruff>=0.12.10",
-    "types-cachetools>=6.2.0.20260317",
+    "types-cachetools>=5.5.0,<6",
 ]
 
 [build-system]
@@ -46,8 +46,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.pytest.ini_options]
-addopts = "-v"
-python_files = ["*.py"]
+python_files = ["test_*.py"]
 python_functions = ["test_*"]
 testpaths = [
     "tests",

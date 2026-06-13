@@ -44,11 +44,11 @@ push-all:
 	make -j2 docker-push ghcr-push
 
 clean:
-	@docker rmi --force `docker images | awk '/$(IMAGE_NAME)/ {print $3}'` &> /dev/null || true
+	@docker rmi --force `docker images | awk '/$(IMAGE_NAME)/ {print $$3}'` &> /dev/null || true
 	@echo "> Project Docker images cleaned up."
 
 git-push:
-	[ -z "$(git status --short --untracked-files=no)" ] && (echo -e "\nNeed to commit changes before push.\n"; exit 1)
+	[ -n "$$(git status --short --untracked-files=no)" ] && echo -e "\nNeed to commit changes before push.\n" && exit 1; true
 	git tag -d latest
 	git tag latest
 	git push origin :latest
@@ -88,7 +88,14 @@ test-env-setup:
 		sleep 5; \
 	done
 	@echo "> Waiting for scheduled job executions to complete..."
-	@sleep 30
+	@for i in $$(seq 1 30); do \
+		if curl -sf "http://localhost:4440/api/41/project/test1/executions?status=succeeded&max=1" \
+			-H "X-Rundeck-Auth-Token: exporter_admin_auth_token" | grep -q '"total":[1-9]'; then \
+			echo "Executions ready."; break; \
+		fi; \
+		echo "Attempt $$i/30 - waiting for executions..."; \
+		sleep 5; \
+	done
 
 test-env-logs:
 	docker compose -f $(CI_COMPOSE) logs $(ARGS)
