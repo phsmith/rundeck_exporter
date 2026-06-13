@@ -901,7 +901,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "rundeck_scheduler_quartz_runningExecutions{instance=~\"${instance}\"}",
+          "expr": "sum(rundeck_project_execution_status{instance_address=~\"${instance}\", status=\"running\"})",
           "format": "table",
           "instant": true,
           "interval": "",
