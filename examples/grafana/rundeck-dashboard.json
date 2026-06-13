@@ -214,7 +214,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "exemplar": true,
-          "expr": "sum(rundeck_project_execution_status{instance_address=\"$instance_address\", status=\"running\"})",
+          "expr": "sum(rundeck_project_execution_status{instance_address=~\"$instance_address\", status=\"running\"})",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -626,7 +626,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "exemplar": true,
-          "expr": "topk(10, max(rundeck_project_execution_status{instance_address=\"$instance_address\", status=\"running\"}) by (project_name, job_name))",
+          "expr": "topk(10, max(rundeck_project_execution_status{instance_address=~\"$instance_address\", status=\"running\"}) by (project_name, job_name))",
           "format": "time_series",
           "instant": false,
           "interval": "",
