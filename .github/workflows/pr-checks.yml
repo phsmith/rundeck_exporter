@@ -20,6 +20,8 @@ jobs:
 
     permissions:
       contents: read
+      checks: write
+      pull-requests: write
 
     steps:
       - name: Checkout repository
@@ -41,7 +43,7 @@ jobs:
         run: uv run pyright src/
 
       - name: Run unit tests
-        run: uv run pytest tests/unit/ -v
+        run: uv run pytest tests/unit/ -v --junitxml=test-results/unit.xml
 
       - name: Build Docker Image
         run: make docker-build
@@ -59,8 +61,16 @@ jobs:
         run: make test-env-setup
 
       - name: Test rundeck-exporter metrics
-        run: make test
+        run: uv run pytest --junitxml=test-results/integration.xml
 
       - name: Teardown Rundeck test environment
         if: always()
         run: make test-env-teardown
+
+      - name: Publish test results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Test Results
+          path: test-results/*.xml
+          reporter: java-junit

@@ -1,5 +1,8 @@
 # Rundeck metrics exporter for Prometheus
 
+[![PR - Checks](https://github.com/phsmith/rundeck_exporter/actions/workflows/pr-checks.yml/badge.svg)](https://github.com/phsmith/rundeck_exporter/actions/workflows/pr-checks.yml)
+[![Helm - Checks](https://github.com/phsmith/rundeck_exporter/actions/workflows/helm-checks.yml/badge.svg)](https://github.com/phsmith/rundeck_exporter/actions/workflows/helm-checks.yml)
+[![Release](https://github.com/phsmith/rundeck_exporter/actions/workflows/release.yml/badge.svg)](https://github.com/phsmith/rundeck_exporter/actions/workflows/release.yml)
 [![Docker Pulls](https://img.shields.io/docker/pulls/phsmith/rundeck-exporter?logo=docker&)](https://hub.docker.com/r/phsmith/rundeck-exporter)
 [![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/phsmith/rundeck_exporter?color=%23e3e3e3)](https://github.com/phsmith/rundeck_exporter/releases)
 
