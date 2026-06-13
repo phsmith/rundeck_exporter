@@ -1,0 +1,40 @@
+language: "en-US"
+
+reviews:
+  profile: chill
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  review_status: true
+  collapse_walkthrough: false
+  path_instructions:
+    - path: "src/**/*.py"
+      instructions: |
+        - Line length limit is 120 characters (ruff).
+        - Flag any thread-safety issues, especially around the ThreadPoolExecutor in metrics_collector.py.
+        - Flag any blocking I/O calls that should use httpx async instead.
+        - Ensure Prometheus metric families follow existing naming conventions (rundeck_ prefix, _total suffix for counters).
+    - path: "tests/**/*.py"
+      instructions: |
+        - Tests must never use pytest.skip — assert with a clear failure message instead.
+        - Unit tests must not make real HTTP calls; integration tests require a live Rundeck instance.
+    - path: "charts/**"
+      instructions: |
+        - Validate Helm chart changes against Kubernetes 1.19+ compatibility.
+    - path: "examples/grafana/**"
+      instructions: |
+        - Grafana dashboards use instance_address label (not the native Prometheus instance label).
+        - Multi-value variables require =~ (regex match) not = (exact match) in PromQL.
+
+  ignore_title_keywords:
+    - "WIP"
+    - "Draft"
+
+  auto_review:
+    enabled: true
+    drafts: true
+    base_branches:
+      - main
+
+chat:
+  auto_reply: true
