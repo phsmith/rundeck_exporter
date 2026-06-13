@@ -7,11 +7,13 @@
 
 Rundeck Metrics Exporter for Prometheus.
 
-![Rundeck-Grafana-Dashboard](examples/grafana/rundeck-grafana-dashboard.png)
+<a href="./examples/grafana/rundeck-grafana-dashboard.png"><img src="./examples/grafana/rundeck-grafana-dashboard.png" alt="Rundeck Grafana Dashboard" width="33%" /></a>
+<a href="./examples/grafana/rundeck-grafana-dashboard-detailed-1.png"><img src="./examples/grafana/rundeck-grafana-dashboard-detailed-1.png" alt="Rundeck Grafana Dashboard Detailed 1" width="33%" /></a>
+<a href="./examples/grafana/rundeck-grafana-dashboard-detailed-2.png"><img src="./examples/grafana/rundeck-grafana-dashboard-detailed-2.png" alt="Rundeck Grafana Dashboard Detailed 2" width="33%" /></a>
 
-*Dashboard example can be found in: [examples/grafana](examples/grafana)*
+*Dashboard examples can be found in: [examples/grafana](examples/grafana)*
 
-This exporter uses the prometheus_client and requests Python module to expose Rundeck metrics found in:
+This exporter uses the prometheus_client and httpx Python modules to expose Rundeck metrics found in:
 
 * [RUNDECK_URL/*api_version*/system/info](https://docs.rundeck.com/docs/api/rundeck-api.html#system-info)
 * [RUNDECK_URL/*api_version*/metrics/metrics](https://docs.rundeck.com/docs/api/rundeck-api.html#list-metrics)
@@ -44,7 +46,7 @@ All metrics are exported with **rundeck_** prefix.
   uv sync
   ```
 
-  Type stubs for third-party libraries are included as dev dependencies (`types-requests`, `types-cachetools`).
+  Type stubs for third-party libraries are included as dev dependencies (`types-cachetools`).
 
 ## API Authentication
 
@@ -540,9 +542,9 @@ $ RUNDECK_TOKEN=xxxxxxxx uv run rundeck_exporter \
   rundeck_project_execution_status{execution_id="7375",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="3fcc1617-74d4-422b-b7cf-bd3123b3f97c",job_name="Fail after 60s",project_name="Test",status="failed",user="admin"} 1.0
   rundeck_project_execution_status{execution_id="7375",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="3fcc1617-74d4-422b-b7cf-bd3123b3f97c",job_name="Fail after 60s",project_name="Test",status="aborted",user="admin"} 0.0
   rundeck_project_execution_status{execution_id="7375",execution_type="scheduled",instance_address="localhost:4440",job_group="",job_id="3fcc1617-74d4-422b-b7cf-bd3123b3f97c",job_name="Fail after 60s",project_name="Test",status="unknown",user="admin"} 0.0
-  # HELP rundeck_project_executions_total Rundeck Project ProjectName Total Executions
-  # TYPE rundeck_project_executions_total counter
-  rundeck_project_executions_total{instance_address="localhost:4440",project_name="Test"} 300.0
+  # HELP rundeck_project_executions Rundeck Project ProjectName Total Executions
+  # TYPE rundeck_project_executions gauge
+  rundeck_project_executions{instance_address="localhost:4440",project_name="Test"} 300.0
   # HELP rundeck_project_nodes_total Rundeck project nodes total
   # TYPE rundeck_project_nodes_total gauge
   rundeck_project_nodes_total{instance_address="localhost:4440",project_name="Test"} 1.0

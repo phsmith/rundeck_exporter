@@ -66,7 +66,7 @@ kubectl create secret generic rundeck-exporter-token \
 | --------- | ----------- | ------- |
 | `replicaCount` | Number of replicas | `1` |
 | `image.repository` | Container image repository | `phsmith/rundeck-exporter` |
-| `image.tag` | Container image tag | `3.1.0` |
+| `image.tag` | Container image tag | `3.1.1` |
 | `image.pullPolicy` | Image pull policy | `IfNotPresent` |
 | `env.RUNDECK_URL` | Rundeck base URL | `http://localhost:4440` |
 | `env.RUNDECK_TOKEN` | Rundeck auth token | `""` |
@@ -76,6 +76,7 @@ kubectl create secret generic rundeck-exporter-token \
 | `env.RUNDECK_SKIP_SSL` | Skip SSL verification | `false` |
 | `env.RUNDECK_PROJECTS_EXECUTIONS` | Collect per-project execution metrics | `true` |
 | `env.RUNDECK_PROJECTS_EXECUTIONS_CACHE` | Cache execution requests | `false` |
+| `env.RUNDECK_PROJECTS_EXECUTIONS_INCLUDE_JOB_OPTIONS` | Emit job option keys (not values) as a label | `false` |
 | `env.RUNDECK_CPU_STATS` | Collect CPU stats | `true` |
 | `env.RUNDECK_MEMORY_STATS` | Collect memory stats | `true` |
 | `envSecret` | Name of existing secret to load env vars from | `""` |
