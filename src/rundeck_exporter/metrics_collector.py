@@ -70,7 +70,7 @@ class RundeckMetricsCollector(Collector):
     def describe(self):
         return []
 
-    def _get_project_executions(self, project: dict) -> tuple[list, dict]:
+    def _get_project_executions(self, project: dict) -> tuple[list, dict | None]:
         """
         Method to get Rundeck projects executions info
         """
@@ -99,7 +99,7 @@ class RundeckMetricsCollector(Collector):
                 or not isinstance(project_executions_info, dict)
                 or not isinstance(project_executions_total_info, dict)
             ):
-                return project_execution_records, project_executions_total
+                return project_execution_records, None
 
             project_executions_running_info_list = project_executions_running_info.get("executions", [])
             # /executions/metrics?recentFilter=1d total counts only completed executions;
@@ -394,11 +394,12 @@ class RundeckMetricsCollector(Collector):
 
                     for project_execution_record_group, project_executions_total in project_execution_records:
                         timestamp = datetime.now().timestamp()
-                        project_executions_metrics.add_metric(
-                            self.default_labels_values + [project_executions_total["project"]],
-                            project_executions_total["total_executions"],
-                            timestamp=timestamp,
-                        )
+                        if project_executions_total is not None:
+                            project_executions_metrics.add_metric(
+                                self.default_labels_values + [project_executions_total["project"]],
+                                project_executions_total["total_executions"],
+                                timestamp=timestamp,
+                            )
                         for project_execution_record in project_execution_record_group:
                             if project_execution_record.execution_type == RundeckProjectExecution.START:
                                 project_start_metrics.add_metric(
