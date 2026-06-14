@@ -241,7 +241,7 @@ dev = [
 requires-dist = [
     { name = "cachetools", specifier = ">=5.5.0,<6" },
     { name = "httpx", specifier = ">=0.28.0" },
-    { name = "prometheus-client", specifier = ">=0.21.1" },
+    { name = "prometheus-client", specifier = ">=0.21.1,<1" },
 ]
 
 [package.metadata.requires-dev]
