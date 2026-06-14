@@ -79,23 +79,27 @@ test-env-setup:
 			&& java -jar rd-cli.jar projects create -p test1 || true \
 			&& java -jar rd-cli.jar projects archives import -p test1 -f test1.rdproject.jar"
 	@echo "> Waiting for Rundeck API to be ready..."
-	@for i in $$(seq 1 30); do \
+	@success=0; \
+	for i in $$(seq 1 30); do \
 		if curl -sf http://localhost:4440/api/41/system/info \
 			-H "X-Rundeck-Auth-Token: exporter_admin_auth_token" > /dev/null 2>&1; then \
-			echo "Rundeck API is ready."; break; \
+			echo "Rundeck API is ready."; success=1; break; \
 		fi; \
 		echo "Attempt $$i/30 - not ready, retrying in 5s..."; \
 		sleep 5; \
-	done
+	done; \
+	[ $$success -eq 1 ] || { echo "Timed out waiting for Rundeck API to be ready"; exit 1; }
 	@echo "> Waiting for scheduled job executions to complete..."
-	@for i in $$(seq 1 30); do \
+	@success=0; \
+	for i in $$(seq 1 30); do \
 		if curl -sf "http://localhost:4440/api/41/project/test1/executions?status=succeeded&max=1" \
 			-H "X-Rundeck-Auth-Token: exporter_admin_auth_token" | grep -q '"total":[1-9]'; then \
-			echo "Executions ready."; break; \
+			echo "Executions ready."; success=1; break; \
 		fi; \
 		echo "Attempt $$i/30 - waiting for executions..."; \
 		sleep 5; \
-	done
+	done; \
+	[ $$success -eq 1 ] || { echo "Timed out waiting for scheduled executions"; exit 1; }
 
 test-env-logs:
 	docker compose -f $(CI_COMPOSE) logs $(ARGS)
