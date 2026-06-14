@@ -13,7 +13,7 @@ CI_COMPOSE = examples/docker-compose/docker-compose-ci.yml
 default: docker-build
 
 docker-build:
-	docker run --rm -i hadolint/hadolint:latest < Dockerfile
+	docker run --rm -i hadolint/hadolint:v2.14.0@sha256:27086352fd5e1907ea2b934eb1023f217c5ae087992eb59fde121dce9c9ff21e < Dockerfile
 
 	docker pull $(GHCR_IMAGE_TAG) || true
 
@@ -93,7 +93,7 @@ test-env-setup:
 	@success=0; \
 	for i in $$(seq 1 30); do \
 		if curl -sf "http://localhost:4440/api/41/project/test1/executions?status=succeeded&max=1" \
-			-H "X-Rundeck-Auth-Token: exporter_admin_auth_token" | grep -q '"total":[1-9]'; then \
+			-H "X-Rundeck-Auth-Token: exporter_admin_auth_token" | grep -qP '"total"\s*:\s*[1-9]'; then \
 			echo "Executions ready."; success=1; break; \
 		fi; \
 		echo "Attempt $$i/30 - waiting for executions..."; \
