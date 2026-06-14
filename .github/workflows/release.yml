@@ -35,6 +35,7 @@ jobs:
     permissions:
       contents: write
       packages: write
+      id-token: write
 
     env:
       DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
@@ -75,10 +76,7 @@ jobs:
           make push-all
 
       - name: Publish to pypi.org
-        run: uvx twine upload --skip-existing dist/*
-        env:
-          TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+        uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc # v1.12.4
 
   commit-and-tag:
     runs-on: ubuntu-24.04
