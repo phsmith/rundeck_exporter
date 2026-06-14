@@ -14,27 +14,24 @@ def _by_name(metrics):
 
 
 class TestGetCounters:
-    def test_excluded_counter_produces_no_metrics(self, collector):
-        metrics = {"counters": {"rundeck_execution_status_total": {"count": 5}}}
-        assert _names(list(collector._get_counters(metrics))) == []
+    @pytest.mark.parametrize("counter_name,expected_names", [
+        pytest.param("rundeck_execution_status_total", [], id="excluded-prefix"),
+        pytest.param("rundeck_http_status_count", ["rundeck_http_status_count"], id="status-in-middle-kept"),
+        pytest.param("rundeck_rateLimiter_count", ["rundeck_rateLimiter_count"], id="rate-in-name-kept"),
+    ])
+    def test_counter_name_filtering(self, collector, counter_name, expected_names):
+        """Exclusion applies only to the rundeck_execution_status_* prefix, not to names merely containing 'status' or 'rate'."""
+        metrics = {"counters": {counter_name: {"count": 5}}}
+        assert _names(list(collector._get_counters(metrics))) == expected_names
 
-    def test_counter_with_status_in_middle_not_excluded(self, collector):
-        """Only rundeck_execution_status_* prefix is excluded — not any name containing 'status'."""
-        metrics = {"counters": {"rundeck_http_status_count": {"count": 3}}}
-        assert _names(list(collector._get_counters(metrics))) == ["rundeck_http_status_count"]
-
-    def test_counter_name_containing_rate_emitted(self, collector):
-        """A counter whose base name contains 'rate' must NOT be dropped — only rate sub-fields are filtered."""
-        metrics = {"counters": {"rundeck_rateLimiter_count": {"count": 1}}}
-        assert _names(list(collector._get_counters(metrics))) == ["rundeck_rateLimiter_count"]
-
-    def test_counter_prefixed_with_rundeck(self, collector):
-        metrics = {"counters": {"myMetric": {"count": 7}}}
-        assert _names(list(collector._get_counters(metrics))) == ["rundeck_myMetric"]
-
-    def test_dash_and_dot_sanitized_to_underscore(self, collector):
-        metrics = {"counters": {"my-metric.count": {"count": 1}}}
-        assert _names(list(collector._get_counters(metrics))) == ["rundeck_my_metric_count"]
+    @pytest.mark.parametrize("counter_name,expected_name", [
+        pytest.param("myMetric", "rundeck_myMetric", id="rundeck-prefix-added"),
+        pytest.param("my-metric.count", "rundeck_my_metric_count", id="dash-dot-sanitized"),
+    ])
+    def test_counter_name_normalization(self, collector, counter_name, expected_name):
+        """Counter names without the rundeck_ prefix get it added; dashes and dots are sanitized to underscores."""
+        metrics = {"counters": {counter_name: {"count": 1}}}
+        assert _names(list(collector._get_counters(metrics))) == [expected_name]
 
     @pytest.mark.parametrize("value,expected", [
         pytest.param(None, 0.0, id="none-becomes-zero"),

@@ -36,65 +36,49 @@ def _mock_responses(running: list, recent: list, total: int):
 
 
 class TestGetProjectExecutions:
-    def test_deduplicates_execution_ids_across_running_and_recent(self, collector):
+    def test_deduplicates_execution_ids_across_running_and_recent(self, run_project_executions):
         """An execution present in both running and recent lists must produce one record set."""
         exec1 = _make_execution(1, "running")
-        side_effect = _mock_responses(running=[exec1], recent=[exec1], total=0)
-
-        with patch("rundeck_exporter.metrics_collector.request", side_effect=side_effect):
-            records, _ = collector._get_project_executions({"name": "test1"})
+        records, _ = run_project_executions(_mock_responses(running=[exec1], recent=[exec1], total=0))
 
         start_records = [r for r in records if r.execution_type == RundeckProjectExecution.START]
         assert len(start_records) == 1
 
-    def test_status_one_hot_per_execution(self, collector):
+    def test_status_one_hot_per_execution(self, run_project_executions):
         """Exactly one STATUS record per execution should have value 1 (the matching status)."""
         exec1 = _make_execution(1, "succeeded")
-        side_effect = _mock_responses(running=[], recent=[exec1], total=1)
-
-        with patch("rundeck_exporter.metrics_collector.request", side_effect=side_effect):
-            records, _ = collector._get_project_executions({"name": "test1"})
+        records, _ = run_project_executions(_mock_responses(running=[], recent=[exec1], total=1))
 
         status_records = [r for r in records if r.execution_type == RundeckProjectExecution.STATUS]
         assert len(status_records) == len(RUNDECK_EXECUTION_STATUSES)
         ones = [r for r in status_records if r.value == 1]
         assert len(ones) == 1
-        # The label list has status appended last; confirm it's the matching status
         assert ones[0].labels_value[-1] == "succeeded"
 
-    def test_job_execution_duration_in_seconds(self, collector):
+    def test_job_execution_duration_in_seconds(self, run_project_executions):
         """duration = (end_ms - start_ms) / 1000 — must be in seconds."""
         exec1 = _make_execution(1, "succeeded")
         # start=1_700_000_000_000ms, end=1_700_000_010_000ms → 10s
-        side_effect = _mock_responses(running=[], recent=[exec1], total=1)
-
-        with patch("rundeck_exporter.metrics_collector.request", side_effect=side_effect):
-            records, _ = collector._get_project_executions({"name": "test1"})
+        records, _ = run_project_executions(_mock_responses(running=[], recent=[exec1], total=1))
 
         duration_records = [r for r in records if r.execution_type == RundeckProjectExecution.DURATION]
         assert len(duration_records) == 1
         assert duration_records[0].value == pytest.approx(10.0)
 
-    def test_job_start_time_in_milliseconds(self, collector):
+    def test_job_start_time_in_milliseconds(self, run_project_executions):
         """job_start_time is kept in milliseconds (historical behavior)."""
         exec1 = _make_execution(1, "succeeded")
-        side_effect = _mock_responses(running=[], recent=[exec1], total=1)
-
-        with patch("rundeck_exporter.metrics_collector.request", side_effect=side_effect):
-            records, _ = collector._get_project_executions({"name": "test1"})
+        records, _ = run_project_executions(_mock_responses(running=[], recent=[exec1], total=1))
 
         start_records = [r for r in records if r.execution_type == RundeckProjectExecution.START]
         assert len(start_records) == 1
         assert start_records[0].value == 1_700_000_000_000
 
-    def test_missing_date_started_skips_start_and_duration_but_emits_status(self, collector):
+    def test_missing_date_started_skips_start_and_duration_but_emits_status(self, run_project_executions):
         """Without date-started: START and DURATION records must be omitted, but STATUS must still be emitted."""
         exec_no_start = _make_execution(1, "running", has_start=False)
         exec_with_start = _make_execution(2, "succeeded", has_start=True)
-        side_effect = _mock_responses(running=[exec_no_start], recent=[exec_with_start], total=1)
-
-        with patch("rundeck_exporter.metrics_collector.request", side_effect=side_effect):
-            records, _ = collector._get_project_executions({"name": "test1"})
+        records, _ = run_project_executions(_mock_responses(running=[exec_no_start], recent=[exec_with_start], total=1))
 
         start_records = [r for r in records if r.execution_type == RundeckProjectExecution.START]
         duration_records = [r for r in records if r.execution_type == RundeckProjectExecution.DURATION]
@@ -106,43 +90,29 @@ class TestGetProjectExecutions:
         assert len(duration_records) == 1
         assert len(status_records) == 2 * len(RUNDECK_EXECUTION_STATUSES)
 
-    def test_job_options_label_empty_when_disabled(self, collector):
-        """With the flag off (default), job_options label is an empty string — option keys are not emitted."""
+    @pytest.mark.parametrize("enabled,expected_label", [
+        pytest.param(False, "", id="disabled-empty"),
+        pytest.param(True, "env,region", id="enabled-keys-only"),
+    ])
+    def test_job_options_label(self, collector, run_project_executions, enabled, expected_label):
+        """job_options label is empty when disabled, or comma-joined option KEYS (no values) when enabled."""
         exec1 = _make_execution(1, "succeeded")
         exec1["job"]["options"] = {"env": "prod", "region": "us"}
-        side_effect = _mock_responses(running=[], recent=[exec1], total=1)
 
-        collector.args.rundeck_projects_executions_include_job_options = False
-        with patch("rundeck_exporter.metrics_collector.request", side_effect=side_effect):
-            records, _ = collector._get_project_executions({"name": "test1"})
-
-        # job_options is the 6th project-execution label (index 5 after the 1 default label)
-        start = next(r for r in records if r.execution_type == RundeckProjectExecution.START)
-        assert start.labels_value[5] == ""
-
-    def test_job_options_label_emits_keys_only_when_enabled(self, collector):
-        """With the flag on, job_options label holds option KEYS only (not values), comma-joined."""
-        exec1 = _make_execution(1, "succeeded")
-        exec1["job"]["options"] = {"env": "prod", "region": "us"}
-        side_effect = _mock_responses(running=[], recent=[exec1], total=1)
-
-        collector.args.rundeck_projects_executions_include_job_options = True
-        with patch("rundeck_exporter.metrics_collector.request", side_effect=side_effect):
-            records, _ = collector._get_project_executions({"name": "test1"})
+        with patch.object(collector.args, "rundeck_projects_executions_include_job_options", enabled):
+            records, _ = run_project_executions(_mock_responses(running=[], recent=[exec1], total=1))
 
         start = next(r for r in records if r.execution_type == RundeckProjectExecution.START)
-        assert start.labels_value[5] == "env,region"
-        # values must never leak into the label
-        assert "prod" not in start.labels_value[5]
-        assert "us" not in start.labels_value[5]
+        # job_options is the 6th project-execution label (index 5)
+        assert start.labels_value[5] == expected_label
+        if enabled:
+            assert "prod" not in start.labels_value[5]
+            assert "us" not in start.labels_value[5]
 
-    def test_total_executions_is_metrics_total_plus_running_count(self, collector):
+    def test_total_executions_is_metrics_total_plus_running_count(self, run_project_executions):
         """/executions/metrics total counts completed only; running is added separately."""
         exec1 = _make_execution(1, "running")
         exec2 = _make_execution(2, "succeeded")
-        side_effect = _mock_responses(running=[exec1], recent=[exec2], total=5)
-
-        with patch("rundeck_exporter.metrics_collector.request", side_effect=side_effect):
-            _, totals = collector._get_project_executions({"name": "test1"})
+        _, totals = run_project_executions(_mock_responses(running=[exec1], recent=[exec2], total=5))
 
         assert totals["total_executions"] == 6  # 5 completed (metrics) + 1 running
