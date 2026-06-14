@@ -284,7 +284,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "exemplar": true,
-          "expr": "topk(10, count(last_over_time(rundeck_project_execution_status{instance_address=\"$instance_address\", status=\"failed\"}[$__range])) by (project_name, job_name))",
+          "expr": "topk(10, sum(last_over_time(rundeck_project_execution_status{instance_address=~\"$instance_address\", status=\"failed\"}[$__range])) by (project_name, job_name))",
           "hide": false,
           "instant": false,
           "interval": "",
@@ -855,7 +855,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "exemplar": false,
-          "expr": "rundeck_execution_mode_active{instance_address=\"$instance_address\"}",
+          "expr": "rundeck_execution_mode_active{instance_address=~\"$instance_address\"}",
           "legendFormat": "",
           "refId": "A",
           "format": "table",
