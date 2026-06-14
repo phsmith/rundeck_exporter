@@ -40,6 +40,11 @@ class RundeckMetricsCollector(Collector):
     """Class for collect Rundeck metrics"""
 
     def __init__(self):
+        """
+        Initialize the Rundeck metrics collector and set up concurrent request handling.
+        
+        Validates the Rundeck URL to extract the instance address, configures default metric labels, creates a ThreadPoolExecutor for parallel project requests (with automatic shutdown), and initializes a lock to prevent overlapping execution scrapes.
+        """
         self.args = rundeck_exporter_args
         parsed = urlparse(self.args.rundeck_url)
         instance_address = parsed.netloc
@@ -68,11 +73,20 @@ class RundeckMetricsCollector(Collector):
         self._execution_scrape_lock = threading.Lock()
 
     def describe(self):
+        """Provide metric family descriptors for the Prometheus Collector interface.
+        
+        This implementation returns an empty list; detailed metric descriptions are supplied dynamically by the collect() method.
+        """
         return []
 
     def _get_project_executions(self, project: dict) -> tuple[list, dict | None]:
         """
-        Method to get Rundeck projects executions info
+        Fetches and generates execution metric records for a Rundeck project.
+        
+        Returns:
+        	(list[RundeckProjectExecutionRecord], dict | None): A tuple of execution metric
+        		records with labels and values, and optionally a dict containing the project
+        		name and total 1-day execution count (None if metrics unavailable).
         """
 
         project_name = project["name"]
@@ -179,7 +193,13 @@ class RundeckMetricsCollector(Collector):
 
     def _get_project_nodes(self, project: dict) -> dict:
         """
-        Method to get Rundeck projects nodes info
+        Retrieves the node count for a Rundeck project.
+        
+        Parameters:
+            project (dict): A project dict containing at least a "name" key.
+        
+        Returns:
+            dict: A dictionary mapping the project name to its node count, or an empty dict if fetching nodes fails.
         """
 
         project_name = project["name"]
@@ -190,7 +210,10 @@ class RundeckMetricsCollector(Collector):
 
     def _get_system_stats(self, system_info: dict):
         """
-        Method to get Rundeck system stats
+        Generates Prometheus gauge metric families for Rundeck system statistics.
+        
+        Yields:
+            GaugeMetricFamily: Gauge metric families for system statistics (uptime, CPU, memory).
         """
 
         for stat, stat_values in system_info["system"]["stats"].items():
@@ -221,7 +244,19 @@ class RundeckMetricsCollector(Collector):
 
     def _get_counters(self, metrics: dict):
         """
-        Method to get Rundeck metrics counters, gauges and timers
+        Convert Rundeck metrics in Dropwizard format to Prometheus metric families.
+        
+        Transforms counters, gauges, meters, and timers into appropriate Prometheus metric
+        types. Dropwizard counters become gauges, meter/timer counts become counters, and
+        distribution stats become gauges. Excludes execution status counters, which are
+        emitted separately as one-hot gauges during project execution collection.
+        
+        Parameters:
+        	metrics (dict): Dropwizard-format metrics with nested dicts keyed by metric type.
+        
+        Yields:
+        	GaugeMetricFamily or CounterMetricFamily: Prometheus metric families with
+        		instance_address label.
         """
 
         for metric, metric_value in metrics.items():
@@ -283,12 +318,26 @@ class RundeckMetricsCollector(Collector):
 
     def collect(self):
         """
-        Method to collect Rundeck metrics
+        Collects Rundeck metrics for Prometheus export.
+        
+        Fetches system information, statistics, counters, and optional project-level 
+        metrics from Rundeck endpoints. Respects configuration flags for passive mode 
+        behavior and project filtering. Measures and reports scrape duration.
+        
+        Yields:
+            Prometheus metric families for system info, execution mode, system statistics, 
+            counters, and optional project execution and node metrics.
         """
 
         scrape_start = time.perf_counter()
 
         def _scrape_duration():
+            """
+            Create a gauge metric for the current Rundeck scrape duration.
+            
+            Returns:
+                A GaugeMetricFamily recording the elapsed scrape time in seconds.
+            """
             m = GaugeMetricFamily(
                 "rundeck_exporter_scrape_duration_seconds",
                 "Duration of the last Rundeck scrape in seconds",
@@ -442,6 +491,9 @@ class RundeckMetricsCollector(Collector):
             yield _scrape_duration()
 
     def run(self) -> None:
+        """
+        Start the Prometheus metrics exporter server.
+        """
         try:
             REGISTRY.register(self)
 

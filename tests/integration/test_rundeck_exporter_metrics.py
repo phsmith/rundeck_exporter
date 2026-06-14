@@ -18,6 +18,12 @@ _EXECUTION_LABELS = {
 
 @pytest.fixture(scope="module")
 def metrics():
+    """
+    Provide the Prometheus REGISTRY with Rundeck metrics for module tests.
+    
+    Yields:
+        REGISTRY: The global Prometheus registry with RundeckMetricsCollector registered.
+    """
     rundeck_metrics = RundeckMetricsCollector()
     REGISTRY.register(rundeck_metrics)
     yield REGISTRY
@@ -26,6 +32,19 @@ def metrics():
 
 @pytest.fixture()
 def metric_samples(request, metrics):
+    """
+    Collect Prometheus metric samples whose names start with the requested prefix.
+    
+    Filters samples from the metrics fixture by the parameterized metric name prefix.
+    Fails if no matching samples are found.
+    
+    Parameters:
+        request: Pytest fixture parameter containing the metric name prefix to match
+        metrics: Prometheus metrics fixture providing collected metrics
+    
+    Returns:
+        list: Prometheus metric samples matching the requested prefix
+    """
     samples = []
 
     for metric in metrics.collect():

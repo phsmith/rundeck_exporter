@@ -7,6 +7,17 @@ from rundeck_exporter.metrics_collector import RundeckProjectExecution
 
 
 def _make_execution(exec_id: int, status: str = "succeeded", has_start: bool = True) -> dict:
+    """
+    Build a Rundeck execution dict for testing.
+    
+    Parameters:
+        exec_id (int): The execution ID.
+        status (str): The execution status. Defaults to "succeeded".
+        has_start (bool): Whether to include start and end timestamps. Defaults to True.
+    
+    Returns:
+        dict: A mock Rundeck execution dict.
+    """
     base = {
         "id": exec_id,
         "status": status,
@@ -21,11 +32,37 @@ def _make_execution(exec_id: int, status: str = "succeeded", has_start: bool = T
 
 
 def _mock_responses(running: list, recent: list, total: int):
+    """
+    Create a mock HTTP response router for Rundeck API endpoints.
+    
+    Parameters:
+        running (list): List of execution dicts for the running executions endpoint.
+        recent (list): List of execution dicts for the recent executions endpoint.
+        total (int): Total execution count for the metrics endpoint.
+    
+    Returns:
+        function: A callable that accepts an endpoint string and returns the appropriate
+                  response dict (running, recent, or metrics payload based on endpoint).
+    """
     running_resp = {"executions": running}
     recent_resp = {"executions": recent}
     metrics_resp = {"total": total}
 
     def side_effect(endpoint):
+        """
+        Select and return the appropriate mock response payload based on the endpoint string.
+        
+        Checks the endpoint parameter to determine which response to return:
+        - If "running" is in the endpoint, returns the running executions response.
+        - If "metrics" is in the endpoint, returns the metrics response.
+        - Otherwise, returns the recent executions response.
+        
+        Parameters:
+        	endpoint (str): The HTTP endpoint path or URL being mocked.
+        
+        Returns:
+        	dict: A response payload dictionary containing the appropriate mock data (running, metrics, or recent executions).
+        """
         if "running" in endpoint:
             return running_resp
         if "metrics" in endpoint:

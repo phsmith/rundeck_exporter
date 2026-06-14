@@ -9,10 +9,25 @@ from rundeck_exporter.utils import request
 
 
 def _api_error_count(endpoint: str) -> float:
+    """
+    Retrieve the error count for an endpoint from the Prometheus registry.
+    
+    Returns:
+    	float: The error count, or 0.0 if the sample is not present.
+    """
     return REGISTRY.get_sample_value("rundeck_exporter_api_errors_total", {"endpoint": endpoint}) or 0.0
 
 
 def _make_ok_response(payload) -> MagicMock:
+    """
+    Create a mock HTTP response that simulates a successful request.
+    
+    Parameters:
+        payload: The JSON payload to return when the mock's `json()` method is called.
+    
+    Returns:
+        A MagicMock configured with `raise_for_status()` returning None and `json()` returning the given payload.
+    """
     mock = MagicMock()
     mock.raise_for_status.return_value = None
     mock.json.return_value = payload
@@ -20,6 +35,15 @@ def _make_ok_response(payload) -> MagicMock:
 
 
 def _make_status_error_response(status_code: int) -> MagicMock:
+    """
+    Create a mock response that raises an HTTP status error when raise_for_status() is called.
+    
+    Parameters:
+        status_code (int): The HTTP status code for the error response.
+    
+    Returns:
+        MagicMock: A mock response object configured to raise httpx.HTTPStatusError with the given status code when raise_for_status() is invoked.
+    """
     error_response = MagicMock(status_code=status_code, text="Error")
     mock = MagicMock()
     mock.raise_for_status.side_effect = httpx.HTTPStatusError(
@@ -102,6 +126,12 @@ class TestRequest:
         payload = {"system": {}}
 
         def _login(*_args, **_kwargs):
+            """
+            Simulate a successful login response.
+            
+            Returns:
+                MagicMock: A mock response object.
+            """
             utils._user_client.cookies.set("JSESSIONID", "fake-session")
             return MagicMock()
 

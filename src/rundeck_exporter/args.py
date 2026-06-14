@@ -12,6 +12,12 @@ def _bool_env(key: str, default: bool = False) -> bool:
 
 
 def _build_parser() -> ArgumentParser:
+    """
+    Configures and returns the CLI argument parser for the Rundeck exporter.
+    
+    Returns:
+    	ArgumentParser: A parser configured with CLI arguments and default values from environment variables.
+    """
     parser = ArgumentParser(
         prog="rundeck_exporter",
         description=textwrap.dedent(

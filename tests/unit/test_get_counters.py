@@ -2,14 +2,40 @@ import pytest
 
 
 def _names(metrics):
+    """
+    Extract the name of each metric.
+    
+    Parameters:
+    	metrics: An iterable of metric objects, each with a name attribute.
+    
+    Returns:
+    	list: A list of metric names.
+    """
     return [m.name for m in metrics]
 
 
 def _values(metrics):
+    """
+    Build a mapping from metric names to their first sample values.
+    
+    Only metrics with at least one sample are included in the result.
+    
+    Returns:
+        A dictionary mapping metric names to their first sample values.
+    """
     return {m.name: m.samples[0].value for m in metrics if m.samples}
 
 
 def _by_name(metrics):
+    """
+    Build a mapping of metric names to metric objects.
+    
+    Parameters:
+    	metrics (iterable): Collection of metric objects with a name attribute
+    
+    Returns:
+    	dict: Dictionary mapping metric names to metric objects
+    """
     return {m.name: m for m in metrics}
 
 

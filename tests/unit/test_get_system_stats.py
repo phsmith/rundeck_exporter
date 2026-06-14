@@ -18,8 +18,23 @@ SYSTEM_INFO = {
 
 @pytest.fixture
 def get_stat_names(collector):
-    """Factory that patches cpu/memory flags and returns the set of metric names from _get_system_stats."""
+    """
+    Return a callable for collecting system metrics with configurable CPU and memory filtering.
+    
+    Returns:
+        callable: A function that accepts optional `cpu` and `memory` boolean parameters and returns a set of metric family names from system statistics.
+    """
     def _run(cpu=True, memory=True):
+        """
+        Collect system stats with specified stat types included.
+        
+        Parameters:
+            cpu (bool): Whether to include CPU metrics. Defaults to True.
+            memory (bool): Whether to include memory metrics. Defaults to True.
+        
+        Returns:
+            set: Metric family names produced from the system stats collection.
+        """
         with patch.object(collector.args, "rundeck_cpu_stats", cpu):
             with patch.object(collector.args, "rundeck_memory_stats", memory):
                 return {m.name for m in collector._get_system_stats(SYSTEM_INFO)}

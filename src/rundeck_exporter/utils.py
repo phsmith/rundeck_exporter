@@ -35,13 +35,25 @@ _cache_lock = threading.Lock()
 
 
 def _normalize_endpoint(endpoint: str) -> str:
+    """
+    Normalize a Rundeck API endpoint for consistent Prometheus metric labeling.
+    
+    Parameters:
+    	endpoint (str): The API endpoint path, possibly containing query parameters and project identifiers.
+    
+    Returns:
+    	str: The endpoint with query parameters removed and project paths normalized to `/project/{project}`.
+    """
     endpoint = endpoint.split("?")[0]
     return re.sub(r"/project/[^/]+", "/project/{project}", endpoint)
 
 
 def exit_with_msg(msg: str, level: str) -> NoReturn:
     """
-    Logging wrapper method for logging and exiting
+    Log a message at the specified level and exit the process.
+    
+    Parameters:
+        level (str): The logging level name (e.g., "critical", "error", "warning").
     """
 
     getattr(logging, level)(msg)
@@ -50,7 +62,10 @@ def exit_with_msg(msg: str, level: str) -> NoReturn:
 
 def request(endpoint: str) -> dict | list | None:
     """
-    Method for managing requests on Rundeck API endpoints
+    Fetches data from a Rundeck API endpoint.
+    
+    Returns:
+        The parsed JSON response (dict or list) on success, None on failure.
     """
 
     response = None
@@ -106,6 +121,15 @@ def request(endpoint: str) -> dict | list | None:
 
 
 def cached_request(endpoint: str) -> dict | list | None:
+    """
+    Retrieves a response from Rundeck, using cached results to avoid repeated requests.
+    
+    Parameters:
+        endpoint (str): The Rundeck API endpoint path.
+    
+    Returns:
+        dict | list | None: The parsed JSON response if successful, or None if the request failed.
+    """
     with _cache_lock:
         if endpoint in _cache:
             return _cache[endpoint]

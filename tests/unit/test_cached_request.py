@@ -7,6 +7,9 @@ from rundeck_exporter.utils import _cache, _cache_lock, cached_request
 
 class TestCachedRequest:
     def _clear(self, endpoint: str) -> None:
+        """
+        Remove the cached value for the specified endpoint.
+        """
         with _cache_lock:
             _cache.pop(endpoint, None)
 

@@ -17,6 +17,15 @@ _PASSIVE_SYSTEM_INFO = {
 
 
 def _active_router(endpoint):
+    """
+    Mock HTTP endpoint responses for active-mode Rundeck system testing.
+    
+    Parameters:
+    	endpoint (str): The endpoint path to mock.
+    
+    Returns:
+    	dict or list: System information dict for "/system/info", project list for "/projects", or metrics data dict for any other endpoint.
+    """
     if endpoint == "/system/info":
         return _ACTIVE_SYSTEM_INFO
     if endpoint == "/projects":
@@ -25,6 +34,12 @@ def _active_router(endpoint):
 
 
 def _passive_router(endpoint):
+    """
+    Route requests to passive system info or metrics data based on the endpoint.
+    
+    Returns:
+        dict: Passive system info dict if endpoint is "/system/info", otherwise a metrics data dict.
+    """
     return _PASSIVE_SYSTEM_INFO if endpoint == "/system/info" else _METRICS_DATA
 
 

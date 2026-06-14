@@ -8,6 +8,10 @@ from rundeck_exporter.utils import exit_with_msg, logging
 
 
 def main() -> None:
+    Initialize and run the Rundeck metrics exporter.
+    
+    Validates required configuration (Rundeck URL and authentication credentials),
+    configures logging, and initiates metrics collection.
     try:
         args = rundeck_exporter_args
 
