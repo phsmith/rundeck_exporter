@@ -79,10 +79,10 @@ class RundeckMetricsCollector(Collector):
         project_execution_records: list[RundeckProjectExecutionRecord] = []
         project_executions_limit = self.args.rundeck_projects_executions_limit
         project_executions_filter = self.args.rundeck_project_executions_filter
-        project_executions_total = {"project": project_name, "total_executions": 0}
         endpoint_executions = f"/project/{project_name}/executions?recentFilter={project_executions_filter}&max={project_executions_limit}"
         endpoint_executions_running = f"/project/{project_name}/executions/running?max={project_executions_limit}"
         endpoint_executions_metrics = f"/project/{project_name}/executions/metrics?recentFilter=1d"
+        project_executions_total: dict | None = None
 
         try:
             fetch = cached_request if self.args.rundeck_projects_executions_cache else request
@@ -94,19 +94,20 @@ class RundeckMetricsCollector(Collector):
             if (
                 not project_executions_running_info
                 or not project_executions_info
-                or not project_executions_total_info
                 or not isinstance(project_executions_running_info, dict)
                 or not isinstance(project_executions_info, dict)
-                or not isinstance(project_executions_total_info, dict)
             ):
                 return project_execution_records, None
 
             project_executions_running_info_list = project_executions_running_info.get("executions", [])
             # /executions/metrics?recentFilter=1d total counts only completed executions;
             # add the running list to include in-progress executions in the total.
-            project_executions_total["total_executions"] = project_executions_total_info["total"] + len(
-                project_executions_running_info_list
-            )
+            # Totals endpoint is optional — None skips the metric in collect().
+            if project_executions_total_info and isinstance(project_executions_total_info, dict):
+                project_executions_total = {
+                    "project": project_name,
+                    "total_executions": project_executions_total_info["total"] + len(project_executions_running_info_list),
+                }
 
             # Deduplicate by execution id — running executions can also appear in the recent filter list
             seen_ids: set = set()
