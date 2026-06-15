@@ -4,7 +4,14 @@
   "include-component-in-tag": false,
   "packages": {
     ".": {
-      "changelog-path": "CHANGELOG.md"
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "path": "uv.lock",
+          "type": "toml",
+          "jsonpath": "$.package[?(@.name.value=='rundeck-exporter')].version"
+        }
+      ]
     }
   }
 }
