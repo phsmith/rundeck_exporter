@@ -109,17 +109,24 @@ jobs:
           fetch-depth: 0
           ssh-key: ${{ secrets.DEPLOY_KEY }}
 
-      - name: Bump Helm chart versions
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          activate-environment: true
+          enable-cache: true
+
+      - name: Sync lockfile and bump Helm chart versions
         run: |
+          uv lock
           yq -i ".appVersion = \"$VERSION\"" charts/Chart.yaml
           yq -i ".version = \"$VERSION\"" charts/Chart.yaml
           yq -i ".image.tag = \"$VERSION\"" charts/values.yaml
 
-      - name: Commit chart version bump to main
+      - name: Commit version bump to main
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add charts/Chart.yaml charts/values.yaml
+          git add uv.lock charts/Chart.yaml charts/values.yaml
           git commit -m "Bump chart version to $VERSION [skip ci]" || true
           git push
 
@@ -131,19 +138,25 @@ jobs:
       contents: write
 
     steps:
-      - name: Create Github release
+      - name: Publish Github release
         run: |
-          # release-please may have already created the release when it pushed the tag
-          if gh release view "$GIT_TAG" --repo="$GITHUB_REPOSITORY" &>/dev/null; then
-            echo "Release $GIT_TAG already exists, skipping"
+          # release-please creates a draft release; publish it now that artifacts are ready.
+          # For workflow_dispatch re-runs the release may already be published — skip if so.
+          DRAFT=$(gh release view "$GIT_TAG" --repo="$GITHUB_REPOSITORY" --json isDraft --jq '.isDraft' 2>/dev/null || echo "notfound")
+          if [[ "$DRAFT" == "false" ]]; then
+            echo "Release $GIT_TAG already published, skipping"
             exit 0
           fi
           EXTRA_FLAGS="--latest"
           if [[ "$GIT_TAG" =~ (alpha|beta|rc) ]]; then
             EXTRA_FLAGS="--prerelease"
           fi
-          gh release create "$GIT_TAG" \
-              --repo="$GITHUB_REPOSITORY" \
-              --title="$GIT_TAG" \
-              --generate-notes \
-              $EXTRA_FLAGS
+          if [[ "$DRAFT" == "true" ]]; then
+            gh release edit "$GIT_TAG" --repo="$GITHUB_REPOSITORY" --draft=false $EXTRA_FLAGS
+          else
+            gh release create "$GIT_TAG" \
+                --repo="$GITHUB_REPOSITORY" \
+                --title="$GIT_TAG" \
+                --generate-notes \
+                $EXTRA_FLAGS
+          fi
