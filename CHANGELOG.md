@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.1](https://github.com/phsmith/rundeck_exporter/compare/v4.0.0...v4.0.1) (2026-06-15)
+
+
+### Bug Fixes
+
+* **ci:** fix release pipeline — draft releases, uv lock sync, and branch fix ([#134](https://github.com/phsmith/rundeck_exporter/issues/134)) ([8a02704](https://github.com/phsmith/rundeck_exporter/commit/8a027041ed8cd653c2b550aad7461a95c8555f63))
+* **ci:** use PAT for release-please and add workflow_dispatch to release ([#132](https://github.com/phsmith/rundeck_exporter/issues/132)) ([9e6310c](https://github.com/phsmith/rundeck_exporter/commit/9e6310c39ee1de26edebc008fd55eddc97543d2f))
+
 ## [4.0.0](https://github.com/phsmith/rundeck_exporter/compare/v3.1.1...v4.0.0) (2026-06-15)
 
 
