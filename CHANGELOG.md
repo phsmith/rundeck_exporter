@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0](https://github.com/phsmith/rundeck_exporter/compare/v3.1.1...v4.0.0) (2026-06-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* rundeck_project_executions_total renamed to rundeck_project_executions and type changed Counter→Gauge. Update dashboards, alerts, and recording rules referencing the old name.
+
+### Code Refactoring
+
+* metrics collector cleanup, CI hardening, and Grafana fixes ([#129](https://github.com/phsmith/rundeck_exporter/issues/129)) ([e172d94](https://github.com/phsmith/rundeck_exporter/commit/e172d94a21f9ad1a6fd6a86ff244f6d535c987e6))
+
 ## [Unreleased](https://github.com/phsmith/rundeck_exporter/compare/v3.1.1...HEAD)
 
 ## [v3.1.1](https://github.com/phsmith/rundeck_exporter/compare/v3.1.0...v3.1.1) - 2026-03-20
