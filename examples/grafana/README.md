@@ -1,31 +1,36 @@
-## Rundeck Exporter Grafana Dashboard
----
+# Rundeck Exporter Grafana Dashboards
 
-Below is a example of a Grafana Dashboard.
+Two dashboards are provided. Import them via **Grafana → Dashboards → Import → Upload JSON file**.
 
-The following parameters are required to make the dashboard works as in the image:
-- rundeck.projects.executions
-- rundeck.cpu.stats
-- rundeck.memory.stats
+## Rundeck Dashboard
 
-The dashboard can be imported from the following JSON file:
+Overview of Rundeck system resources and job activity.
 
-[Rundeck Grafana Dashboard JSON](Rundeck-Dashboard.json)
+**File:** [rundeck-dashboard.json](rundeck-dashboard.json)
 
-![Rundeck-Grafana-Dashboard](Rundeck-Grafana-Dashboard.png)
+**Variable:** `instance_address` — populated automatically from `label_values(instance_address)`. Select the Rundeck server address (e.g. `rundeck:4440`).
 
-<br>
+**Recommended flags:**
+- `--rundeck.projects.executions`
+- `--rundeck.cpu.stats`
+- `--rundeck.memory.stats`
 
-## Rundeck Exporter Grafana Dashboard - Detailed jobs
-The dashboard bellow includes some detailed information about jobs executions.
+<a href="rundeck-grafana-dashboard.png"><img src="rundeck-grafana-dashboard.png" alt="Rundeck Grafana Dashboard" width="60%" /></a>
 
-The following parameters are required to make the dashboard works as in the image:
-- rundeck.projects.executions
-- rundeck.cpu.stats
-- rundeck.memory.stats
+## Rundeck Detailed Dashboard
 
-Need to change the Grafana variable ```rundeck_host``` for the links to work as expected.
+Per-job execution breakdown with success rate, duration, failure analysis, and running job tracking.
 
-[Dashboard JSON file](rundeck-exporter-job-detailed.json)
+**File:** [rundeck-exporter-job-detailed.json](rundeck-exporter-job-detailed.json)
 
-![Rundeck-Grafana-Dashboard](rundeck-exporter-job-detailed.png)
+**Variable:** `instance` — populated automatically from `label_values(instance_address)`. Select the Rundeck server address (e.g. `rundeck:4440`).
+
+Set the `rundeck_host` constant variable to your Rundeck base URL for job detail links to work (e.g. `http://rundeck:4440`).
+
+**Recommended flags:**
+- `--rundeck.projects.executions`
+- `--rundeck.cpu.stats`
+- `--rundeck.memory.stats`
+
+<a href="rundeck-grafana-dashboard-detailed-1.png"><img src="rundeck-grafana-dashboard-detailed-1.png" alt="Rundeck Grafana Dashboard Detailed 1" width="48%" /></a>
+<a href="rundeck-grafana-dashboard-detailed-2.png"><img src="rundeck-grafana-dashboard-detailed-2.png" alt="Rundeck Grafana Dashboard Detailed 2" width="48%" /></a>

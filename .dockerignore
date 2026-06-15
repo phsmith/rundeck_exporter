@@ -1,0 +1,15 @@
+.git/
+.github/
+.claude/
+.ruff_cache/
+dist/
+*.egg-info/
+examples/
+tests/
+docs/
+charts/
+*.md
+!README.md
+kind-cluster.yaml
+override.yaml
+requirements.txt

@@ -1,4 +1,4 @@
-FROM python:3.13-alpine AS build
+FROM python:3.13-alpine@sha256:420cd0bf0f3998275875e02ecd5808168cf0843cbb4d3c536432f729247b2acc AS build
 
 WORKDIR /app
 
@@ -12,7 +12,7 @@ ENV UV_COMPILE_BYTECODE=1 \
 RUN uv sync --locked --no-dev \
     && uv build
 
-FROM python:3.13-alpine AS app
+FROM python:3.13-alpine@sha256:420cd0bf0f3998275875e02ecd5808168cf0843cbb4d3c536432f729247b2acc AS app
 
 ARG BUILD_DATE
 ARG VCS_REF
@@ -27,9 +27,7 @@ LABEL maintainer="Phillipe Smith <phsmithcc@gmail.com>" \
       org.opencontainers.image.source="https://github.com/phsmith/rundeck_exporter" \
       org.opencontainers.image.version=$VERSION
 
-# hadolint ignore=DL3018
-RUN apk upgrade -U \
-    && adduser --disabled-password --gecos '' rundeck
+RUN adduser --disabled-password --gecos '' rundeck
 
 USER rundeck
 
@@ -38,9 +36,11 @@ COPY --from=build --chown=rundeck:rundeck /app/dist/ /tmp/dist/
 RUN pip install --no-cache-dir /tmp/dist/rundeck_exporter*.whl \
     && rm -rf /tmp/dist/
 
-EXPOSE 9620
+ENV RUNDECK_EXPORTER_PORT=9620
+
+EXPOSE ${RUNDECK_EXPORTER_PORT}
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD wget -qO- http://localhost:9620/metrics || exit 1
+    CMD nc -z localhost ${RUNDECK_EXPORTER_PORT} || exit 1
 
 ENTRYPOINT ["/home/rundeck/.local/bin/rundeck_exporter"]

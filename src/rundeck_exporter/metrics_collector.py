@@ -1,8 +1,11 @@
+import atexit
 import re
+import threading
+import time
 from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from time import sleep
 from urllib.parse import urlparse
 
 from prometheus_client import start_http_server
@@ -13,6 +16,8 @@ from rundeck_exporter.args import rundeck_exporter_args
 from rundeck_exporter.constants import RUNDECK_EXECUTION_STATUSES, RUNDECK_USERPASSWORD
 from rundeck_exporter.utils import cached_request, exit_with_msg, logging, request
 
+_SANITIZE_RE = re.compile(r"[-.]")
+
 
 class RundeckProjectExecution(Enum):
     """Class for mapping Rundeck projects execution attributes"""
@@ -22,19 +27,24 @@ class RundeckProjectExecution(Enum):
     STATUS = 3
 
 
+@dataclass
 class RundeckProjectExecutionRecord:
     """Class for keeping track of Rundeck projects execution info"""
 
-    def __init__(self, labels_value: list, value: float, execution_type: RundeckProjectExecution):
-        self.labels_value = labels_value
-        self.value = value
-        self.execution_type = execution_type
+    labels_value: list[str]
+    value: float
+    execution_type: RundeckProjectExecution
 
 
 class RundeckMetricsCollector(Collector):
     """Class for collect Rundeck metrics"""
 
     def __init__(self):
+        """
+        Initialize the Rundeck metrics collector and set up concurrent request handling.
+        
+        Validates the Rundeck URL to extract the instance address, configures default metric labels, creates a ThreadPoolExecutor for parallel project requests (with automatic shutdown), and initializes a lock to prevent overlapping execution scrapes.
+        """
         self.args = rundeck_exporter_args
         parsed = urlparse(self.args.rundeck_url)
         instance_address = parsed.netloc
@@ -56,53 +66,82 @@ class RundeckMetricsCollector(Collector):
             "execution_type",
             "user",
         ]
+        self.executor = ThreadPoolExecutor(
+            thread_name_prefix="rundeck_exporter", max_workers=self.args.threadpool_max_workers
+        )
+        atexit.register(self.executor.shutdown)
+        self._execution_scrape_lock = threading.Lock()
 
-    def get_project_executions(self, project: dict) -> tuple[list, dict]:
+    def describe(self):
+        """Provide metric family descriptors for the Prometheus Collector interface.
+        
+        This implementation returns an empty list; detailed metric descriptions are supplied dynamically by the collect() method.
         """
-        Method to get Rundeck projects executions info
+        return []
+
+    def _get_project_executions(self, project: dict) -> tuple[list, dict | None]:
+        """
+        Fetches and generates execution metric records for a Rundeck project.
+        
+        Returns:
+        	(list[RundeckProjectExecutionRecord], dict | None): A tuple of execution metric
+        		records with labels and values, and optionally a dict containing the project
+        		name and total 1-day execution count (None if metrics unavailable).
         """
 
         project_name = project["name"]
-        project_execution_records: list[RundeckProjectExecutionRecord] = list()
+        project_execution_records: list[RundeckProjectExecutionRecord] = []
         project_executions_limit = self.args.rundeck_projects_executions_limit
         project_executions_filter = self.args.rundeck_project_executions_filter
-        project_executions_total = {"project": project_name, "total_executions": 0}
         endpoint_executions = f"/project/{project_name}/executions?recentFilter={project_executions_filter}&max={project_executions_limit}"
         endpoint_executions_running = f"/project/{project_name}/executions/running?max={project_executions_limit}"
         endpoint_executions_metrics = f"/project/{project_name}/executions/metrics?recentFilter=1d"
+        project_executions_total: dict | None = None
 
         try:
-            if self.args.rundeck_projects_executions_cache:
-                project_executions_running_info = cached_request(endpoint_executions_running)
-                project_executions_info = cached_request(endpoint_executions)
-                project_executions_total_info = cached_request(endpoint_executions_metrics)
-            else:
-                project_executions_running_info = request(endpoint_executions_running)
-                project_executions_info = request(endpoint_executions)
-                project_executions_total_info = request(endpoint_executions_metrics)
+            fetch = cached_request if self.args.rundeck_projects_executions_cache else request
+            # running endpoint always fetched fresh — "currently running" is real-time state
+            project_executions_running_info = request(endpoint_executions_running)
+            project_executions_info = fetch(endpoint_executions)
+            project_executions_total_info = fetch(endpoint_executions_metrics)
 
             if (
                 not project_executions_running_info
                 or not project_executions_info
-                or not project_executions_total_info
                 or not isinstance(project_executions_running_info, dict)
                 or not isinstance(project_executions_info, dict)
-                or not isinstance(project_executions_total_info, dict)
             ):
-                return project_execution_records, project_executions_total
+                return project_execution_records, None
 
             project_executions_running_info_list = project_executions_running_info.get("executions", [])
-            project_executions_total["total_executions"] = project_executions_total_info["total"] + len(
-                project_executions_running_info_list
-            )
-            project_executions = project_executions_running_info_list + project_executions_info.get("executions", [])
+            # /executions/metrics?recentFilter=1d total counts only completed executions;
+            # add the running list to include in-progress executions in the total.
+            # Totals endpoint is optional — None skips the metric in collect().
+            if project_executions_total_info and isinstance(project_executions_total_info, dict):
+                project_executions_total = {
+                    "project": project_name,
+                    "total_executions": project_executions_total_info["total"] + len(project_executions_running_info_list),
+                }
+
+            # Deduplicate by execution id — running executions can also appear in the recent filter list
+            seen_ids: set = set()
+            merged = project_executions_running_info_list + project_executions_info.get("executions", [])
+            project_executions = []
+            for execution in merged:
+                execution_id = execution.get("id")
+                if execution_id not in seen_ids:
+                    seen_ids.add(execution_id)
+                    project_executions.append(execution)
 
             for project_execution in project_executions:
                 job_info = project_execution.get("job", {})
                 job_id = job_info.get("id") or ""
                 job_name = job_info.get("name") or ""
                 job_group = job_info.get("group") or ""
-                job_options = ",".join(f"{k}={v}" for k, v in job_info.get("options", {}).items())
+                if self.args.rundeck_projects_executions_include_job_options:
+                    job_options = ",".join(job_info.get("options", {}).keys())
+                else:
+                    job_options = ""
                 execution_id = str(project_execution.get("id") or "")
                 execution_type = project_execution.get("executionType") or ""
                 user = project_execution.get("user") or ""
@@ -118,10 +157,23 @@ class RundeckMetricsCollector(Collector):
                     user,
                 ]
 
-                # Job start/end times
-                timestamp_now = datetime.now().timestamp() * 1000
-                job_start_time = project_execution.get("date-started", {}).get("unixtime", 0)
-                job_end_time = project_execution.get("date-ended", {}).get("unixtime", timestamp_now)
+                # STATUS is emitted for every execution regardless of whether date-started is present
+                for status in RUNDECK_EXECUTION_STATUSES:
+                    value = 1 if project_execution.get("status", "unknown") == status else 0
+                    project_execution_records.append(
+                        RundeckProjectExecutionRecord(
+                            project_executions_labels_value + [status], value, RundeckProjectExecution.STATUS
+                        )
+                    )
+
+                # START and DURATION require a timestamp; skip if Rundeck hasn't stamped date-started yet
+                date_started = project_execution.get("date-started") or {}
+                if not date_started:
+                    continue
+
+                # Rundeck unixtime is in milliseconds; job_start_time kept in ms (historical behavior)
+                job_start_time = date_started.get("unixtime", 0)
+                job_end_time = (project_execution.get("date-ended") or {}).get("unixtime", datetime.now().timestamp() * 1000)
                 job_execution_duration = (job_end_time - job_start_time) / 1000
 
                 project_execution_records.append(
@@ -134,40 +186,34 @@ class RundeckMetricsCollector(Collector):
                         project_executions_labels_value, job_execution_duration, RundeckProjectExecution.DURATION
                     )
                 )
-
-                for status in RUNDECK_EXECUTION_STATUSES:
-                    value = 0
-
-                    if project_execution.get("status", "unknown") == status:
-                        value = 1
-
-                    project_execution_records.append(
-                        RundeckProjectExecutionRecord(
-                            project_executions_labels_value + [status], value, RundeckProjectExecution.STATUS
-                        )
-                    )
         except Exception as error:  # nosec
             logging.error(error)
 
         return project_execution_records, project_executions_total
 
-    def get_project_nodes(self, project: dict) -> dict:
+    def _get_project_nodes(self, project: dict) -> dict:
         """
-        Method to get Rundeck projects nodes info
+        Retrieves the node count for a Rundeck project.
+        
+        Parameters:
+            project (dict): A project dict containing at least a "name" key.
+        
+        Returns:
+            dict: A dictionary mapping the project name to its node count, or an empty dict if fetching nodes fails.
         """
 
         project_name = project["name"]
-        endpoint = f"/project/{project_name}/resources"
-        project_nodes = cached_request(endpoint)
+        project_nodes = cached_request(f"/project/{project_name}/resources")
         if not project_nodes or not isinstance(project_nodes, dict):
             return {}
-        project_nodes_info = {project["name"]: list(project_nodes.values())}
+        return {project_name: len(project_nodes)}
 
-        return project_nodes_info
-
-    def get_system_stats(self, system_info: dict):
+    def _get_system_stats(self, system_info: dict):
         """
-        Method to get Rundeck system stats
+        Generates Prometheus gauge metric families for Rundeck system statistics.
+        
+        Yields:
+            GaugeMetricFamily: Gauge metric families for system statistics (uptime, CPU, memory).
         """
 
         for stat, stat_values in system_info["system"]["stats"].items():
@@ -193,14 +239,24 @@ class RundeckMetricsCollector(Collector):
                     documentation="Rundeck system stats",
                     labels=self.default_labels,
                 )
-
                 rundeck_system_stats.add_metric(self.default_labels_values, value)
-
                 yield rundeck_system_stats
 
-    def get_counters(self, metrics: dict):
+    def _get_counters(self, metrics: dict):
         """
-        Method to get Rundeck metrics counters, gauges and timers
+        Convert Rundeck metrics in Dropwizard format to Prometheus metric families.
+        
+        Transforms counters, gauges, meters, and timers into appropriate Prometheus metric
+        types. Dropwizard counters become gauges, meter/timer counts become counters, and
+        distribution stats become gauges. Excludes execution status counters, which are
+        emitted separately as one-hot gauges during project execution collection.
+        
+        Parameters:
+        	metrics (dict): Dropwizard-format metrics with nested dicts keyed by metric type.
+        
+        Yields:
+        	GaugeMetricFamily or CounterMetricFamily: Prometheus metric families with
+        		instance_address label.
         """
 
         for metric, metric_value in metrics.items():
@@ -208,220 +264,236 @@ class RundeckMetricsCollector(Collector):
                 continue
 
             for counter_name, counter_value in metric_value.items():
-                counter_name = re.sub(r"[-.]", "_", counter_name)
-
-                rundeck_meters_timers = CounterMetricFamily(
-                    name=counter_name, documentation=f"Rundeck {metric} metrics", labels=self.default_labels
-                )
-                rundeck_counters = GaugeMetricFamily(
-                    name=counter_name, documentation="Rundeck counters metrics", labels=self.default_labels
-                )
-                rundeck_gauges = GaugeMetricFamily(
-                    name=counter_name, documentation="Rundeck gauges metrics", labels=self.default_labels
-                )
-
-                if "rate" in counter_name.lower():
-                    continue
+                counter_name = _SANITIZE_RE.sub("_", counter_name)
 
                 if not counter_name.startswith("rundeck"):
                     counter_name = "rundeck_" + counter_name
 
-                if metric == "counters" and "status" not in counter_name:
+                # Exclude rundeck_execution_status_* counters — those are emitted as
+                # one-hot gauge labels in _get_project_executions, not here.
+                if metric == "counters" and not counter_name.startswith("rundeck_execution_status"):
                     if isinstance(counter_value, dict) and "count" in counter_value:
-                        counter_value = counter_value["count"]
-                        rundeck_counters.add_metric(self.default_labels_values, counter_value)
-                        yield rundeck_counters
-                    else:
-                        # Skip if it's not a proper counter structure
-                        continue
+                        # Dropwizard Counter is an up/down counter (can decrement) → gauge, not counter
+                        gauge = GaugeMetricFamily(
+                            name=counter_name,
+                            documentation="Rundeck counters metrics",
+                            labels=self.default_labels,
+                        )
+                        gauge.add_metric(self.default_labels_values, counter_value["count"])
+                        yield gauge
 
                 elif metric == "gauges":
                     if isinstance(counter_value, dict) and "value" in counter_value:
-                        counter_value = counter_value["value"]
-                    else:
-                        # Skip if it's not a proper gauge structure
-                        continue
+                        value = counter_value["value"]
+                        gauge = GaugeMetricFamily(
+                            name=counter_name,
+                            documentation="Rundeck gauges metrics",
+                            labels=self.default_labels,
+                        )
+                        gauge.add_metric(self.default_labels_values, value if value is not None else 0)
+                        yield gauge
 
-                    if "services" in counter_name:
-                        services_trackers = rundeck_gauges
-                    else:
-                        services_trackers = rundeck_counters
-
-                    if counter_value is not None:
-                        services_trackers.add_metric(self.default_labels_values, counter_value)
-                    else:
-                        services_trackers.add_metric(self.default_labels_values, 0)
-
-                    yield services_trackers
-
-                elif metric == "meters" or metric == "timers":
+                elif metric in ("meters", "timers"):
                     if isinstance(counter_value, dict):
-                        for counter, value in counter_value.items():
-                            if counter == "count" and not isinstance(value, str) and isinstance(value, (int, float)):
-                                rundeck_meters_timers.add_metric(self.default_labels_values, value)
-                                yield rundeck_meters_timers
-                    else:
-                        # Skip if it's not a proper meters/timers structure
-                        continue
+                        for stat, value in counter_value.items():
+                            if not isinstance(value, (int, float)) or isinstance(value, bool) or "rate" in stat.lower():
+                                continue
+                            if stat == "count":
+                                # Dropwizard meter/timer count is a monotonic event total → counter,
+                                # exposed as {counter_name}_total
+                                family = CounterMetricFamily(
+                                    name=counter_name,
+                                    documentation=f"Rundeck {metric} metrics",
+                                    labels=self.default_labels,
+                                )
+                            else:
+                                # snapshot distribution stat (min/max/mean/p95/…) → gauge
+                                family = GaugeMetricFamily(
+                                    name=f"{counter_name}_{_SANITIZE_RE.sub('_', stat)}",
+                                    documentation=f"Rundeck {metric} metrics",
+                                    labels=self.default_labels,
+                                )
+                            family.add_metric(self.default_labels_values, value)
+                            yield family
 
     def collect(self):
         """
-        Method to collect Rundeck metrics
+        Collects Rundeck metrics for Prometheus export.
+        
+        Fetches system information, statistics, counters, and optional project-level 
+        metrics from Rundeck endpoints. Respects configuration flags for passive mode 
+        behavior and project filtering. Measures and reports scrape duration.
+        
+        Yields:
+            Prometheus metric families for system info, execution mode, system statistics, 
+            counters, and optional project execution and node metrics.
         """
 
-        # Rundeck system info
-        metrics = request("/metrics/metrics")
-        system_info = request("/system/info")
+        scrape_start = time.perf_counter()
 
-        if not metrics or not system_info or not isinstance(metrics, dict) or not isinstance(system_info, dict):
-            return
-
-        execution_mode = system_info["system"].get("executions", {}).get("executionMode")
-        rundeck_system_info = InfoMetricFamily(
-            name="rundeck_system", documentation="Rundeck system info", labels=self.default_labels
-        )
-        rundeck_system_info.add_metric(
-            self.default_labels_values, {x: str(y) for x, y in system_info["system"]["rundeck"].items()}
-        )
-
-        # Rundeck server execution mode
-        logging.debug(f"Rundeck execution mode: {execution_mode}.")
-
-        if self.args.no_checks_in_passive_mode and execution_mode == "passive":
-            return
-
-        rundeck_execution_mode_active = GaugeMetricFamily(
-            "rundeck_execution_mode_active", "Rundeck Active Execution Mode Status", labels=self.default_labels
-        )
-
-        rundeck_execution_mode_passive = GaugeMetricFamily(
-            "rundeck_execution_mode_passive", "Rundeck Passive Execution Mode Status", labels=self.default_labels
-        )
-
-        if execution_mode == "passive":
-            rundeck_execution_mode_active.add_metric(self.default_labels_values, 0)
-            rundeck_execution_mode_passive.add_metric(self.default_labels_values, 1)
-        else:
-            rundeck_execution_mode_active.add_metric(self.default_labels_values, 1)
-            rundeck_execution_mode_passive.add_metric(self.default_labels_values, 0)
-
-        yield rundeck_system_info
-        yield rundeck_execution_mode_active
-        yield rundeck_execution_mode_passive
-
-        # Rundeck system stats
-        for system_stats in self.get_system_stats(system_info):
-            yield system_stats
-
-        # Rundeck counters
-        if self.args.rundeck_api_version < 25 and not (self.args.rundeck_username and RUNDECK_USERPASSWORD):
-            logging.warning(
-                f'Unsupported API version "{self.args.rundeck_api_version}"'
-                + f" for API request: /api/{self.args.rundeck_api_version}/metrics/metrics."
-                + " Minimum supported version is 25."
-                + " Some metrics like rundeck_scheduler_quartz_* will not be available."
-                + " Use Username and Password options to get the metrics."
+        def _scrape_duration():
+            """
+            Create a gauge metric for the current Rundeck scrape duration.
+            
+            Returns:
+                A GaugeMetricFamily recording the elapsed scrape time in seconds.
+            """
+            m = GaugeMetricFamily(
+                "rundeck_exporter_scrape_duration_seconds",
+                "Duration of the last Rundeck scrape in seconds",
             )
-        else:
-            for counters in self.get_counters(metrics):
-                yield counters
+            m.add_metric([], time.perf_counter() - scrape_start)
+            return m
 
-        # Rundeck projects executions info
-        rundeck_projects_filter = self.args.rundeck_projects_filter
+        try:
+            # Rundeck system info
+            metrics = cached_request("/metrics/metrics")
+            system_info = cached_request("/system/info")
 
-        if self.args.rundeck_projects_executions:
-            endpoint = "/projects"
+            if not metrics or not system_info or not isinstance(metrics, dict) or not isinstance(system_info, dict):
+                return
 
-            if rundeck_projects_filter:
-                projects = [{"name": x} for x in rundeck_projects_filter]
+            execution_mode = system_info["system"].get("executions", {}).get("executionMode")
+            rundeck_system_info = InfoMetricFamily(
+                name="rundeck_system", documentation="Rundeck system info", labels=self.default_labels
+            )
+            rundeck_system_info.add_metric(
+                self.default_labels_values, {x: str(y) for x, y in system_info["system"]["rundeck"].items()}
+            )
+
+            logging.debug(f"Rundeck execution mode: {execution_mode}.")
+
+            if self.args.no_checks_in_passive_mode and execution_mode == "passive":
+                return
+
+            rundeck_execution_mode_active = GaugeMetricFamily(
+                "rundeck_execution_mode_active", "Rundeck Active Execution Mode Status", labels=self.default_labels
+            )
+            rundeck_execution_mode_passive = GaugeMetricFamily(
+                "rundeck_execution_mode_passive", "Rundeck Passive Execution Mode Status", labels=self.default_labels
+            )
+
+            if execution_mode == "passive":
+                rundeck_execution_mode_active.add_metric(self.default_labels_values, 0)
+                rundeck_execution_mode_passive.add_metric(self.default_labels_values, 1)
             else:
-                if self.args.rundeck_projects_executions_cache:
-                    projects = cached_request(endpoint)
+                rundeck_execution_mode_active.add_metric(self.default_labels_values, 1)
+                rundeck_execution_mode_passive.add_metric(self.default_labels_values, 0)
+
+            yield rundeck_system_info
+            yield rundeck_execution_mode_active
+            yield rundeck_execution_mode_passive
+
+            # Rundeck system stats
+            for system_stats in self._get_system_stats(system_info):
+                yield system_stats
+
+            # Rundeck counters
+            if self.args.rundeck_api_version < 25 and not (self.args.rundeck_username and RUNDECK_USERPASSWORD):
+                logging.warning(
+                    f'Unsupported API version "{self.args.rundeck_api_version}"'
+                    + f" for API request: /api/{self.args.rundeck_api_version}/metrics/metrics."
+                    + " Minimum supported version is 25."
+                    + " Some metrics like rundeck_scheduler_quartz_* will not be available."
+                    + " Use Username and Password options to get the metrics."
+                )
+            else:
+                for counters in self._get_counters(metrics):
+                    yield counters
+
+            # Rundeck projects info
+            if self.args.rundeck_projects_executions or self.args.rundeck_projects_nodes_info:
+                if self.args.rundeck_projects_filter:
+                    projects = [{"name": x} for x in self.args.rundeck_projects_filter]
                 else:
-                    projects = request(endpoint)
+                    projects = cached_request("/projects")
 
-                if not projects:
-                    return
+                    if not projects:
+                        return
 
-            with ThreadPoolExecutor(
-                thread_name_prefix="project_executions", max_workers=self.args.threadpool_max_workers
-            ) as project_executions_threadpool:
-                project_execution_records = project_executions_threadpool.map(self.get_project_executions, projects)
-                timestamp = datetime.now().timestamp()
+                if self.args.rundeck_projects_executions:
+                    if self._execution_scrape_lock.acquire(blocking=False):
+                        try:
+                            project_execution_records = list(self.executor.map(self._get_project_executions, projects))
+                        finally:
+                            self._execution_scrape_lock.release()
+                    else:
+                        logging.warning("Previous scrape still in progress; skipping project execution fetch.")
+                        project_execution_records = []
 
-                project_start_metrics = GaugeMetricFamily(
-                    "rundeck_project_start_timestamp",
-                    "Rundeck Project ProjectName Start Timestamp",
-                    labels=self.default_project_executions_labels,
-                )
-
-                project_duration_metrics = GaugeMetricFamily(
-                    "rundeck_project_execution_duration_seconds",
-                    "Rundeck Project ProjectName Execution Duration",
-                    labels=self.default_project_executions_labels,
-                )
-
-                project_metrics = GaugeMetricFamily(
-                    "rundeck_project_execution_status",
-                    "Rundeck Project ProjectName Execution Status",
-                    labels=self.default_project_executions_labels + ["status"],
-                )
-
-                project_executions_total_metrics = CounterMetricFamily(
-                    "rundeck_project_executions_total",
-                    "Rundeck Project ProjectName Total Executions",
-                    labels=self.default_labels + ["project_name"],
-                )
-
-                for project_execution_record_group, project_executions_total in project_execution_records:
-                    project_executions_total_metrics.add_metric(
-                        self.default_labels_values + [project_executions_total["project"]],
-                        project_executions_total["total_executions"],
-                        timestamp=timestamp,
+                    project_start_metrics = GaugeMetricFamily(
+                        "rundeck_project_start_timestamp",
+                        "Rundeck Project Start Timestamp",
+                        labels=self.default_project_executions_labels,
                     )
-                    for project_execution_record in project_execution_record_group:
-                        if project_execution_record.execution_type == RundeckProjectExecution.START:
-                            project_start_metrics.add_metric(
-                                project_execution_record.labels_value,
-                                project_execution_record.value,
-                                timestamp=timestamp,
-                            )
-                        elif project_execution_record.execution_type == RundeckProjectExecution.DURATION:
-                            project_duration_metrics.add_metric(
-                                project_execution_record.labels_value,
-                                project_execution_record.value,
-                                timestamp=timestamp,
-                            )
-                        elif project_execution_record.execution_type == RundeckProjectExecution.STATUS:
-                            project_metrics.add_metric(
-                                project_execution_record.labels_value,
-                                project_execution_record.value,
-                                timestamp=timestamp,
-                            )
+                    project_duration_metrics = GaugeMetricFamily(
+                        "rundeck_project_execution_duration_seconds",
+                        "Rundeck Project Execution Duration",
+                        labels=self.default_project_executions_labels,
+                    )
+                    project_metrics = GaugeMetricFamily(
+                        "rundeck_project_execution_status",
+                        "Rundeck Project Execution Status",
+                        labels=self.default_project_executions_labels + ["status"],
+                    )
+                    project_executions_metrics = GaugeMetricFamily(
+                        "rundeck_project_executions",
+                        "Rundeck Project Executions (sliding 1d window, non-monotonic gauge)",
+                        labels=self.default_labels + ["project_name"],
+                    )
 
-                yield project_start_metrics
-                yield project_duration_metrics
-                yield project_metrics
-                yield project_executions_total_metrics
+                    for project_execution_record_group, project_executions_total in project_execution_records:
+                        timestamp = datetime.now().timestamp()
+                        if project_executions_total is not None:
+                            project_executions_metrics.add_metric(
+                                self.default_labels_values + [project_executions_total["project"]],
+                                project_executions_total["total_executions"],
+                                timestamp=timestamp,
+                            )
+                        for project_execution_record in project_execution_record_group:
+                            if project_execution_record.execution_type == RundeckProjectExecution.START:
+                                project_start_metrics.add_metric(
+                                    project_execution_record.labels_value,
+                                    project_execution_record.value,
+                                    timestamp=timestamp,
+                                )
+                            elif project_execution_record.execution_type == RundeckProjectExecution.DURATION:
+                                project_duration_metrics.add_metric(
+                                    project_execution_record.labels_value,
+                                    project_execution_record.value,
+                                    timestamp=timestamp,
+                                )
+                            elif project_execution_record.execution_type == RundeckProjectExecution.STATUS:
+                                project_metrics.add_metric(
+                                    project_execution_record.labels_value,
+                                    project_execution_record.value,
+                                    timestamp=timestamp,
+                                )
 
-            if self.args.rundeck_projects_nodes_info:
-                with ThreadPoolExecutor(
-                    thread_name_prefix="project_nodes", max_workers=self.args.threadpool_max_workers
-                ) as project_nodes_threadpool:
-                    project_nodes_records = project_nodes_threadpool.map(self.get_project_nodes, projects)
+                    yield project_start_metrics
+                    yield project_duration_metrics
+                    yield project_metrics
+                    yield project_executions_metrics
+
+                if self.args.rundeck_projects_nodes_info:
+                    project_nodes_records = list(self.executor.map(self._get_project_nodes, projects))
                     project_nodes_total = GaugeMetricFamily(
                         name="rundeck_project_nodes_total",
                         documentation="Rundeck project nodes total",
                         labels=self.default_labels + ["project_name"],
                     )
-
                     for project_nodes in project_nodes_records:
-                        for project, nodes in project_nodes.items():
-                            project_nodes_total.add_metric(self.default_labels_values + [project], len(nodes))
-
+                        for project, count in project_nodes.items():
+                            project_nodes_total.add_metric(self.default_labels_values + [project], count)
                     yield project_nodes_total
 
+        finally:
+            yield _scrape_duration()
+
     def run(self) -> None:
+        """
+        Start the Prometheus metrics exporter server.
+        """
         try:
             REGISTRY.register(self)
 
@@ -429,6 +501,6 @@ class RundeckMetricsCollector(Collector):
             start_http_server(self.args.port, addr=self.args.host, registry=REGISTRY)
 
             while True:
-                sleep(1)
+                time.sleep(1)
         except OSError as os_error:
             exit_with_msg(msg=str(os_error), level="critical")

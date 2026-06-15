@@ -1,3 +1,0 @@
-## Documentations
-
-* [Metrics](METRICS.md)

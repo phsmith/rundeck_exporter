@@ -14,6 +14,9 @@ def main() -> None:
         if args.debug:
             logging.getLogger().setLevel("DEBUG")
 
+        if args.rundeck_skip_ssl:
+            logging.warning("SSL verification disabled — connections are insecure")
+
         if not args.rundeck_url or not (RUNDECK_TOKEN or (args.rundeck_username and RUNDECK_USERPASSWORD)):
             exit_with_msg(
                 msg="Rundeck URL and Token or User/Password are required.",

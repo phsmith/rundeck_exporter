@@ -35,6 +35,7 @@ jobs:
     permissions:
       contents: write
       packages: write
+      id-token: write
 
     env:
       DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
@@ -51,9 +52,15 @@ jobs:
         uses: astral-sh/setup-uv@v6
         with:
           activate-environment: true
+          enable-cache: true
 
       - name: Bump version
-        run: uv version $IMAGE_VERSION
+        run: |
+          uv version $IMAGE_VERSION
+          uv lock
+
+      - name: Build Python package
+        run: uv build
 
       - name: Build Docker image
         run: make docker-build
@@ -62,23 +69,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Push docker image:latest if no alfa or beta is set in the version tag.
-          if [[ ! "$IMAGE_VERSION" =~ (alfa|beta) ]]; then
+          # Push docker image:latest if no alpha, beta, or rc is set in the version tag.
+          if [[ ! "$IMAGE_VERSION" =~ (alpha|beta|rc) ]]; then
             IMAGE_VERSION=latest make push-all
           fi
           make push-all
 
       - name: Publish to pypi.org
-        run: |
-          pip install --quiet twine
-          docker build --target build -t ${IMAGE_NAME}:build .
-          docker run -dt --name $IMAGE_NAME --rm --entrypoint /bin/ash ${IMAGE_NAME}:build
-          docker cp ${IMAGE_NAME}:/app/dist ./
-          docker stop -t 0 ${IMAGE_NAME}
-          twine upload --skip-existing dist/*
-        env:
-          TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+        uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc # v1.12.4
 
   commit-and-tag:
     runs-on: ubuntu-24.04
@@ -101,10 +99,12 @@ jobs:
         uses: astral-sh/setup-uv@v6
         with:
           activate-environment: true
+          enable-cache: true
 
       - name: Bump version in all files
         run: |
           uv version $VERSION
+          uv lock
           yq -i ".appVersion = \"$VERSION\"" charts/Chart.yaml
           yq -i ".version = \"$VERSION\"" charts/Chart.yaml
           yq -i ".image.tag = \"$VERSION\"" charts/values.yaml
@@ -114,6 +114,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout main
+          git pull --rebase
           git add pyproject.toml uv.lock charts/Chart.yaml charts/values.yaml
           git commit -m "Bump version to $VERSION [skip ci]" || true
           git push
@@ -128,8 +129,17 @@ jobs:
     steps:
       - name: Create Github release
         run: |
+          # release-please may have already created the release when it pushed the tag
+          if gh release view "$GIT_TAG" --repo="$GITHUB_REPOSITORY" &>/dev/null; then
+            echo "Release $GIT_TAG already exists, skipping"
+            exit 0
+          fi
+          EXTRA_FLAGS="--latest"
+          if [[ "$GIT_TAG" =~ (alpha|beta|rc) ]]; then
+            EXTRA_FLAGS="--prerelease"
+          fi
           gh release create "$GIT_TAG" \
               --repo="$GITHUB_REPOSITORY" \
               --title="$GIT_TAG" \
               --generate-notes \
-              --latest
+              $EXTRA_FLAGS

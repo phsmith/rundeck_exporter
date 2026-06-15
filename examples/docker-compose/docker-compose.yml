@@ -46,10 +46,8 @@ services:
     depends_on:
       rundeck:
         condition: service_healthy
-    links:
-      - rundeck
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v3.12.0
     ports:
       - 9090:9090
     volumes:
@@ -59,18 +57,14 @@ services:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
       # - "--log.level=debug"
-    links:
-      - rundeck_exporter
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:13.0.1
     volumes:
       - grafana:/var/lib/grafana
       - ./configs/grafana/provisioning:/etc/grafana/provisioning
     ports:
       - 3000:3000
     depends_on:
-      - prometheus
-    links:
       - prometheus
 
 volumes:

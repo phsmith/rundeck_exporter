@@ -12,6 +12,12 @@ def _bool_env(key: str, default: bool = False) -> bool:
 
 
 def _build_parser() -> ArgumentParser:
+    """
+    Configures and returns the CLI argument parser for the Rundeck exporter.
+    
+    Returns:
+    	ArgumentParser: A parser configured with CLI arguments and default values from environment variables.
+    """
     parser = ArgumentParser(
         prog="rundeck_exporter",
         description=textwrap.dedent(
@@ -145,6 +151,16 @@ def _build_parser() -> ArgumentParser:
         dest="rundeck_projects_executions_cache",
         help="Cache requests for project executions metrics query",
         default=_bool_env("RUNDECK_PROJECTS_EXECUTIONS_CACHE"),
+        action="store_true",
+    )
+
+    parser.add_argument(
+        "--rundeck.projects.executions.include.job.options",
+        dest="rundeck_projects_executions_include_job_options",
+        help="Include job option keys as a label on execution metrics. "
+        "Off by default to avoid high label cardinality when option values are dynamic. "
+        "Only option keys (not values) are emitted.",
+        default=_bool_env("RUNDECK_PROJECTS_EXECUTIONS_INCLUDE_JOB_OPTIONS"),
         action="store_true",
     )
 

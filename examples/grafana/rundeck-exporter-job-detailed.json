@@ -163,7 +163,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "rundeck_system_stats_uptime_since{instance=\"$instance\"}",
+          "expr": "rundeck_system_stats_uptime_since{instance_address=\"$instance\"}",
           "format": "table",
           "instant": true,
           "interval": "",
@@ -229,7 +229,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "rundeck_api_requests_requestTimer_total{instance=\"$instance\"}",
+          "expr": "rundeck_api_requests_requestTimer_total{instance_address=\"$instance\"}",
           "format": "table",
           "instant": true,
           "interval": "",
@@ -295,7 +295,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "abs(rundeck_api_requests_requestTimer_total{instance=\"$instance\"} - rundeck_web_requests_requestTimer_total{instance=\"$instance\"})",
+          "expr": "abs(rundeck_api_requests_requestTimer_total{instance_address=\"$instance\"} - rundeck_web_requests_requestTimer_total{instance_address=\"$instance\"})",
           "format": "table",
           "instant": true,
           "interval": "",
@@ -366,7 +366,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "rundeck_system_stats_scheduler_threadPoolSize{instance=\"$instance\"}",
+          "expr": "rundeck_system_stats_scheduler_threadPoolSize{instance_address=\"$instance\"}",
           "format": "time_series",
           "instant": true,
           "interval": "",
@@ -381,7 +381,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "rundeck_system_stats_threads_active{instance=\"$instance\"}",
+          "expr": "rundeck_system_stats_threads_active{instance_address=\"$instance\"}",
           "format": "time_series",
           "hide": false,
           "instant": true,
@@ -481,7 +481,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "((rundeck_system_stats_memory_total_bytes{instance=\"${instance}\"} - rundeck_system_stats_memory_free_bytes{instance=\"${instance}\"}) / rundeck_system_stats_memory_total_bytes{instance=\"${instance}\"})*100",
+          "expr": "((rundeck_system_stats_memory_total_bytes{instance_address=\"${instance}\"} - rundeck_system_stats_memory_free_bytes{instance_address=\"${instance}\"}) / rundeck_system_stats_memory_total_bytes{instance_address=\"${instance}\"})*100",
           "instant": false,
           "legendFormat": "memory",
           "range": true,
@@ -571,7 +571,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(sum(topk(1,last_over_time(rundeck_project_execution_status{status=\"succeeded\", instance=~\"${instance}\"}[$__range])) by(execution_id, job_id))  / sum(topk(1,last_over_time(rundeck_project_execution_status[$__range])) by(execution_id, job_id)))*100",
+          "expr": "(sum(topk(1,last_over_time(rundeck_project_execution_status{status=\"succeeded\", instance_address=~\"${instance}\"}[$__range])) by(execution_id, job_id)) / sum(topk(1,last_over_time(rundeck_project_execution_status{instance_address=~\"${instance}\"}[$__range])) by(execution_id, job_id)))*100",
           "format": "table",
           "instant": false,
           "legendFormat": "__auto",
@@ -635,7 +635,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "count(topk(1,last_over_time(rundeck_project_execution_status{instance=~\"${instance}\"}[$__range])) by(execution_id, job_id))",
+          "expr": "count(topk(1,last_over_time(rundeck_project_execution_status{instance_address=~\"${instance}\"}[$__range])) by(execution_id, job_id))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -702,7 +702,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "rundeck_scheduler_quartz_scheduledJobs{instance=\"$instance\"}",
+          "expr": "rundeck_scheduler_quartz_scheduledJobs{instance_address=\"$instance\"}",
           "format": "table",
           "instant": true,
           "interval": "",
@@ -832,7 +832,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "topk(1,last_over_time(rundeck_project_execution_duration_seconds[$__range])) by(execution_id) * on (execution_id) group_left(status) topk(1,last_over_time(rundeck_project_execution_status{instance=~\"${instance}\"}[$__range])) by(execution_id)",
+          "expr": "topk(1,last_over_time(rundeck_project_execution_duration_seconds{instance_address=~\"${instance}\"}[$__range])) by(execution_id, instance_address) * on (execution_id, instance_address) group_left(status) topk(1,last_over_time(rundeck_project_execution_status{instance_address=~\"${instance}\"}[$__range])) by(execution_id, instance_address)",
           "format": "table",
           "instant": true,
           "legendFormat": "__auto",
@@ -901,7 +901,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "rundeck_system_stats_scheduler_running{instance=\"$instance\"}",
+          "expr": "sum(rundeck_project_execution_status{instance_address=~\"${instance}\", status=\"running\"})",
           "format": "table",
           "instant": true,
           "interval": "",
@@ -1030,7 +1030,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "count(topk(1,last_over_time(rundeck_project_execution_status{instance=~\"${instance}\"}[$__range])) by(execution_id, job_id)) by(status)",
+          "expr": "count(topk(1,last_over_time(rundeck_project_execution_status{instance_address=~\"${instance}\"}[$__range])) by(execution_id, job_id)) by(status)",
           "format": "table",
           "instant": true,
           "legendFormat": "__auto",
@@ -1139,7 +1139,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "count(topk(1,last_over_time(rundeck_project_execution_status{instance=~\"${instance}\"}[$__range])) by(execution_id, job_id)) by(job_name)",
+          "expr": "count(topk(1,last_over_time(rundeck_project_execution_status{instance_address=~\"${instance}\"}[$__range])) by(execution_id, job_id)) by(job_name)",
           "format": "table",
           "instant": true,
           "legendFormat": "__auto",
@@ -1242,7 +1242,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sort_desc(count(topk(1,last_over_time(rundeck_project_execution_status{instance=~\"${instance}\"}[$__range])) by(execution_id, job_id)) by(user))",
+          "expr": "sort_desc(count(topk(1,last_over_time(rundeck_project_execution_status{instance_address=~\"${instance}\"}[$__range])) by(execution_id, job_id)) by(user))",
           "format": "table",
           "instant": true,
           "legendFormat": "__auto",
@@ -1347,7 +1347,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum(topk(1,last_over_time(rundeck_project_execution_status{instance=~\"${instance}\",status=\"failed\"}[$__range])) by(execution_id, job_id)) by(job_name)",
+          "expr": "sum(topk(1,last_over_time(rundeck_project_execution_status{instance_address=~\"${instance}\",status=\"failed\"}[$__range])) by(execution_id, job_id)) by(job_name)",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -1495,7 +1495,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "topk(1,last_over_time(rundeck_project_execution_duration_seconds[$__range])) by(execution_id) * on (execution_id) group_left(status) topk(1,last_over_time(rundeck_project_execution_status{instance=~\"${instance}\"}[$__range])) by(execution_id)",
+          "expr": "topk(1,last_over_time(rundeck_project_execution_duration_seconds{instance_address=~\"${instance}\"}[$__range])) by(execution_id, instance_address) * on (execution_id, instance_address) group_left(status) topk(1,last_over_time(rundeck_project_execution_status{instance_address=~\"${instance}\"}[$__range])) by(execution_id, instance_address)",
           "format": "table",
           "instant": true,
           "legendFormat": "__auto",
@@ -1550,6 +1550,448 @@
         }
       ],
       "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 62
+      },
+      "id": 34,
+      "panels": [],
+      "title": "System & Exporter Health",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "id": 35,
+      "title": "Execution Mode",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 63
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "1": {
+                  "text": "Active",
+                  "color": "green",
+                  "index": 0
+                },
+                "0": {
+                  "text": "Passive",
+                  "color": "red",
+                  "index": 1
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "exemplar": false,
+          "expr": "rundeck_execution_mode_active{instance_address=~\"${instance}\"}",
+          "legendFormat": "",
+          "refId": "A",
+          "format": "table",
+          "editorMode": "code",
+          "range": false,
+          "instant": true
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "id": 36,
+      "title": "Rundeck Version",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 4,
+        "y": 63
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "text"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^version$/",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "exemplar": false,
+          "expr": "rundeck_system_info{instance_address=~\"${instance}\"}",
+          "instant": true,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "labelsToFields",
+          "options": {
+            "mode": "columns"
+          }
+        },
+        {
+          "id": "filterFieldsByName",
+          "options": {
+            "include": {
+              "names": [
+                "version",
+                "build"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "id": 37,
+      "title": "Scrape Duration",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 63
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "exemplar": false,
+          "expr": "rundeck_exporter_scrape_duration_seconds",
+          "legendFormat": "",
+          "refId": "A",
+          "format": "table",
+          "editorMode": "code",
+          "range": false,
+          "instant": true
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "id": 38,
+      "title": "Exporter API Errors",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 63
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "exemplar": false,
+          "expr": "sum(rundeck_exporter_api_errors_total) or vector(0)",
+          "legendFormat": "",
+          "refId": "A",
+          "format": "table",
+          "editorMode": "code",
+          "range": false,
+          "instant": true
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 67
+      },
+      "id": 39,
+      "panels": [],
+      "title": "Project Overview",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "id": 40,
+      "title": "Project Executions Total",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 68
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "short",
+          "custom": {
+            "lineInterpolation": "linear",
+            "showPoints": "never",
+            "fillOpacity": 10
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "last",
+            "min",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "exemplar": false,
+          "expr": "rundeck_project_executions{instance_address=~\"${instance}\"}",
+          "legendFormat": "{{ project_name }}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "id": 41,
+      "title": "Project Nodes",
+      "type": "bargauge",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 68
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "exemplar": false,
+          "expr": "rundeck_project_nodes_total{instance_address=~\"${instance}\"}",
+          "legendFormat": "{{ project_name }}",
+          "refId": "A",
+          "instant": true,
+          "range": false
+        }
+      ]
     }
   ],
   "refresh": "30s",
@@ -1564,7 +2006,7 @@
           "type": "prometheus",
           "uid": "${DS_PROMETHEUS}"
         },
-        "definition": "label_values(instance)",
+        "definition": "label_values(instance_address)",
         "hide": 0,
         "includeAll": false,
         "label": "Instance",
@@ -1572,11 +2014,11 @@
         "name": "instance",
         "options": [],
         "query": {
-          "query": "label_values(instance)",
+          "query": "label_values(instance_address)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 1,
-        "regex": "/.*:9620/",
+        "regex": "",
         "skipUrlSync": false,
         "sort": 0,
         "type": "query"
@@ -1609,7 +2051,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Rundek",
+  "title": "Rundeck Detailed",
   "uid": "oVIKlgP4k",
   "version": 28,
   "weekStart": ""
