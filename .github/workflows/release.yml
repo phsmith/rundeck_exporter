@@ -102,9 +102,10 @@ jobs:
       VERSION: ${{ needs.get-version.outputs.version }}
 
     steps:
-      - name: Checkout repository
+      - name: Checkout main
         uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
           ssh-key: ${{ secrets.DEPLOY_KEY }}
 
@@ -114,9 +115,8 @@ jobs:
           activate-environment: true
           enable-cache: true
 
-      - name: Bump version in all files
+      - name: Sync lockfile and bump Helm chart versions
         run: |
-          uv version $VERSION
           uv lock
           yq -i ".appVersion = \"$VERSION\"" charts/Chart.yaml
           yq -i ".version = \"$VERSION\"" charts/Chart.yaml
@@ -126,10 +126,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout main
-          git pull --rebase
-          git add pyproject.toml uv.lock charts/Chart.yaml charts/values.yaml
-          git commit -m "Bump version to $VERSION [skip ci]" || true
+          git add uv.lock charts/Chart.yaml charts/values.yaml
+          git commit -m "Bump chart version to $VERSION [skip ci]" || true
           git push
 
   create-release:
@@ -140,19 +138,25 @@ jobs:
       contents: write
 
     steps:
-      - name: Create Github release
+      - name: Publish Github release
         run: |
-          # release-please may have already created the release when it pushed the tag
-          if gh release view "$GIT_TAG" --repo="$GITHUB_REPOSITORY" &>/dev/null; then
-            echo "Release $GIT_TAG already exists, skipping"
+          # release-please creates a draft release; publish it now that artifacts are ready.
+          # For workflow_dispatch re-runs the release may already be published — skip if so.
+          DRAFT=$(gh release view "$GIT_TAG" --repo="$GITHUB_REPOSITORY" --json isDraft --jq '.isDraft' 2>/dev/null || echo "notfound")
+          if [[ "$DRAFT" == "false" ]]; then
+            echo "Release $GIT_TAG already published, skipping"
             exit 0
           fi
           EXTRA_FLAGS="--latest"
           if [[ "$GIT_TAG" =~ (alpha|beta|rc) ]]; then
             EXTRA_FLAGS="--prerelease"
           fi
-          gh release create "$GIT_TAG" \
-              --repo="$GITHUB_REPOSITORY" \
-              --title="$GIT_TAG" \
-              --generate-notes \
-              $EXTRA_FLAGS
+          if [[ "$DRAFT" == "true" ]]; then
+            gh release edit "$GIT_TAG" --repo="$GITHUB_REPOSITORY" --draft=false $EXTRA_FLAGS
+          else
+            gh release create "$GIT_TAG" \
+                --repo="$GITHUB_REPOSITORY" \
+                --title="$GIT_TAG" \
+                --generate-notes \
+                $EXTRA_FLAGS
+          fi

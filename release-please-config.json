@@ -5,6 +5,7 @@
   "packages": {
     ".": {
       "changelog-path": "CHANGELOG.md",
+      "draft": true,
       "extra-files": [
         {
           "path": "uv.lock",
