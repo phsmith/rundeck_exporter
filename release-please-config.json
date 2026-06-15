@@ -9,7 +9,7 @@
         {
           "path": "uv.lock",
           "type": "toml",
-          "jsonpath": "$.package[?(@.name.value=='rundeck-exporter')].version"
+          "jsonpath": "$.package[?(@.name=='rundeck-exporter')].version"
         }
       ]
     }
