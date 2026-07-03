@@ -39,7 +39,7 @@ All metrics are exported with **rundeck_** prefix.
 
 ## Dependencies
 
-> Although the `requirements.txt` file is still available, the project uses [UV](https://docs.astral.sh/uv/) for Python package and management, which is highly recommended.
+> The project uses [UV](https://docs.astral.sh/uv/) for Python package and management.
 
 * Python 3.11+
 * A Rundeck token with permissions to make API requests
