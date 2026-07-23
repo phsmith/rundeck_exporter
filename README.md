@@ -44,7 +44,7 @@ All metrics are exported with **rundeck_** prefix.
 
 ## Dependencies
 
-> The project uses [UV](https://docs.astral.sh/uv/) for Python package and management.
+> The project uses [UV](https://docs.astral.sh/uv/) for Python package management.
 
 * Python 3.11+
 * A Rundeck token with permissions to make API requests

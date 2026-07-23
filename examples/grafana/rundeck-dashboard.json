@@ -418,7 +418,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "exemplar": true,
-          "expr": "(rundeck_api_requests_requestTimer_total{instance_address=\"$instance_address\"} or rundeck_api_requests_requestTimer_count{instance_address=\"$instance_address\"})",
+          "expr": "(rundeck_api_requests_requestTimer_total{instance_address=~\"$instance_address\"} or rundeck_api_requests_requestTimer_count{instance_address=~\"$instance_address\"})",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -480,7 +480,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "exemplar": true,
-          "expr": "abs((rundeck_api_requests_requestTimer_total{instance_address=\"$instance_address\"} or rundeck_api_requests_requestTimer_count{instance_address=\"$instance_address\"}) - (rundeck_web_requests_requestTimer_total{instance_address=\"$instance_address\"} or rundeck_web_requests_requestTimer_count{instance_address=\"$instance_address\"}))",
+          "expr": "abs((rundeck_api_requests_requestTimer_total{instance_address=~\"$instance_address\"} or rundeck_api_requests_requestTimer_count{instance_address=~\"$instance_address\"}) - (rundeck_web_requests_requestTimer_total{instance_address=~\"$instance_address\"} or rundeck_web_requests_requestTimer_count{instance_address=~\"$instance_address\"}))",
           "interval": "",
           "legendFormat": "",
           "refId": "A"

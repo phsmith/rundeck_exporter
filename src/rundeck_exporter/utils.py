@@ -148,11 +148,12 @@ def cached_request(endpoint: str, raw: bool = False) -> dict | list | str | None
         dict | list | str | None: The parsed JSON response (or raw text if `raw` is True) if
             successful, or None if the request failed.
     """
+    cache_key = (endpoint, raw)
     with _cache_lock:
-        if endpoint in _cache:
-            return _cache[endpoint]
+        if cache_key in _cache:
+            return _cache[cache_key]
     result = request(endpoint, raw=raw)
     if result is not None:
         with _cache_lock:
-            _cache[endpoint] = result
+            _cache[cache_key] = result
     return result
