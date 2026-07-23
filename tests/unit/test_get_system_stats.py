@@ -1,3 +1,5 @@
+"""Tests for RundeckMetricsCollector._get_system_stats()."""
+
 from unittest.mock import patch
 
 import pytest
@@ -42,12 +44,15 @@ def get_stat_names(collector):
 
 
 class TestGetSystemStats:
+    """Verifies metric-name encoding and the CPU/memory/unit/duration inclusion rules."""
+
     def test_yields_one_family_per_stat_counter_pair(self, get_stat_names):
         """Each stat/counter pair must produce a distinct named GaugeMetricFamily."""
         # uptime.since, cpu.loadAverage_ratio, memory.free/total/max, scheduler.running/threadPoolSize, threads.active
         assert len(get_stat_names()) == 8
 
     def test_metric_names_encode_stat_and_counter(self, get_stat_names):
+        """Metric names must be rundeck_system_stats_{stat}_{counter}."""
         assert {
             "rundeck_system_stats_threads_active",
             "rundeck_system_stats_scheduler_running",
@@ -62,11 +67,14 @@ class TestGetSystemStats:
         pytest.param(True, False, "_memory_", id="memory-flag-off"),
     ])
     def test_stat_excluded_when_flag_off(self, get_stat_names, cpu, memory, excluded):
+        """CPU/memory stats must be omitted entirely when their respective flag is off."""
         assert not any(excluded in n for n in get_stat_names(cpu=cpu, memory=memory))
 
     def test_unit_and_duration_counters_skipped(self, get_stat_names):
+        """The unit/duration counters are metadata, not metrics, and must never be emitted."""
         assert not any(n.endswith("_unit") or n.endswith("_duration") for n in get_stat_names())
 
     def test_uptime_since_uses_epoch_value(self, collector):
+        """uptime.since must be unwrapped to its epoch value, not the raw {epoch, unit} dict."""
         families = {m.name: m for m in collector._get_system_stats(SYSTEM_INFO)}
         assert families["rundeck_system_stats_uptime_since"].samples[0].value == 1_000_000_000

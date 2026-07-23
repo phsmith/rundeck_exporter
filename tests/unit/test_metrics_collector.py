@@ -1,3 +1,7 @@
+"""Tests for RundeckMetricsCollector.collect()'s scrape lifecycle and version-based endpoint selection."""
+
+from unittest.mock import patch
+
 _METRICS_DATA = {"counters": {}, "gauges": {}, "meters": {}, "timers": {}}
 
 _ACTIVE_SYSTEM_INFO = {
@@ -14,6 +18,34 @@ _PASSIVE_SYSTEM_INFO = {
         "rundeck": {"version": "3.0", "node": "test-node"},
     }
 }
+
+_ACTIVE_SYSTEM_INFO_V6 = {
+    "system": {
+        "executions": {"executionMode": "active"},
+        "rundeck": {"version": "6.0.1", "node": "test-node"},
+        "stats": {},
+    }
+}
+
+_PROMETHEUS_METRICS_TEXT = (
+    "# HELP jvm_threads_live_threads Live threads\n"
+    "# TYPE jvm_threads_live_threads gauge\n"
+    "jvm_threads_live_threads 42.0\n"
+)
+
+
+def _v6_router(endpoint, **_kwargs):
+    """
+    Mock HTTP endpoint responses for a Rundeck 6+ system, where metrics are served in
+    Prometheus exposition format at /monitoring/prometheus instead of /metrics/metrics.
+    """
+    if endpoint == "/system/info":
+        return _ACTIVE_SYSTEM_INFO_V6
+    if endpoint == "/projects":
+        return [{"name": "test1"}]
+    if endpoint == "/monitoring/prometheus":
+        return _PROMETHEUS_METRICS_TEXT
+    return _METRICS_DATA
 
 
 def _active_router(endpoint):
@@ -44,6 +76,8 @@ def _passive_router(endpoint):
 
 
 class TestRundeckMetricsCollector:
+    """Verifies scrape-duration emission, executor reuse, the concurrent-scrape guard, and endpoint selection."""
+
     def test_scrape_duration_on_request_failure(self, collector, mock_collect):
         """collect() must yield a non-negative scrape duration even when all requests fail."""
         with mock_collect(lambda _: None):
@@ -89,3 +123,23 @@ class TestRundeckMetricsCollector:
             all_metrics = list(collector.collect())
 
         assert all_metrics[-1].name == "rundeck_exporter_scrape_duration_seconds"
+
+    def test_v6_system_fetches_native_prometheus_endpoint(self, collector, mock_collect):
+        """collect() must branch to /monitoring/prometheus and _get_prometheus_counters when
+        system.rundeck.version reports a major version >= 6, instead of the legacy /metrics/metrics."""
+        with mock_collect(_v6_router, rundeck_projects_executions=False):
+            names = [m.name for m in collector.collect()]
+
+        assert "rundeck_jvm_threads_live_threads" in names
+
+    def test_metrics_endpoint_bypasses_cache(self, collector):
+        """The metrics endpoint (legacy or native) must always use request(), never cached_request(),
+        so Prometheus counters/gauges reflect the current scrape instead of a stale cached snapshot."""
+        with patch("rundeck_exporter.metrics_collector.cached_request", return_value=_ACTIVE_SYSTEM_INFO) as mock_cached:
+            with patch("rundeck_exporter.metrics_collector.request", return_value=_METRICS_DATA) as mock_request:
+                with patch.object(collector.args, "rundeck_projects_executions", False):
+                    with patch.object(collector.args, "rundeck_projects_nodes_info", False):
+                        list(collector.collect())
+
+        mock_cached.assert_called_once_with("/system/info")
+        mock_request.assert_any_call("/metrics/metrics")

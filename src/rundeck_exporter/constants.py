@@ -1,3 +1,5 @@
+"""Shared constants and environment-derived defaults for the Rundeck exporter."""
+
 import os
 
 RUNDECK_DEFAULT_HOST = "127.0.0.1"

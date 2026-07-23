@@ -1,3 +1,5 @@
+"""Tests for RundeckMetricsCollector._get_counters() (legacy Dropwizard metrics format)."""
+
 import pytest
 
 
@@ -40,6 +42,8 @@ def _by_name(metrics):
 
 
 class TestGetCounters:
+    """Verifies name filtering/normalization and per-metric-type conversion to Prometheus families."""
+
     @pytest.mark.parametrize("counter_name,expected_names", [
         pytest.param("rundeck_execution_status_total", [], id="excluded-prefix"),
         pytest.param("rundeck_http_status_count", ["rundeck_http_status_count"], id="status-in-middle-kept"),
@@ -64,10 +68,12 @@ class TestGetCounters:
         pytest.param(42, 42.0, id="numeric-passthrough"),
     ])
     def test_gauge_value_emits_correctly(self, collector, value, expected):
+        """A gauge's null value must be emitted as 0.0; numeric values pass through unchanged."""
         metrics = {"gauges": {"rundeck_runningExecutions": {"value": value}}}
         assert _values(list(collector._get_counters(metrics)))["rundeck_runningExecutions"] == expected
 
     def test_meter_rate_fields_excluded(self, collector):
+        """Meter rate subfields (oneMinuteRate, etc.) must not be emitted as their own metrics."""
         metrics = {
             "meters": {
                 "rundeck_someMeter": {
@@ -83,6 +89,7 @@ class TestGetCounters:
         assert _names(list(collector._get_counters(metrics))) == ["rundeck_someMeter"]
 
     def test_meter_bool_values_excluded(self, collector):
+        """Boolean meter subfields must be excluded (bool is an int subclass and would otherwise pass the numeric check)."""
         metrics = {"meters": {"rundeck_someMeter": {"count": 5, "active": True}}}
         assert _names(list(collector._get_counters(metrics))) == ["rundeck_someMeter"]
 
@@ -95,6 +102,7 @@ class TestGetCounters:
         assert "rundeck_someMeter_total" in sample_names
 
     def test_timer_yields_all_numeric_non_rate_subfields(self, collector):
+        """A timer's count becomes a counter; its distribution stats become separate gauges, rates excluded."""
         metrics = {
             "timers": {
                 "rundeck_someTimer": {

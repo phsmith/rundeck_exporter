@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 
+"""Entry point for the rundeck_exporter console script."""
+
 from rundeck_exporter.args import rundeck_exporter_args
 from rundeck_exporter.constants import RUNDECK_TOKEN, RUNDECK_USERPASSWORD
 from rundeck_exporter.metrics_collector import RundeckMetricsCollector
@@ -8,6 +10,7 @@ from rundeck_exporter.utils import exit_with_msg, logging
 
 
 def main() -> None:
+    """Validate required CLI args/env vars, then start the metrics collector server."""
     try:
         args = rundeck_exporter_args
 

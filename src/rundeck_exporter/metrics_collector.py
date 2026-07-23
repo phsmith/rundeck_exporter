@@ -1,3 +1,5 @@
+"""The Prometheus Collector implementation that scrapes Rundeck and emits its metrics."""
+
 import atexit
 import re
 import threading
@@ -9,7 +11,8 @@ from enum import Enum
 from urllib.parse import urlparse
 
 from prometheus_client import start_http_server
-from prometheus_client.core import REGISTRY, CounterMetricFamily, GaugeMetricFamily, InfoMetricFamily
+from prometheus_client.core import REGISTRY, CounterMetricFamily, GaugeMetricFamily, InfoMetricFamily, Metric
+from prometheus_client.parser import text_string_to_metric_families
 from prometheus_client.registry import Collector
 
 from rundeck_exporter.args import rundeck_exporter_args
@@ -316,6 +319,42 @@ class RundeckMetricsCollector(Collector):
                             family.add_metric(self.default_labels_values, value)
                             yield family
 
+    def _get_prometheus_counters(self, text: str):
+        """
+        Convert Rundeck's native Prometheus metrics (Rundeck 6+, served at /monitoring/prometheus)
+        into our metric families.
+
+        Rundeck 6 dropped the legacy Dropwizard JSON endpoint and now exposes metrics directly in
+        Prometheus exposition format, already correctly typed (gauge/counter/summary). Names that
+        don't already start with "rundeck" get that prefix, matching the legacy path's convention
+        (metric_collector.py's `_get_counters`) so dashboards built against pre-6 metric names keep
+        working for the ones that carry over.
+
+        Yields:
+        	prometheus_client.core.Metric: one per source metric family, with instance_address added
+        		to every sample's labels.
+        """
+
+        default_sample_labels = dict(zip(self.default_labels, self.default_labels_values))
+
+        for family in text_string_to_metric_families(text):
+            prefix = "" if family.name.startswith("rundeck") else "rundeck_"
+            metric = Metric(f"{prefix}{family.name}", family.documentation or f"Rundeck {family.name} metric",
+                             family.type)
+
+            for sample in family.samples:
+                sample_name = f"{prefix}{sample.name}"
+
+                # Exclude rundeck_execution_status_* counters — those are emitted as
+                # one-hot gauge labels in _get_project_executions, not here.
+                if sample_name.startswith("rundeck_execution_status"):
+                    continue
+
+                metric.add_sample(sample_name, {**default_sample_labels, **sample.labels}, sample.value)
+
+            if metric.samples:
+                yield metric
+
     def collect(self):
         """
         Collects Rundeck metrics for Prometheus export.
@@ -347,10 +386,30 @@ class RundeckMetricsCollector(Collector):
 
         try:
             # Rundeck system info
-            metrics = cached_request("/metrics/metrics")
             system_info = cached_request("/system/info")
 
-            if not metrics or not system_info or not isinstance(metrics, dict) or not isinstance(system_info, dict):
+            if not system_info or not isinstance(system_info, dict):
+                return
+
+            # Rundeck 6 dropped the legacy Dropwizard JSON metrics endpoint (/metrics/metrics) in
+            # favor of a native Prometheus exposition endpoint (/monitoring/prometheus). Branch on
+            # the server's own reported version rather than probing, since /system/info is already
+            # fetched on every scrape.
+            rundeck_version = system_info["system"].get("rundeck", {}).get("version", "")
+            try:
+                rundeck_major_version = int(rundeck_version.split(".")[0])
+            except ValueError:
+                rundeck_major_version = 0
+
+            # Fetched fresh every scrape (not cached_request): these are the counters/gauges
+            # Prometheus is scraping for, so serving a stale cached snapshot would flatten
+            # rate()/increase() to the cache TTL instead of the actual scrape interval.
+            if rundeck_major_version >= 6:
+                metrics = request("/monitoring/prometheus", raw=True)
+            else:
+                metrics = request("/metrics/metrics")
+
+            if not metrics or not isinstance(metrics, (dict, str)):
                 return
 
             execution_mode = system_info["system"].get("executions", {}).get("executionMode")
@@ -389,7 +448,10 @@ class RundeckMetricsCollector(Collector):
                 yield system_stats
 
             # Rundeck counters
-            if self.args.rundeck_api_version < 25 and not (self.args.rundeck_username and RUNDECK_USERPASSWORD):
+            if isinstance(metrics, str):
+                for counters in self._get_prometheus_counters(metrics):
+                    yield counters
+            elif self.args.rundeck_api_version < 25 and not (self.args.rundeck_username and RUNDECK_USERPASSWORD):
                 logging.warning(
                     f'Unsupported API version "{self.args.rundeck_api_version}"'
                     + f" for API request: /api/{self.args.rundeck_api_version}/metrics/metrics."
