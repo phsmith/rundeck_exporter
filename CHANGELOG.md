@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.0](https://github.com/phsmith/rundeck_exporter/compare/v4.0.1...v4.1.0) (2026-07-23)
+
+
+### Features
+
+* add Rundeck 6 support via native Prometheus metrics endpoint ([#137](https://github.com/phsmith/rundeck_exporter/issues/137)) ([5eb3d5c](https://github.com/phsmith/rundeck_exporter/commit/5eb3d5c11df72048aada38369a0a7cc42d9c5631))
+
+
+### Bug Fixes
+
+* **ci:** remove draft from release-please config to restore git tag creation ([1a52d54](https://github.com/phsmith/rundeck_exporter/commit/1a52d540a01df656f2b659341e60f153323732d2))
+
 ## [4.0.1](https://github.com/phsmith/rundeck_exporter/compare/v4.0.0...v4.0.1) (2026-06-15)
 
 
