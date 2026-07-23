@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 _METRICS_DATA = {"counters": {}, "gauges": {}, "meters": {}, "timers": {}}
 
 _ACTIVE_SYSTEM_INFO = {
@@ -125,3 +127,15 @@ class TestRundeckMetricsCollector:
             names = [m.name for m in collector.collect()]
 
         assert "rundeck_jvm_threads_live_threads" in names
+
+    def test_metrics_endpoint_bypasses_cache(self, collector):
+        """The metrics endpoint (legacy or native) must always use request(), never cached_request(),
+        so Prometheus counters/gauges reflect the current scrape instead of a stale cached snapshot."""
+        with patch("rundeck_exporter.metrics_collector.cached_request", return_value=_ACTIVE_SYSTEM_INFO) as mock_cached:
+            with patch("rundeck_exporter.metrics_collector.request", return_value=_METRICS_DATA) as mock_request:
+                with patch.object(collector.args, "rundeck_projects_executions", False):
+                    with patch.object(collector.args, "rundeck_projects_nodes_info", False):
+                        list(collector.collect())
+
+        mock_cached.assert_called_once_with("/system/info")
+        mock_request.assert_any_call("/metrics/metrics")

@@ -399,10 +399,13 @@ class RundeckMetricsCollector(Collector):
             except ValueError:
                 rundeck_major_version = 0
 
+            # Fetched fresh every scrape (not cached_request): these are the counters/gauges
+            # Prometheus is scraping for, so serving a stale cached snapshot would flatten
+            # rate()/increase() to the cache TTL instead of the actual scrape interval.
             if rundeck_major_version >= 6:
-                metrics = cached_request("/monitoring/prometheus", raw=True)
+                metrics = request("/monitoring/prometheus", raw=True)
             else:
-                metrics = cached_request("/metrics/metrics")
+                metrics = request("/metrics/metrics")
 
             if not metrics or not isinstance(metrics, (dict, str)):
                 return

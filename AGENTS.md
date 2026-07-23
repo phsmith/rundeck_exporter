@@ -46,7 +46,7 @@ This is a Prometheus exporter for Rundeck metrics. It follows the standard Prome
 ## Key Design Notes
 
 - The args singleton is instantiated at import time (`args.py` bottom), so test setup must set env vars before importing the module.
-- `cached_request()` is used for system-level endpoints. For project executions: running executions always use `request()` (real-time state); completed executions and totals use `cached_request()` only when `--rundeck.projects.executions.cache` is set.
+- `cached_request()` is used for system-level endpoints (`/system/info`, `/projects`, `/project/{project}/resources`). The metrics endpoint (`/metrics/metrics` or `/monitoring/prometheus`) always uses `request()` instead — it's fetched fresh every scrape so Prometheus counters/gauges reflect real-time state rather than a snapshot pinned to the cache TTL. For project executions: running executions always use `request()` (real-time state); completed executions and totals use `cached_request()` only when `--rundeck.projects.executions.cache` is set.
 - The collector is registered globally with `prometheus_client.REGISTRY`; tests use a module-scoped fixture to register once and share across tests. The `describe()` method returns `[]` to prevent a live API call at registration time.
 - `_execution_scrape_lock` in `RundeckMetricsCollector` guards the `ThreadPoolExecutor.map` call for project executions — if a scrape is already in progress, the next scrape skips execution fetching and emits empty families rather than blocking.
 - `get_system_stats` yields one `GaugeMetricFamily` per stat/counter pair with a unique name (e.g. `rundeck_system_stats_threads_active`). Each metric has its own units and semantics — they are not aggregated under a single family with labels.
