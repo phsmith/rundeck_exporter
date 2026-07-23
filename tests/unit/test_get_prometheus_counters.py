@@ -1,3 +1,5 @@
+"""Tests for RundeckMetricsCollector._get_prometheus_counters() (Rundeck 6+ native metrics format)."""
+
 import pytest
 
 
@@ -12,7 +14,10 @@ def _by_name(metrics):
 
 
 class TestGetPrometheusCounters:
+    """Verifies name prefixing, execution-status exclusion, and per-type sample passthrough."""
+
     def test_rundeck_prefixed_name_kept_as_is(self, collector):
+        """A metric name already starting with rundeck_ must not get a second prefix."""
         text = (
             "# HELP rundeck_scheduler_quartz_scheduledJobs  \n"
             "# TYPE rundeck_scheduler_quartz_scheduledJobs gauge\n"
@@ -22,6 +27,7 @@ class TestGetPrometheusCounters:
         assert "rundeck_scheduler_quartz_scheduledJobs" in families
 
     def test_non_rundeck_name_gets_prefixed(self, collector):
+        """A metric name without the rundeck_ prefix must get one added."""
         text = (
             "# HELP jvm_threads_live_threads Live threads\n"
             "# TYPE jvm_threads_live_threads gauge\n"
@@ -32,6 +38,7 @@ class TestGetPrometheusCounters:
         assert "jvm_threads_live_threads" not in families
 
     def test_execution_status_samples_excluded(self, collector):
+        """rundeck_execution_status_* samples must be dropped — those are emitted by _get_project_executions."""
         text = (
             "# HELP rundeck_execution_status_running  \n"
             "# TYPE rundeck_execution_status_running gauge\n"
@@ -40,6 +47,7 @@ class TestGetPrometheusCounters:
         assert list(collector._get_prometheus_counters(text)) == []
 
     def test_instance_address_label_added_to_every_sample(self, collector):
+        """Every sample must gain the instance_address label while keeping its own labels."""
         text = (
             "# HELP executor_active_threads Active threads\n"
             "# TYPE executor_active_threads gauge\n"
@@ -51,6 +59,7 @@ class TestGetPrometheusCounters:
         assert sample.labels["name"] == "applicationTaskExecutor"
 
     def test_summary_type_preserves_count_and_sum_samples(self, collector):
+        """A summary metric's _count/_sum samples must both be preserved under the prefixed name."""
         text = (
             "# HELP http_server_requests_seconds  \n"
             "# TYPE http_server_requests_seconds summary\n"
@@ -68,6 +77,7 @@ class TestGetPrometheusCounters:
 
     @pytest.mark.parametrize("metric_type", ["counter", "gauge"])
     def test_type_passthrough(self, collector, metric_type):
+        """The source Prometheus metric type must be preserved as-is (no gauge/counter coercion)."""
         text = (
             f"# HELP some_metric  \n"
             f"# TYPE some_metric {metric_type}\n"

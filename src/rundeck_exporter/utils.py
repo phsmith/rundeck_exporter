@@ -1,3 +1,5 @@
+"""HTTP helpers for calling the Rundeck API with token or session auth, with optional TTL caching."""
+
 import atexit
 import logging
 import re

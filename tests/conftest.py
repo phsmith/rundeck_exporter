@@ -1,3 +1,5 @@
+"""Repo-wide pytest fixtures and import-time setup."""
+
 import sys
 
 # Strip pytest's own CLI args (file paths, flags) so that rundeck_exporter.args

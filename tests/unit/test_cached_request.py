@@ -1,3 +1,5 @@
+"""Tests for cached_request()'s TTL caching behavior."""
+
 from unittest.mock import patch
 
 import pytest
@@ -6,6 +8,8 @@ from rundeck_exporter.utils import _cache, _cache_lock, cached_request
 
 
 class TestCachedRequest:
+    """Verifies cache population, None-result bypass, and per-(endpoint, raw) key isolation."""
+
     def _clear(self, endpoint: str, raw: bool = False) -> None:
         """
         Remove the cached value for the specified endpoint/raw combination.
@@ -32,6 +36,7 @@ class TestCachedRequest:
         self._clear(endpoint, raw=True)
 
         def _side_effect(_endpoint, raw=False):
+            """Return a distinct value per raw flag, so a cache mix-up would be caught by the assertions."""
             return "raw text" if raw else {"parsed": True}
 
         with patch("rundeck_exporter.utils.request", side_effect=_side_effect) as mock_req:

@@ -1,3 +1,5 @@
+"""Tests for RundeckMetricsCollector._get_project_executions()."""
+
 from unittest.mock import patch
 
 import pytest
@@ -73,6 +75,8 @@ def _mock_responses(running: list, recent: list, total: int):
 
 
 class TestGetProjectExecutions:
+    """Verifies dedup, one-hot status emission, duration computation, and job_options labeling."""
+
     def test_deduplicates_execution_ids_across_running_and_recent(self, run_project_executions):
         """An execution present in both running and recent lists must produce one record set."""
         exec1 = _make_execution(1, "running")

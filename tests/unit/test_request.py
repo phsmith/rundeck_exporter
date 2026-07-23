@@ -1,3 +1,5 @@
+"""Tests for utils.request(): auth routing, error handling, endpoint prefixing, and raw responses."""
+
 from unittest.mock import MagicMock, patch
 
 import httpx
@@ -53,6 +55,8 @@ def _make_status_error_response(status_code: int) -> MagicMock:
 
 
 class TestRequest:
+    """Verifies error handling, auth-mode routing, endpoint prefixing, and raw vs. JSON responses."""
+
     @pytest.mark.parametrize("mock_kwargs,endpoint_suffix", [
         pytest.param(
             {"return_value": _make_status_error_response(500)},
@@ -76,6 +80,7 @@ class TestRequest:
         ),
     ])
     def test_error_returns_none_and_increments_counter(self, mock_kwargs, endpoint_suffix):
+        """Any transport error, timeout, or API-level error flag must return None and bump the error counter."""
         endpoint = f"/test/{endpoint_suffix}"
         before = _api_error_count(endpoint)
 
@@ -85,6 +90,7 @@ class TestRequest:
         assert _api_error_count(endpoint) == before + 1
 
     def test_successful_request_returns_json(self):
+        """A successful response must be returned as parsed JSON."""
         endpoint = "/test/success"
         payload = [{"id": 1, "name": "proj"}]
 
@@ -92,6 +98,7 @@ class TestRequest:
             assert request(endpoint) == payload
 
     def test_error_counter_uses_normalized_endpoint_label(self):
+        """The error counter's endpoint label must strip query params and generalize the project name."""
         endpoint = "/project/MyProject/executions?max=20"
         normalized = "/project/{project}/executions"
         before = _api_error_count(normalized)
@@ -191,6 +198,7 @@ class TestRequest:
         assert "/api/" not in called_url
 
     def test_raw_returns_response_text_without_json_parsing(self):
+        """request(endpoint, raw=True) must return response.text and never call response.json()."""
         endpoint = "/monitoring/prometheus"
         mock = MagicMock()
         mock.raise_for_status.return_value = None

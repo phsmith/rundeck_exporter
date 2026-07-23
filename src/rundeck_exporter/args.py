@@ -1,3 +1,5 @@
+"""CLI argument parsing and the exporter's process-wide args singleton."""
+
 import textwrap
 
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
@@ -8,6 +10,7 @@ from rundeck_exporter.constants import RUNDECK_DEFAULT_HOST, RUNDECK_DEFAULT_POR
 
 
 def _bool_env(key: str, default: bool = False) -> bool:
+    """Read a boolean flag from an environment variable, defaulting to `default` if unset."""
     return getenv(key, str(default)).lower() in ("true", "1", "yes")
 
 

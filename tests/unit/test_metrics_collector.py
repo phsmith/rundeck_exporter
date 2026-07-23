@@ -1,3 +1,5 @@
+"""Tests for RundeckMetricsCollector.collect()'s scrape lifecycle and version-based endpoint selection."""
+
 from unittest.mock import patch
 
 _METRICS_DATA = {"counters": {}, "gauges": {}, "meters": {}, "timers": {}}
@@ -74,6 +76,8 @@ def _passive_router(endpoint):
 
 
 class TestRundeckMetricsCollector:
+    """Verifies scrape-duration emission, executor reuse, the concurrent-scrape guard, and endpoint selection."""
+
     def test_scrape_duration_on_request_failure(self, collector, mock_collect):
         """collect() must yield a non-negative scrape duration even when all requests fail."""
         with mock_collect(lambda _: None):

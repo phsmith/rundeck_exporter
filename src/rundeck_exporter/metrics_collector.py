@@ -1,3 +1,5 @@
+"""The Prometheus Collector implementation that scrapes Rundeck and emits its metrics."""
+
 import atexit
 import re
 import threading

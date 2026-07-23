@@ -1,3 +1,5 @@
+"""Shared fixtures for unit tests: a registered collector and request-mocking helpers."""
+
 from contextlib import ExitStack, contextmanager
 from unittest.mock import patch
 
