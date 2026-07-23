@@ -24,6 +24,14 @@ jobs:
       checks: write
       pull-requests: write
 
+    strategy:
+      fail-fast: false
+      matrix:
+        rundeck-version: ["6.0.1", "5.20.1"]
+
+    env:
+      RUNDECK_VERSION: ${{ matrix.rundeck-version }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
@@ -88,6 +96,6 @@ jobs:
         uses: dorny/test-reporter@3eeb9fc888e82e8be2fb356bbeec2750231672bc # v1
         if: always()
         with:
-          name: Test Results
+          name: Test Results (Rundeck ${{ matrix.rundeck-version }})
           path: test-results/*.xml
           reporter: java-junit

@@ -16,20 +16,25 @@ Rundeck Metrics Exporter for Prometheus.
 
 *Dashboard examples can be found in: [examples/grafana](examples/grafana)*
 
+> [!Note]
+>
+> Rundeck 6 introduced a native Prometheus endpoint (`/monitoring/prometheus`), but it only exposes JVM/HTTP-level metrics (threads, request timers, scheduler jobs) — it has no project, job, or execution-level metrics (execution status/duration, node counts, etc.). This exporter still queries the Rundeck REST API for those, so it remains relevant on Rundeck 6+; it now consumes the native endpoint under the hood instead of the legacy `/metrics/metrics` one for the infra-level counters.
+
 This exporter uses the prometheus_client and httpx Python modules to expose Rundeck metrics found in:
 
 * [RUNDECK_URL/*api_version*/system/info](https://docs.rundeck.com/docs/api/rundeck-api.html#system-info)
-* [RUNDECK_URL/*api_version*/metrics/metrics](https://docs.rundeck.com/docs/api/rundeck-api.html#list-metrics)
+* [RUNDECK_URL/*api_version*/metrics/metrics](https://docs.rundeck.com/docs/api/rundeck-api.html#list-metrics) (Rundeck < 6, legacy Dropwizard endpoint)
+* `RUNDECK_URL/monitoring/prometheus` (Rundeck 6+, native Prometheus exposition endpoint that replaced the one above)
 * [RUNDECK_URL/*api_version*/project/*project_name*/executions](https://docs.rundeck.com/docs/api/rundeck-api.html#execution-query)
 * [RUNDECK_URL/*api_version*/project/*project_name*/executions/running](https://docs.rundeck.com/docs/api/rundeck-api.html#listing-running-executions)
 
  Where *version* represents the Rundeck API version, like: 31,32,33,34,etc.
 
- This code was tested on Rundeck API version 31+.
+ This code was tested on Rundeck API version 31+, against both Rundeck 5.x and 6.x server releases. The exporter picks the metrics endpoint automatically based on the Rundeck server version reported by `/system/info` — no configuration needed on your end.
 
 > [!Warning]
 >
-> Since version 4.x.x, the `/api/<version>/metrics` endpoint is disabled, so you need to enable it in `rundeck-config.properties` or by setting the environment variable `RUNDECK_METRICS_ENABLED=true` for the exporter to work. See [config-file-reference.html#metrics-capturing](https://docs.rundeck.com/docs/administration/configuration/config-file-reference.html#metrics-capturing)
+> The metrics endpoint (`/api/<version>/metrics/metrics` on Rundeck < 6, `/monitoring/prometheus` on Rundeck 6+) is disabled by default, so you need to enable it in `rundeck-config.properties` or by setting the environment variable `RUNDECK_METRICS_ENABLED=true` for the exporter to work. See [config-file-reference.html#metrics-capturing](https://docs.rundeck.com/docs/administration/configuration/config-file-reference.html#metrics-capturing)
 >
 > If audit logs are enabled, consider changing the default `INFO` log level to prevent excessive log growth.
 
@@ -262,6 +267,10 @@ $ RUNDECK_TOKEN=xxxxxxxx uv run rundeck_exporter \
     --rundeck.projects.executions.filter=5n \
     --rundeck.requests.timeout=10
 ```
+
+> [!Note]
+>
+> The sample output below was captured against Rundeck < 6 (legacy `/metrics/metrics` endpoint). On Rundeck 6+, meter/timer-derived metrics keep the same `rundeck_` prefix but follow Micrometer's naming (e.g. `rundeck_api_requests_requestTimer_count`/`_sum` instead of `rundeck_api_requests_requestTimer_total`); the bundled Grafana dashboards already query both forms with a PromQL `or` fallback.
 
 <details>
   <summary>

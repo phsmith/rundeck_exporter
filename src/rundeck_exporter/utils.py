@@ -33,6 +33,14 @@ api_errors_total = Counter(
 _cache = TTLCache(maxsize=1024, ttl=args.rundeck_cached_requests_ttl)
 _cache_lock = threading.Lock()
 
+# /monitoring/prometheus (Rundeck 6+ native Prometheus endpoint) sits outside the versioned
+# /api/{version} namespace regardless of auth method.
+# /metrics/metrics (legacy Dropwizard servlet, pre-6) only drops the prefix under session
+# auth — under token auth it still requires the version prefix (token auth against the
+# unprefixed path is rejected with a redirect to the login page).
+_NO_API_PREFIX_ENDPOINTS_SESSION = {"/metrics/metrics", "/monitoring/prometheus"}
+_NO_API_PREFIX_ENDPOINTS_TOKEN = {"/monitoring/prometheus"}
+
 
 def _normalize_endpoint(endpoint: str) -> str:
     """
@@ -60,12 +68,17 @@ def exit_with_msg(msg: str, level: str) -> NoReturn:
     sys.exit(1)
 
 
-def request(endpoint: str) -> dict | list | None:
+def request(endpoint: str, raw: bool = False) -> dict | list | str | None:
     """
     Fetches data from a Rundeck API endpoint.
-    
+
+    Parameters:
+        raw (bool): If True, return the response body as text instead of parsing it as JSON.
+            Used for endpoints that respond with a non-JSON payload (e.g. Prometheus exposition format).
+
     Returns:
-        The parsed JSON response (dict or list) on success, None on failure.
+        The parsed JSON response (dict or list), or the raw response text if `raw` is True, on
+        success; None on failure.
     """
 
     response = None
@@ -83,13 +96,12 @@ def request(endpoint: str) -> dict | list | None:
                             data={"j_username": args.rundeck_username, "j_password": RUNDECK_USERPASSWORD},
                             timeout=args.rundeck_requests_timeout,
                         )
-            # /metrics/metrics is an Actuator endpoint — no API version prefix when using session auth.
-            # All other endpoints use the standard /api/{version} prefix.
-            api_prefix = "" if endpoint == "/metrics/metrics" else f"/api/{args.rundeck_api_version}"
+            api_prefix = "" if endpoint in _NO_API_PREFIX_ENDPOINTS_SESSION else f"/api/{args.rundeck_api_version}"
             request_url = f"{args.rundeck_url}{api_prefix}{endpoint}"
             response = _user_client.get(request_url, timeout=args.rundeck_requests_timeout)
         else:
-            request_url = f"{args.rundeck_url}/api/{args.rundeck_api_version}{endpoint}"
+            api_prefix = "" if endpoint in _NO_API_PREFIX_ENDPOINTS_TOKEN else f"/api/{args.rundeck_api_version}"
+            request_url = f"{args.rundeck_url}{api_prefix}{endpoint}"
             response = _token_client.get(
                 request_url,
                 headers={"Accept": "application/json", "X-Rundeck-Auth-Token": RUNDECK_TOKEN or ""},
@@ -97,6 +109,10 @@ def request(endpoint: str) -> dict | list | None:
             )
 
         response.raise_for_status()
+
+        if raw:
+            return response.text
+
         response_json = response.json()
 
         if response_json and isinstance(response_json, dict) and response_json.get("error") is True:
@@ -120,20 +136,22 @@ def request(endpoint: str) -> dict | list | None:
     return None
 
 
-def cached_request(endpoint: str) -> dict | list | None:
+def cached_request(endpoint: str, raw: bool = False) -> dict | list | str | None:
     """
     Retrieves a response from Rundeck, using cached results to avoid repeated requests.
-    
+
     Parameters:
         endpoint (str): The Rundeck API endpoint path.
-    
+        raw (bool): If True, return the response body as text instead of parsing it as JSON.
+
     Returns:
-        dict | list | None: The parsed JSON response if successful, or None if the request failed.
+        dict | list | str | None: The parsed JSON response (or raw text if `raw` is True) if
+            successful, or None if the request failed.
     """
     with _cache_lock:
         if endpoint in _cache:
             return _cache[endpoint]
-    result = request(endpoint)
+    result = request(endpoint, raw=raw)
     if result is not None:
         with _cache_lock:
             _cache[endpoint] = result

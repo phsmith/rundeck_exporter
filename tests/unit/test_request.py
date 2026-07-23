@@ -146,6 +146,62 @@ class TestRequest:
 
         mock_post.assert_called_once()
 
+    def test_token_auth_skips_api_prefix_for_prometheus_endpoint(self):
+        """Token auth must not prepend /api/{version} to Rundeck 6's native Prometheus endpoint —
+        it lives outside the versioned API namespace, same as session auth."""
+        endpoint = "/monitoring/prometheus"
+        payload = {"ok": True}
+
+        with patch.object(utils._token_client, "get", return_value=_make_ok_response(payload)) as mock_get:
+            assert request(endpoint) == payload
+
+        called_url = mock_get.call_args.args[0]
+        assert called_url == f"{utils.args.rundeck_url}{endpoint}"
+        assert "/api/" not in called_url
+
+    def test_token_auth_keeps_api_prefix_for_legacy_metrics_endpoint(self):
+        """Unlike /monitoring/prometheus, the legacy /metrics/metrics endpoint rejects token auth
+        when called without the /api/{version} prefix (redirects to the login page), so token auth
+        must keep using the prefixed form — only session auth gets the unprefixed path."""
+        endpoint = "/metrics/metrics"
+        payload = {"ok": True}
+
+        with patch.object(utils._token_client, "get", return_value=_make_ok_response(payload)) as mock_get:
+            assert request(endpoint) == payload
+
+        called_url = mock_get.call_args.args[0]
+        assert called_url == f"{utils.args.rundeck_url}/api/{utils.args.rundeck_api_version}{endpoint}"
+
+    def test_user_password_auth_skips_api_prefix_for_legacy_metrics_endpoint(self):
+        """Session auth keeps the pre-existing no-prefix behavior for /metrics/metrics."""
+        endpoint = "/metrics/metrics"
+        payload = {"ok": True}
+
+        with patch.object(utils, "RUNDECK_USERPASSWORD", "secret"):
+            with patch.object(utils.args, "rundeck_username", "admin"):
+                utils._user_client.cookies.set("JSESSIONID", "fake-session")
+                try:
+                    with patch.object(utils._user_client, "get", return_value=_make_ok_response(payload)) as mock_get:
+                        assert request(endpoint) == payload
+                finally:
+                    utils._user_client.cookies.clear()
+
+        called_url = mock_get.call_args.args[0]
+        assert called_url == f"{utils.args.rundeck_url}{endpoint}"
+        assert "/api/" not in called_url
+
+    def test_raw_returns_response_text_without_json_parsing(self):
+        endpoint = "/monitoring/prometheus"
+        mock = MagicMock()
+        mock.raise_for_status.return_value = None
+        mock.text = "# HELP some_metric \nsome_metric 1.0\n"
+
+        with patch.object(utils._token_client, "get", return_value=mock):
+            result = request(endpoint, raw=True)
+
+        assert result == mock.text
+        mock.json.assert_not_called()
+
     def test_session_cookie_cleared_on_401(self):
         """A 401 response from the user client must clear the JSESSIONID so the next call re-authenticates."""
         endpoint = "/system/info"

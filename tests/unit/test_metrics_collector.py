@@ -15,6 +15,34 @@ _PASSIVE_SYSTEM_INFO = {
     }
 }
 
+_ACTIVE_SYSTEM_INFO_V6 = {
+    "system": {
+        "executions": {"executionMode": "active"},
+        "rundeck": {"version": "6.0.1", "node": "test-node"},
+        "stats": {},
+    }
+}
+
+_PROMETHEUS_METRICS_TEXT = (
+    "# HELP jvm_threads_live_threads Live threads\n"
+    "# TYPE jvm_threads_live_threads gauge\n"
+    "jvm_threads_live_threads 42.0\n"
+)
+
+
+def _v6_router(endpoint, **_kwargs):
+    """
+    Mock HTTP endpoint responses for a Rundeck 6+ system, where metrics are served in
+    Prometheus exposition format at /monitoring/prometheus instead of /metrics/metrics.
+    """
+    if endpoint == "/system/info":
+        return _ACTIVE_SYSTEM_INFO_V6
+    if endpoint == "/projects":
+        return [{"name": "test1"}]
+    if endpoint == "/monitoring/prometheus":
+        return _PROMETHEUS_METRICS_TEXT
+    return _METRICS_DATA
+
 
 def _active_router(endpoint):
     """
@@ -89,3 +117,11 @@ class TestRundeckMetricsCollector:
             all_metrics = list(collector.collect())
 
         assert all_metrics[-1].name == "rundeck_exporter_scrape_duration_seconds"
+
+    def test_v6_system_fetches_native_prometheus_endpoint(self, collector, mock_collect):
+        """collect() must branch to /monitoring/prometheus and _get_prometheus_counters when
+        system.rundeck.version reports a major version >= 6, instead of the legacy /metrics/metrics."""
+        with mock_collect(_v6_router, rundeck_projects_executions=False):
+            names = [m.name for m in collector.collect()]
+
+        assert "rundeck_jvm_threads_live_threads" in names
