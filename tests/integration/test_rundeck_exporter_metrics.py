@@ -123,3 +123,30 @@ def test_metric_rundeck_project_totals(metric_samples):
     for metric in metric_samples:
         assert metric.value > 0
         assert set(metric.labels.keys()) <= {"instance_address", "project_name"}
+
+
+def test_native_metrics_skip_exporter_owned_names():
+    """Pass-through of /monitoring/prometheus must drop families the exporter already emits."""
+    collector = RundeckMetricsCollector()
+    text = (
+        "# HELP rundeck_execution_mode_active\n"
+        "# TYPE rundeck_execution_mode_active gauge\n"
+        "rundeck_execution_mode_active 1.0\n"
+        "# HELP rundeck_other_gauge\n"
+        "# TYPE rundeck_other_gauge gauge\n"
+        "rundeck_other_gauge 2.0\n"
+    )
+
+    names = [m.name for m in collector._get_prometheus_counters(text, frozenset({"rundeck_execution_mode_active"}))]
+
+    assert names == ["rundeck_other_gauge"], f"Expected only rundeck_other_gauge after skipping, got {names}"
+
+
+def test_no_duplicate_series(metrics):
+    """Each (sample name, labels) pair must be exposed exactly once per scrape."""
+    seen = set()
+    for family in metrics.collect():
+        for sample in family.samples:
+            key = (sample.name, tuple(sorted(sample.labels.items())))
+            assert key not in seen, f"Duplicate series exposed: {sample.name} {sample.labels}"
+            seen.add(key)
