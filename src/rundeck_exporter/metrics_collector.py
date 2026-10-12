@@ -319,7 +319,7 @@ class RundeckMetricsCollector(Collector):
                             family.add_metric(self.default_labels_values, value)
                             yield family
 
-    def _get_prometheus_counters(self, text: str):
+    def _get_prometheus_counters(self, text: str, skip_names: frozenset[str] = frozenset()):
         """
         Convert Rundeck's native Prometheus metrics (Rundeck 6+, served at /monitoring/prometheus)
         into our metric families.
@@ -330,6 +330,11 @@ class RundeckMetricsCollector(Collector):
         (metric_collector.py's `_get_counters`) so dashboards built against pre-6 metric names keep
         working for the ones that carry over.
 
+        Parameters:
+        	text (str): Prometheus exposition text from Rundeck.
+        	skip_names (frozenset[str]): Final family names already emitted by the exporter itself.
+        		Those are dropped here so the same name/labels are never exposed twice.
+
         Yields:
         	prometheus_client.core.Metric: one per source metric family, with instance_address added
         		to every sample's labels.
@@ -339,6 +344,10 @@ class RundeckMetricsCollector(Collector):
 
         for family in text_string_to_metric_families(text):
             prefix = "" if family.name.startswith("rundeck") else "rundeck_"
+            if f"{prefix}{family.name}" in skip_names:
+                logging.debug(f"Skipping native metric {prefix}{family.name}: already exposed by the exporter.")
+                continue
+
             metric = Metric(f"{prefix}{family.name}", family.documentation or f"Rundeck {family.name} metric",
                              family.type)
 
@@ -443,13 +452,21 @@ class RundeckMetricsCollector(Collector):
             yield rundeck_execution_mode_active
             yield rundeck_execution_mode_passive
 
+            # Names the exporter builds itself; the native Rundeck 6 pass-through must not repeat them.
+            own_names = {
+                rundeck_system_info.name,
+                rundeck_execution_mode_active.name,
+                rundeck_execution_mode_passive.name,
+            }
+
             # Rundeck system stats
             for system_stats in self._get_system_stats(system_info):
+                own_names.add(system_stats.name)
                 yield system_stats
 
             # Rundeck counters
             if isinstance(metrics, str):
-                for counters in self._get_prometheus_counters(metrics):
+                for counters in self._get_prometheus_counters(metrics, frozenset(own_names)):
                     yield counters
             elif self.args.rundeck_api_version < 25 and not (self.args.rundeck_username and RUNDECK_USERPASSWORD):
                 logging.warning(
